@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "The beginning of an authentification service",
     "main": "app.js",
-    "dependencies": { "fastify": "^5.0.0" },
+    "dependencies": { "fastify": "^5.0.0", "bcrypt": "^5.1.1" },
     "scripts": { "start": "node app.js"},
     "author": "transcenDANCE",
     "license": "none"
