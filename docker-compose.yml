@@ -1,0 +1,8 @@
+services:
+  db:
+    image: sqlite
+    container_name: sqlite_db
+    build: services/db
+    restart: on-failure
+    env_file: .env
+    expose:
