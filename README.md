@@ -1,2 +1,2 @@
 # ft_transcendence
-Game basics
+frontend basics
