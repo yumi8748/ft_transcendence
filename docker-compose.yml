@@ -5,7 +5,12 @@ services:
     networks:
       - app-network
     ports:
-      - "3025:3000"
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
+      interval: 45s
+      timeout: 10s
+      retries: 5
     restart: on-failure
 
 
