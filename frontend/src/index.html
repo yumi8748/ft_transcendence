@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager - Fullstack Project</title>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8 max-w-3xl">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-center text-blue-600">Task Manager</h1>
+      <p class="text-center text-gray-600">My First Fullstack Project</p>
+    </header>
+
+    <main>
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Add New Task</h2>
+        <form id="task-form" class="flex gap-2">
+          <input 
+            type="text" 
+            id="task-input" 
+            placeholder="Enter a new task..." 
+            class="flex-grow px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+          <button 
+            type="submit" 
+            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            Add Task
+          </button>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Tasks</h2>
+        <div id="loading-message" class="text-center py-4 text-gray-500">Loading tasks...</div>
+        <ul id="task-list" class="space-y-2"></ul>
+        <div id="error-message" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-md"></div>
+      </div>
+    </main>
+
+    <footer class="mt-8 text-center text-gray-500 text-sm">
+      <p>Built with Fastify, TypeScript, and Tailwind CSS</p>
+    </footer>
+  </div>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

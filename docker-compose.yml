@@ -1,22 +1,24 @@
 services:
-  auth-service:
-    container_name: auth-service
-    build: ./services/auth/
-    networks:
-      - app-network
+  backend:
+    build: 
+      context: ./backend
     ports:
-      - "3025:3000"
-    restart: on-failure
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - ./backend/data:/app/data
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
 
-
-networks:
-  app-network:
-    driver: bridge
-
-#volumes:
-#  sql-db:
-#    driver: local
-#    driver_opts:
-#      - type: none
-#      - o: bind
-#      - device: /home/data/transcendanceDB
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
