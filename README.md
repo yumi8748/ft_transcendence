@@ -1,0 +1,1 @@
+Usage: (at root repository) docker compose up --build -d
