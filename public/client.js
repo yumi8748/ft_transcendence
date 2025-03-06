@@ -155,6 +155,20 @@ function displayRegister()
             <input type="password" id="confirm-password" placeholder="Confirm Password" required 
                    class="w-full p-3 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
             
+            <div class="flex flex-col items-center space-y-4">
+                <label for="avatar" class="text-white text-lg">Choose Your Avatar</label>
+                <div class="flex space-x-4">
+                    <input type="radio" id="avatar1" name="avatar" value="avatar1" class="hidden" required>
+                    <label for="avatar1" class="cursor-pointer"><img src="path/to/avatar1.png" alt="Avatar 1" class="w-16 h-16 rounded-full"></label>
+                    
+                    <input type="radio" id="avatar2" name="avatar" value="avatar2" class="hidden" required>
+                    <label for="avatar2" class="cursor-pointer"><img src="path/to/avatar2.png" alt="Avatar 2" class="w-16 h-16 rounded-full"></label>
+                    
+                    <input type="radio" id="avatar3" name="avatar" value="avatar3" class="hidden" required>
+                    <label for="avatar3" class="cursor-pointer"><img src="path/to/avatar3.png" alt="Avatar 3" class="w-16 h-16 rounded-full"></label>
+                </div>
+            </div>
+
             <button type="submit" 
                     class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 rounded transition duration-200">
                 Register
