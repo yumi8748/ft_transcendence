@@ -195,19 +195,21 @@ function displayGame()
             // console.log('C: Client closed connection');
         };
 
-        const message = {
-            type: "",
-        };
+        let message;
         contentDiv.innerHTML = `<h2>Game Page!</h2><canvas id="tutorial" width="1000" height="1000">salut</canvas>`;
         const canvas = document.getElementById("tutorial");
         const ctx = canvas.getContext("2d");
         
         socket.onmessage = function (event) {
 
+        //    console.log(event.data)
             const test = JSON.parse(event.data);
+            message = test;
+            // console.log(message)
+            // console.log(test[1].side)
             // drawPlayer(test.x, test.y)
             ctx.fillStyle = "rgb(200 0 0)";
-            ctx.fillRect(test.x, test.y, 50, 50);
+            ctx.fillRect(10, test[0].y, 50, 50);
         
         };
 
@@ -215,13 +217,22 @@ function displayGame()
         {
             ctx.clearRect(0,0,1000,1000)
             if (e.key == 's')
-                message.type = "s"
+            {
+                // message.type = "move";
+                // message.players[0].y = message.players[0].y + 2;
+                message[0].type = "move";
+                message[0].y = message[0].y + 2;
+                // console.log(message);
+
+            }
             else if (e.key == 'w')
-                message.type = "w"
-            else if (e.key == 'a')
-                message.type = "a"
-            else if (e.key == 'd')
-                message.type = "d"
+            {
+                // message.type = "move";
+                message[0].type = "move";
+                // message.players[0].y = message.players[0].y - 2;
+                message[0].y = message[0].y - 2;
+                // console.log(message);
+            }
             socket.send(JSON.stringify(message));
         });
 }
