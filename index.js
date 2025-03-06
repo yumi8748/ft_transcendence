@@ -33,16 +33,18 @@ fastify.register(async function (fastify) {
        
       socket.send(JSON.stringify(players));
 
-      // socket.on("message", (message) => {
-      //   console.log("JELLO")
-      //   const data = JSON.parse(message);
-      //   if (data.type === "move") {
-      //     players[0].y = data.y;
-      //   }
-      // });
-        socket.on('message', function incoming(data)
-        {
-          console.log("JELLO")
+      socket.on("message", (message) => {
+        const data = JSON.parse(message);
+        // console.log(data[0].y)
+
+        if (data[0].type === "move") {
+          players[0].y = data[0].y;
+        }
+        socket.send(JSON.stringify(players));
+      });
+        // socket.on('message', function incoming(data)
+        // {
+          // console.log("JELLO")
             // const message = JSON.parse(data);
             // if (message.type === 's')
             //     player.y += 2;
@@ -53,7 +55,7 @@ fastify.register(async function (fastify) {
             // else if (message.type === 'd')
             //     player.x += 2;
             // socket.send(JSON.stringify(player));
-        });
+        // });
 
         socket.on('close', function ()
         {
