@@ -25,7 +25,7 @@ let players = [];
 let gameState = {
   type: "update",
   paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
-  ball: { x: 400, y: 200, vx: 4, vy: 4 },
+  ball: { x: 300, y: 200, vx: 4, vy: 4 },
   scores: {left: 0, right: 0}
 };
 
@@ -70,21 +70,21 @@ function updateGame()
             gameState.scores.right += 1;
             resetBall();
         } 
-        else if (gameState.ball.x >= 800)
+        else if (gameState.ball.x >= 600)
         {
             gameState.scores.left++;
             resetBall();
         }
         if (gameState.ball.x <= 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
             gameState.ball.vx *= -1;
-        if (gameState.ball.x >= 780 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
+        if (gameState.ball.x >= 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
             gameState.ball.vx *= -1;
         broadcastState();
     }
 }
 
 function resetBall() {
-  gameState.ball = { x: 400, y: 200, vx: 4, vy: 4 };
+  gameState.ball = { x: 300, y: 200, vx: 4, vy: 4 };
 }
 
 function broadcastState()

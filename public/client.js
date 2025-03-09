@@ -192,7 +192,7 @@ function displayGame()
         lKey: false,
     }
     
-    contentDiv.innerHTML = `<h2>Game Page!</h2><canvas id="tutorial" class = "bg-black" width="800" height="400">salut</canvas>`;
+    contentDiv.innerHTML = `<h2>Game Page!</h2><canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>`;
     const canvas = document.getElementById("tutorial");
     const ctx = canvas.getContext("2d");
     
@@ -216,7 +216,7 @@ function displayGame()
 
     function draw (message)
     {
-        ctx.clearRect(0,0,800,400)
+        ctx.clearRect(0,0,600,400)
         drawCircle(message.ball.x, message.ball.y, 10, "white")
         drawRect(10, message.paddles[0].y, 10, 80, "white")
         drawRect(canvas.width - 20, message.paddles[1].y, 10, 80, "white")
