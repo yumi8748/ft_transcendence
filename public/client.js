@@ -185,54 +185,64 @@ function displayRegister()
 
 function displayGame()
 {
+    contentDiv.innerHTML = `<h2>Game Page!</h2><canvas id="tutorial" class = "bg-black" width="800" height="400">salut</canvas>`;
+    const canvas = document.getElementById("tutorial");
+    const ctx = canvas.getContext("2d");
+    
+    function drawRect(x, y, w, h, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, w, h);
+    }
+    
+    function drawCircle(x, y, radius, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function drawText(text, x, y) {
+        ctx.fillStyle = "white";
+        ctx.font = "20px Arial";
+        ctx.fillText(text, x, y);
+    }
+
+    function draw (message)
+    {
+        ctx.clearRect(0,0,800,400)
+        drawCircle(message.ball.x, message.ball.y, 10, "white")
+        drawRect(10, message.paddles[0].y, 10, 80, "white")
+        drawRect(canvas.width - 20, message.paddles[1].y, 10, 80, "white")
+        drawText(message.scores.left, 100, 50)
+        drawText(message.scores.right, canvas.width - 100, 50)
+    }
+
     const socket = new WebSocket(`ws://${location.host}/ws`);
 
-        socket.onopen = function (event) {
-            // socket.send("C: Client openend connection");
-        };
-        
-        socket.onclose = function (event) {
-            // console.log('C: Client closed connection');
-        };
+    socket.onopen = function (event) {
+        // socket.send("C: Client openend connection");
+    };
+    
+    socket.onclose = function (event) {
+        // console.log('C: Client closed connection');
+    };
 
-        let message;
-        contentDiv.innerHTML = `<h2>Game Page!</h2><canvas id="tutorial" width="1000" height="1000">salut</canvas>`;
-        const canvas = document.getElementById("tutorial");
-        const ctx = canvas.getContext("2d");
-        
-        socket.onmessage = function (event) {
+    socket.onmessage = function (event) {
+        const test = JSON.parse(event.data);
+        draw(test)
+    };
 
-        //    console.log(event.data)
-            const test = JSON.parse(event.data);
-            message = test;
-            // console.log(message)
-            // console.log(test[1].side)
-            // drawPlayer(test.x, test.y)
-            ctx.fillStyle = "rgb(200 0 0)";
-            ctx.fillRect(10, test[0].y, 50, 50);
-        
-        };
-
-        document.addEventListener('keydown', (e) => 
-        {
-            ctx.clearRect(0,0,1000,1000)
-            if (e.key == 's')
-            {
-                // message.type = "move";
-                // message.players[0].y = message.players[0].y + 2;
-                message[0].type = "move";
-                message[0].y = message[0].y + 2;
-                // console.log(message);
-
-            }
-            else if (e.key == 'w')
-            {
-                // message.type = "move";
-                message[0].type = "move";
-                // message.players[0].y = message.players[0].y - 2;
-                message[0].y = message[0].y - 2;
-                // console.log(message);
-            }
-            socket.send(JSON.stringify(message));
-        });
+    document.addEventListener('keydown', (e) => 
+    {
+        let key;
+        if (e.key === 's')
+            key = "s"
+        else if (e.key === 'w')
+            key = "w"
+        else if (e.key === 'o')
+            key = "o"
+        else if (e.key === 'l')
+            key = "l"
+        socket.send(JSON.stringify(key));
+    });
 }

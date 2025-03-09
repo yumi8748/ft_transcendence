@@ -9,9 +9,14 @@ import fastifyWebsocket from '@fastify/websocket';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let players = {};
-let ball = { x: 400, y: 250, vx: 3, vy: 3 };
-let scores = { left: 0, right: 0 };
+let players = [];
+
+let gameState = {
+  type: "update",
+  paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
+  ball: { x: 400, y: 200, vx: 4, vy: 4 },
+  scores: {left: 1, right: 0}
+};
 
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
@@ -22,47 +27,57 @@ fastify.register(fastifyStatic, {
   // reply.sendFile('index.html')
 // })
 
-// const player = {x:10, y:10};
 fastify.register(fastifyWebsocket)
 fastify.register(async function (fastify) {
-    fastify.get('/ws', { websocket: true }, (socket, req) => {
+  fastify.get('/ws', { websocket: true }, (socket, req) => {
+    setInterval(() => {
+      gameState.ball.x += gameState.ball.vx;
+      gameState.ball.y += gameState.ball.vy;
+      socket.send(JSON.stringify(gameState));
 
-      const playerId = Date.now();
-      players[0] = { type: "move",  playerId:Date.now(), y: 10, side: Object.keys(players).length % 2 === 0 ? "left" : "right" };
-      players[1] = { type: "move",playerId:Date.now(), y: 10, side: Object.keys(players).length % 2 === 0 ? "left" : "right" };
-       
-      socket.send(JSON.stringify(players));
+      if (gameState.ball.y <= 0 || gameState.ball.y >= 400) gameState.ball.vy *= -1; // Rebond en haut/bas
 
-      socket.on("message", (message) => {
-        const data = JSON.parse(message);
-        // console.log(data[0].y)
+      if (gameState.ball.x <= 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80) gameState.ball.vx *= -1;
+      if (gameState.ball.x >= 780 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80) gameState.ball.vx *= -1;
 
-        if (data[0].type === "move") {
-          players[0].y = data[0].y;
-        }
-        socket.send(JSON.stringify(players));
-      });
-        // socket.on('message', function incoming(data)
-        // {
-          // console.log("JELLO")
-            // const message = JSON.parse(data);
-            // if (message.type === 's')
-            //     player.y += 2;
-            // else if (message.type === 'w')
-            //     player.y -= 2;
-            // else if (message.type === 'a')
-            //     player.x -= 2;
-            // else if (message.type === 'd')
-            //     player.x += 2;
-            // socket.send(JSON.stringify(player));
-        // });
+      if (gameState.ball.x <= 0) {
+        gameState.scores.right += 1;
+        resetBall();
+        console.log(gameState)
+      } else if (gameState.ball.x >= 800) {
+        gameState.scores.left++;
+        resetBall();
+        console.log("ICI ", gameState)
+      }
 
-        socket.on('close', function ()
-        {
-            console.log('S: Client closed connection');
-        });
-    })
+    }, 30);
+
+    socket.on('message', function incoming(data)
+    {
+        const message = JSON.parse(data);
+        // console.log(message)
+        if (message === "s")
+          gameState.paddles[0].y += 5;
+        else if (message === "w")
+          gameState.paddles[0].y -= 5;
+        else if (message === "o")
+          gameState.paddles[1].y -= 5;
+        else if (message === "l")
+          gameState.paddles[1].y += 5;
+        socket.send(JSON.stringify(gameState));
+    });
+
+      // socket.on('close', function ()
+      // {
+      //     console.log('S: Client closed connection');
+      // });
+  })
 })
+
+function resetBall() {
+  gameState.ball = { x: 400, y: 200, vx: 4, vy: 4 };
+}
+
 
 try {
   await fastify.listen({ port: 3000, host: '0.0.0.0'})
