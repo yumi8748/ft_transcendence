@@ -41,13 +41,13 @@ fastify.register(async (fastify) => {
     connection.on("message", (message) =>
     {
         const data = JSON.parse(message);
-        if (data === "s")
+        if (data.sKey === true)
           gameState.paddles[0].y += 5;
-        else if (data === "w")
+        if (data.wKey === true)
           gameState.paddles[0].y -= 5;
-        else if (data === "o")
+        if (data.oKey === true)
           gameState.paddles[1].y -= 5;
-        else if (data === "l")
+        if (data.lKey === true)
           gameState.paddles[1].y += 5;
     });
     connection.on('close', () =>
@@ -89,7 +89,7 @@ function resetBall() {
 
 function broadcastState()
 {
-    players.forEach(player => player.send(JSON.stringify(gameState)));
+  players.forEach(player => player.send(JSON.stringify(gameState)));
 }
 
 try {

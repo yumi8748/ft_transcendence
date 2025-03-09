@@ -185,6 +185,13 @@ function displayRegister()
 
 function displayGame()
 {
+    let keyboard = {
+        wKey: false,
+        sKey: false,
+        oKey: false,
+        lKey: false,
+    }
+    
     contentDiv.innerHTML = `<h2>Game Page!</h2><canvas id="tutorial" class = "bg-black" width="800" height="400">salut</canvas>`;
     const canvas = document.getElementById("tutorial");
     const ctx = canvas.getContext("2d");
@@ -234,15 +241,27 @@ function displayGame()
 
     document.addEventListener('keydown', (e) => 
     {
-        let key;
         if (e.key === 's')
-            key = "s"
+            keyboard.sKey = true;
         else if (e.key === 'w')
-            key = "w"
+            keyboard.wKey = true;
         else if (e.key === 'o')
-            key = "o"
+            keyboard.oKey = true;
         else if (e.key === 'l')
-            key = "l"
-        socket.send(JSON.stringify(key));
+            keyboard.lKey = true;
+        socket.send(JSON.stringify(keyboard));
+    });
+
+    document.addEventListener('keyup', (e) => 
+    {
+        if (e.key === 's')
+            keyboard.sKey = false;
+        else if (e.key === 'w')
+            keyboard.wKey = false;
+        else if (e.key === 'o')
+            keyboard.oKey = false;
+        else if (e.key === 'l')
+            keyboard.lKey = false;
+        socket.send(JSON.stringify(keyboard));
     });
 }
