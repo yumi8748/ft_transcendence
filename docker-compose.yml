@@ -7,7 +7,15 @@ services:
     ports:
       - "3025:3000"
     restart: on-failure
-
+  node-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    env_file:
+      - ./.env
 
 networks:
   app-network:
