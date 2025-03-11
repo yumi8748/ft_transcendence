@@ -12,6 +12,16 @@ services:
       timeout: 10s
       retries: 5
     restart: on-failure
+  
+  database:
+    container_name: data-service
+    build: ./services/database/
+    networks:
+      - app-network
+    ports:
+      - "3001:3001"
+    
+    restart: on-failure
 
 
 networks:
