@@ -20,13 +20,24 @@ services:
       - app-network
     ports:
       - "3001:3001"
-    
+    volumes:
+      - sqlite-db:/app/database/
     restart: on-failure
 
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  sqlite-db:
+    driver: "local"
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "./volumes/database"
+
+
 
 #volumes:
 #  sql-db:
