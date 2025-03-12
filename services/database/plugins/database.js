@@ -4,14 +4,22 @@ import Database from 'better-sqlite3';
 // Database connection plugin
 async function dbConnector(fastify, options) {
   const db = new Database('./database/database.sqlite');
-  
+  console.log('Database connected');
+
   // Create the 'users' table if it doesn't exist
-  db.prepare(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    password TEXT NOT NULL,
-    avatar TEXT NOT NULL
-  )`).run();
+  try {
+    db.prepare(`CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      password TEXT NOT NULL,
+      avatar TEXT NOT NULL,
+      register_time DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`).run();
+    console.log('Users table created successfully');
+  } catch (error) {
+    console.error('Error creating users table:', error);
+  }
+
   
   // Create the 'matches' table if it doesn't exist
   db.prepare(`
@@ -25,6 +33,16 @@ async function dbConnector(fastify, options) {
       game_end_time TIMESTAMP,
       FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (player2_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `).run();
+
+  // Create the 'tournaments' table if it doesn't exist
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS tournaments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      status TEXT CHECK(status IN ('upcoming', 'ongoing', 'finished')) DEFAULT 'upcoming',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
 

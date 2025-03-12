@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import dbConnector from './plugins/database.js';
 import usersRoutes from './routes/users.js';
 import matchesRoutes from './routes/matches.js';
+import tournamentsRoutes from './routes/tournaments.js';
 
 const fastify = Fastify({ logger: true });
 
@@ -13,6 +14,7 @@ fastify.register(dbConnector);
 //truc
 fastify.register(usersRoutes);
 fastify.register(matchesRoutes);
+fastify.register(tournamentsRoutes);
 
 const start = async () => {
   try {
