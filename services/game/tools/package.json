@@ -1,0 +1,16 @@
+{
+	"name": "game-service",
+	"version": "1.0.0",
+	"description": "Real-time Pong game backend",
+	"main": "app.js",
+	"dependencies": {
+	  "fastify": "^5.0.0",
+	  "@fastify/websocket": "^9.0.1"
+	},
+	"scripts": {
+	  "start": "node app.js"
+	},
+	"author": "42",
+	"license": "none"
+  }
+  

@@ -7,15 +7,14 @@ services:
     ports:
       - "3025:3000"
     restart: on-failure
-  node-app:
-    build: .
+  game-service:
+    container_name: game-service
+    build: ./services/game/
+    networks:
+      - app-network
     ports:
-      - "3000:3000"
-    volumes:
-      - ./:/app
-      - /app/node_modules
-    env_file:
-      - ./.env
+      - "3030:3000"
+    restart: on-failure
 
 networks:
   app-network:
