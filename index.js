@@ -25,6 +25,7 @@ fastify.register(fastifyWebsocket)
 
 let gameStart = false;
 let players = [];
+// leave 10 pixels of space between the paddle and the edge of the screen
 let gameState = {
   type: "update",
   paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
@@ -44,14 +45,14 @@ fastify.register(async (fastify) => {
     connection.on("message", (message) =>
     {
         const data = JSON.parse(message);
-        if (data.sKey === true)
-          gameState.paddles[0].y += 5;
-        if (data.wKey === true)
-          gameState.paddles[0].y -= 5;
-        if (data.oKey === true)
-          gameState.paddles[1].y -= 5;
-        if (data.lKey === true)
-          gameState.paddles[1].y += 5;
+        if (data.sKey === true && gameState.paddles[0].y < 310)
+          gameState.paddles[0].y += 10;
+        if (data.wKey === true && gameState.paddles[0].y > 10)
+          gameState.paddles[0].y -= 10;
+        if (data.lKey === true && gameState.paddles[1].y < 310)
+          gameState.paddles[1].y += 10;
+        if (data.oKey === true && gameState.paddles[1].y > 10)
+          gameState.paddles[1].y -= 10;
     });
     connection.on('close', () =>
     {
@@ -66,28 +67,33 @@ function updateGame()
     {
         gameState.ball.x += gameState.ball.vx;
         gameState.ball.y += gameState.ball.vy;
-        if (gameState.ball.y <= 0 || gameState.ball.y >= 400)
+        if (gameState.ball.y <= 10 || gameState.ball.y >= 390)
             gameState.ball.vy *= -1;
-        if (gameState.ball.x <= 0) 
+        if (gameState.ball.x <= 10) 
         {
             gameState.scores.right += 1;
             resetBall();
         } 
-        else if (gameState.ball.x >= 600)
+        else if (gameState.ball.x >= 590)
         {
             gameState.scores.left++;
             resetBall();
         }
-        if (gameState.ball.x <= 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
+        if (gameState.ball.x == 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
             gameState.ball.vx *= -1;
-        if (gameState.ball.x >= 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
+        if (gameState.ball.x == 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
             gameState.ball.vx *= -1;
         broadcastState();
     }
 }
 
 function resetBall() {
-  gameState.ball = { x: 300, y: 200, vx: 4, vy: 4 };
+  // generate v of ball to a direction ++ +- -+ --
+  // set vx randomly to 4 or -4
+  gameState.ball.x = 300;
+  gameState.ball.y = 200;
+  gameState.ball.vx = Math.random() < 0.5 ? 4 : -4;
+  gameState.ball.vy = Math.random() < 0.5 ? 4 : -4;
 }
 
 function broadcastState()
