@@ -3,7 +3,7 @@ import Database from 'better-sqlite3';
 
 // Database connection plugin
 async function dbConnector(fastify, options) {
-  const db = new Database('./database/database.sqlite');
+  const db = new Database('../../volumes/database/database.sqlite');
   console.log('Database connected');
 
   // Create the 'users' table if it doesn't exist
