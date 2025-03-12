@@ -7,30 +7,47 @@ import displayDashboard from "./displayDashboard.js";
 
 var contentDiv = document.getElementById('content');
 
-document.getElementById("navigation").addEventListener("click", (e)=>{
+const render = async () => {
 
-    switch (e.target.id)
+    switch (location.pathname)
     {
-        case "home":
+        case "/":
             displayHome();
             break;
-        case "game":
+        case "/home":
+            displayHome();
+            break;
+        case "/game":
             displayGame();
             break;
-        case "tournament":
+        case "/tournament":
             displayTournament();
             break;
-        case "login":
+        case "/login":
             displayLogin();
             break;
-        case "register":
+        case "/register":
             displayRegister();
             break;
-        case "dashboard":
+        case "/dashboard":
             displayDashboard();
             break;
         default:
             contentDiv.innerHTML = '<h2>Page not found!</h2>';
     }
 
+}
+
+document.addEventListener("DOMContentLoaded", render)
+
+window.addEventListener("popstate", render);
+
+document.getElementById("navigation").addEventListener("click", (e)=>{
+
+    if (e.target.matches("[data-link]"))
+    {
+        e.preventDefault();
+        history.pushState(null,null,e.target.href);
+        render()
+    }
 })

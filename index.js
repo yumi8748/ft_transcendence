@@ -11,12 +11,15 @@ const __dirname = path.dirname(__filename);
 
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
-  // prefix: '/public/',
 })
 
 // fastify.get('/', function (req, reply) {
   // reply.sendFile('index.html')
 // })
+
+fastify.setNotFoundHandler((req, reply) => {
+  reply.sendFile('index.html');
+});
 
 fastify.register(fastifyWebsocket)
 
