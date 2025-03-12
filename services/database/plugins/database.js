@@ -12,6 +12,21 @@ async function dbConnector(fastify, options) {
     password TEXT NOT NULL,
     avatar TEXT NOT NULL
   )`).run();
+  
+  // Create the 'matches' table if it doesn't exist
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS matches (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      player1_id INTEGER NOT NULL,
+      player2_id INTEGER NOT NULL,
+      player1_score INTEGER DEFAULT 0,
+      player2_score INTEGER DEFAULT 0,
+      game_start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      game_end_time TIMESTAMP,
+      FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (player2_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `).run();
 
   fastify.decorate('sqlite', db); // Attach the db to Fastify instance
   
