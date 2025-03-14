@@ -2,7 +2,9 @@ var contentDiv = document.getElementById('content');
 
 function displayLogin()
 {
-    contentDiv.innerHTML = `<h1 class="text-4xl font-bold mb-8">Pong Game</h1>
+    contentDiv.innerHTML = `
+
+    <h1 class="text-4xl font-bold mb-8">Pong Game</h1>
 
     <div class="bg-gray-800 p-12 rounded-lg shadow-lg w-96 text-center">
         <h2 class="text-2xl font-semibold mb-4">Login</h2>
@@ -23,7 +25,39 @@ function displayLogin()
         <p class="mt-4 text-sm">
             Don't have an account? <a href="register.html" class="text-blue-300 hover:underline">Register here</a>
         </p>
-    </div>`;
+    </div>
+`;
+
+    const form = document.getElementById('login-form');
+        const errorMessage = document.getElementById('error-message');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    window.location.href = '/game.html'; // Redirect to the game page
+                } else {
+                    errorMessage.textContent = result.message;
+                }
+            } catch (error) {
+                errorMessage.textContent = 'An error occurred. Please try again.';
+            }
+        });
 }
 
 export default displayLogin;

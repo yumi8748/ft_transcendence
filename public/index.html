@@ -6,35 +6,37 @@
     <title>Document</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="./output.css" rel="stylesheet">
-    <!-- <body class="flex flex-col justify-center items-center h-screen bg-gradient-to-r from-indigo-700 to-purple-600 text-white"></body> -->
 </head>
-<body>
-    <h1 class="text-3xl font-bold underline">Transcendence</h1>
-     <nav id="navigation">
-        <ul>
+<body class="flex flex-col justify-center items-center h-screen bg-gradient-to-r from-indigo-700 to-purple-600 text-white">
+    <h1 class="absolute left-10 top-8 text-3xl font-bold">Transcendence</h1>
+    
+    <nav id="navigation" class="absolute left-7 top-24 w-64 p-4 bg-indigo-950 rounded-lg shadow-lg">
+        <ul class="space-y-4">
             <li>
-                <a href="#" id="home">Home</a>
+                <a href="#" id="home" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200">Home</a>
             </li>
             <li>
-                <a href="#" id="game">Game</a>
+                <a href="#" id="game" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200">Game</a>
             </li>
             <li>
-                <a href="#" id="tournament">tournament</a>
+                <a href="#" id="tournament" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200">Tournament</a>
             </li>
             <li>
-                <a href="#" id="login">login</a>
+                <a href="#" id="dashboard" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200">Dashboard</a>
             </li>
             <li>
-                <a href="#" id="register">Register</a>
+                <a href="#" id="login" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200">Login</a>
             </li>
             <li>
-                <a href="#" id="dashboard">Dashboard</a>
+                <a href="#" id="register" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200">Register</a>
             </li>
         </ul>
     </nav>
-    <div id="content">
-
+    
+    <div id="content" class="mt-16">
+        <!-- contents -->
     </div>
-    <script type="module" src="client.js"></script>
+    
+    <script type="module" src="client.js?v=Date.now()"></script>
 </body>
 </html>
