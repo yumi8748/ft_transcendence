@@ -46,6 +46,20 @@ async function usersRoutes(fastify, options) {
         return reply.status(400).send({ error: 'User already exists or invalid input.' });
       }
     });
+
+    // fetch a specific user
+
+    fastify.get('/users/:name', async (request, reply) => {
+      try {
+        const { name } = request.params;
+        const result = fastify.sqlite.prepare('SELECT * FROM users WHERE name = ?').get(name);
+        return reply.send(result);
+    } catch (error) {
+      console.log(error);
+      return reply.status(500).send({ err: error});
+    }
+
+    });
   }
   
   export default usersRoutes;
