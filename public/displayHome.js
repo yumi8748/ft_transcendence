@@ -8,7 +8,7 @@ function displayHome()
 	</div>
 	<div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-46">
 		<div class="text-center">
-			<h1 class="text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">Welcome to the Pong Game!</h1>
+			<h1 class="text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">Welcome to the Pong Game!</h1>
 			<div class="mt-10 flex items-center justify-center gap-x-6">
 				<a href="#" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Get started</a>
 			</div>

@@ -7,32 +7,34 @@
 	<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gray-100 h-min-screen">
-	<div class="bg-white">
+	<!-- <div class="bg-white"> -->
+	<div class="flex flex-col justify-center items-center h-screen bg-gradient-to-r from-indigo-700 to-purple-600 text-white">
 		<header class="absolute inset-x-0 top-0 z-50">
 			<nav id="nav-lg" class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
 				<div class="flex lg:flex-1">
 					<a href="home" data-link class="-m-1.5 p-1.5">
 						<span class="sr-only">Home</span>
-						<img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Logo">
+						<!-- <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Logo"> -->
+						<img class="h-10 w-auto" src="https://ponggame.io/images/buttonhome-sheet0.png" alt="Logo">
 					</a>
 				</div>
 				<div class="flex lg:hidden">
-					<button id="open-side-menu-button" type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
+					<button id="open-side-menu-button" type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white">
 						<span class="sr-only">Open main menu</span>
-						<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+						<svg class="size-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
 						</svg>
 					</button>
 				</div>
 				<div class="hidden lg:flex lg:gap-x-12">
-					<a href="game" data-link class="text-sm/6 font-semibold text-gray-900">Game</a>
-					<a href="tournament" class="text-sm/6 font-semibold text-gray-900">Tournament</a>
-					<a href="dashboard" class="text-sm/6 font-semibold text-gray-900">Dashboard</a>
-					<a href="#" class="text-sm/6 font-semibold text-gray-900">Settings</a>
+					<a href="game" data-link class="text-sm/6 font-semibold text-white">Game</a>
+					<a href="tournament" class="text-sm/6 font-semibold text-white">Tournament</a>
+					<a href="dashboard" class="text-sm/6 font-semibold text-white">Dashboard</a>
+					<a href="#" class="text-sm/6 font-semibold text-white">Settings</a>
 				</div>
 				<div class="hidden lg:flex lg:flex-1 lg:justify-end space-x-2">
-					<a href="login" data-link class="text-sm/6 p-1.5 font-semibold text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
-					<a href="register" data-link class="text-sm/6 p-1.5 font-semibold text-gray-900">Register <span aria-hidden="true">&rarr;</span></a>
+					<a href="login" data-link class="text-sm/6 p-1.5 font-semibold text-white">Log in <span aria-hidden="true">&rarr;</span></a>
+					<a href="register" data-link class="text-sm/6 p-1.5 font-semibold text-white">Register <span aria-hidden="true">&rarr;</span></a>
 				</div>
 			</nav>
 			<!-- Mobile menu, show/hide based on menu open state. -->
@@ -43,7 +45,7 @@
 				<div class="flex items-center justify-between">
 					<a href="#" class="-m-1.5 p-1.5">
 						<span class="sr-only">Navigation Bar</span>
-						<img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600" alt="Logo">
+						<img class="h-10 w-auto" src="https://ponggame.io/images/buttonhome-sheet0.png" alt="Logo">
 					</a>
 					<button id="close-side-menu-button" type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
 						<span class="sr-only">Close menu</span>
