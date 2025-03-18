@@ -28,7 +28,7 @@ let players = [];
 // leave 10 pixels of space between the paddle and the edge of the screen
 let gameState = {
   type: "update",
-  paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
+  paddles: [ { y: 160, playerID: 0, side: "left" }, { y: 160, playerID: 0, side: "right" } ],
   ball: { x: 300, y: 200, vx: 4, vy: 4 },
   scores: {left: 0, right: 0}
 };
@@ -63,6 +63,10 @@ fastify.register(async (fastify) => {
 
 function updateGame()
 {
+    if (gameState.scores.left == 11 || gameState.scores.right == 11)
+    {
+        gameStart = false;
+    }
     if (gameStart)
     {
         gameState.ball.x += gameState.ball.vx;

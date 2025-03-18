@@ -1,4 +1,4 @@
-var contentDiv = document.getElementById('content');
+const contentDiv = document.getElementById('content');
 
 function displayGame()
 {
@@ -9,8 +9,11 @@ function displayGame()
         lKey: false,
     }
     
-    contentDiv.innerHTML = `<h2>Game Page!</h2><canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>`;
-    const canvas = document.getElementById("tutorial");
+    contentDiv.innerHTML = `
+    <div class="flex justify-center items-center min-h-screen p-8">
+    <canvas id="game-canvas" class="bg-black rounded-lg" width="600" height="400"></canvas>
+    </div>`;
+    const canvas = document.getElementById("game-canvas");
     const ctx = canvas.getContext("2d");
     
     function drawRect(x, y, w, h, color) {

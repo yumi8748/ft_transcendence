@@ -4,11 +4,12 @@ import displayTournament from "./displayTournament.js";
 import displayLogin from "./displayLogin.js";
 import displayRegister from "./displayRegister.js";
 import displayDashboard from "./displayDashboard.js";
+import displaySideMenu from "./displaySideMenu.js";
 
 var contentDiv = document.getElementById('content');
 
 const render = async () => {
-
+    displaySideMenu();
     switch (location.pathname)
     {
         case "/":
