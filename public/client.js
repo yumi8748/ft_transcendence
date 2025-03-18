@@ -5,6 +5,8 @@ import displayLogin from "./displayLogin.js";
 import displayRegister from "./displayRegister.js";
 import displayDashboard from "./displayDashboard.js";
 
+const socket = new WebSocket(`ws://${location.host}/ws`);
+
 var contentDiv = document.getElementById('content');
 
 const render = async () => {
@@ -18,10 +20,10 @@ const render = async () => {
             displayHome();
             break;
         case "/game":
-            displayGame();
+            displayGame(socket);
             break;
         case "/tournament":
-            displayTournament();
+            displayTournament(socket);
             break;
         case "/login":
             displayLogin();
