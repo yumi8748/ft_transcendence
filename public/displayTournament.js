@@ -2,9 +2,9 @@ var contentDiv = document.getElementById('content');
 
 function displayTournament(socket)
 {
-    let keyboard = {
+    let message = {
         route: "tournament",
-        click: 0
+        type: "",
     }
     
     contentDiv.innerHTML = `
@@ -70,8 +70,8 @@ function displayTournament(socket)
 
     const divs = document.querySelectorAll('.player');
 
-    sendRoute(socket, keyboard);
-    sendNextRound(socket, keyboard);
+    sendRoute(socket, message);
+    sendNextRound(socket, message);
     // const socket = new WebSocket(`ws://${location.host}/ws`);
 
     socket.onopen = function (event) {
@@ -84,7 +84,7 @@ function displayTournament(socket)
 
     socket.onmessage = function (event) {
         const test = JSON.parse(event.data);
-        console.log(test)
+        // console.log(test)
         divs.forEach((div, index) =>
         {
             div.textContent = test.tournament[index]
@@ -92,17 +92,18 @@ function displayTournament(socket)
     };
 }
 
-function sendRoute(socket, keyboard)
+function sendRoute(socket, message)
 {
-    socket.send(JSON.stringify(keyboard));
+    message.type = "start";
+    socket.send(JSON.stringify(message));
 }
 
-function sendNextRound(socket, keyboard)
+function sendNextRound(socket, message)
 {
     document.getElementById("tournament-next").addEventListener("click", (e)=>{
 
-        keyboard.click = 1;
-        socket.send(JSON.stringify(keyboard));
+        message.type = "next round";
+        socket.send(JSON.stringify(message));
     })
 }
 

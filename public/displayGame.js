@@ -2,15 +2,16 @@ var contentDiv = document.getElementById('content');
 
 function displayGame(socket)
 {
-    let keyboard = {
+    let message = {
         route: "game",
-        start: false,
+        type: "",
         wKey: false,
         sKey: false,
         oKey: false,
-        lKey: false,
+        lKey: false
     }
  
+
 
     contentDiv.innerHTML = `
     <h2>Game Page!</h2>
@@ -34,56 +35,59 @@ function displayGame(socket)
         draw(test, ctx, canvas)
     };
 
-    sendRoute(socket, keyboard);
-    sendKeydown(socket, keyboard);
-    sendKeyup(socket, keyboard);
-    sendPressStart(socket, keyboard)
+    sendRoute(socket, message);
+    sendKeydown(socket, message);
+    sendKeyup(socket, message);
+    sendPressStart(socket, message)
     
 }
 
-function sendRoute(socket, keyboard)
+function sendRoute(socket, message)
 {
-    socket.send(JSON.stringify(keyboard));
+    message.type = "route";
+    socket.send(JSON.stringify(message));
 }
 
-function sendPressStart(socket, keyboard)
+function sendPressStart(socket, message)
 {
     document.getElementById("game-start").addEventListener("click", (e)=>{
 
-        keyboard.start = true;
-        socket.send(JSON.stringify(keyboard));
+        message.type = "start";
+        socket.send(JSON.stringify(message));
     })
 }
 
-function sendKeydown(socket, keyboard)
+function sendKeydown(socket, message)
 {
     document.addEventListener('keydown', (e) => 
     {
+        message.type = "key";
         if (e.key === 's')
-            keyboard.sKey = true;
+            message.sKey = true;
         else if (e.key === 'w')
-            keyboard.wKey = true;
+            message.wKey = true;
         else if (e.key === 'o')
-            keyboard.oKey = true;
+            message.oKey = true;
         else if (e.key === 'l')
-            keyboard.lKey = true;
-        socket.send(JSON.stringify(keyboard));
+            message.lKey = true;
+        socket.send(JSON.stringify(message));
     });
 }
 
-function sendKeyup(socket, keyboard)
+function sendKeyup(socket, message)
 {
     document.addEventListener('keyup', (e) => 
     {
+        message.type = "key";
         if (e.key === 's')
-            keyboard.sKey = false;
+            message.sKey = false;
         else if (e.key === 'w')
-            keyboard.wKey = false;
+            message.wKey = false;
         else if (e.key === 'o')
-            keyboard.oKey = false;
+            message.oKey = false;
         else if (e.key === 'l')
-            keyboard.lKey = false;
-        socket.send(JSON.stringify(keyboard));
+            message.lKey = false;
+        socket.send(JSON.stringify(message));
     });
 }
 
