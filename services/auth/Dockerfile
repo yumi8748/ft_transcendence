@@ -11,6 +11,6 @@ RUN npm install
 #copy the rest of the files needed
 COPY app.js ./
 
-EXPOSE 3000
+EXPOSE 3002
 
 CMD [ "node", "app.js" ]

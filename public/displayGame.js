@@ -59,6 +59,16 @@ function displayGame()
         draw(test)
     };
 
+    // document.addEventListener('DOMcontentLoaded', () => {
+    //     const token = localStorage.getItem('token');
+    //     if (!token){
+    //         window.location.href = '/login.html';
+    //     }
+    // });
+    
+
+    
+
     document.addEventListener('keydown', (e) => 
     {
         if (e.key === 's')

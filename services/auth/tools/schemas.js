@@ -54,7 +54,7 @@ const loginResponseSchema = {
     }
 };
 
-module.exports = {
+export default {
   registerSchema,
   tokenResponseSchema,
   loginSchema,

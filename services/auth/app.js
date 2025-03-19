@@ -1,19 +1,37 @@
-//fastify server instance
-const fastify = require('fastify')(
-    {logger: true}
-);
+
+import Fastify from 'fastify';
+import fastifyCors from '@fastify/cors';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+const fastify = Fastify({ logger: true });
+
 //bcrypt for password hashing
-const bcrypt = require('bcrypt');
 //jwt to sign the tokens
-const jwt = require('jsonwebtoken');
 
 //import the schemas
-const {
-  registerSchema,
-  tokenResponseSchema,
-  loginSchema,
-  loginResponseSchema
-} = require('./schemas');
+//import {
+//  registerSchema,
+//  tokenResponseSchema,
+//  loginSchema,
+//  loginResponseSchema
+//} from './schemas.js';
+
+fastify.register(fastifyCors, {
+  origin: '*', // Allow all origins (or specify frontend URL)
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+});
+
+//// Explicitly handle OPTIONS requests
+//fastify.options('*', async (req, reply) => {
+//  reply
+//    .header('Access-Control-Allow-Origin', '*')
+//    .header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+//    .header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+//    .code(204) // No content
+//    .send();
+//});
 
 
 //fake db to replace with real db
@@ -30,6 +48,7 @@ async function registerHandler(request, reply)
     console.log('in register');
     const { username, password } = request.body;
 
+
     const userExist = users.find(u => u.username === username);
     if (userExist) {
         return reply.status(400).send({ message: 'Invalid username !'});
@@ -45,6 +64,32 @@ async function registerHandler(request, reply)
     }, secretkey, { expiresIn: '1h' });
     return reply.status(200).send({ message: token});
 };
+
+
+const registerSchema = {
+  schema: {
+    body: {
+      type: 'object',
+      properties: {
+        username: { type: 'string' },
+        password: { type: 'string' }
+      },
+      required: ['username', 'password']
+    },
+  }
+};
+
+
+const tokenResponseSchema = {
+  type: 'object',
+  body: {
+    type: 'object',
+    properties: {
+      token: { type: 'string' }
+    }
+  }
+};
+
 
 fastify.post('/register',{ registerSchema, response: { 200: tokenResponseSchema } }, registerHandler);
 
@@ -79,7 +124,7 @@ fastify.post('/login', async (request, reply) => {
       return ;
     }
   }
-
+  console.log (username, password);
   const user = users.find(u => u.username === username);
   if (!user) {
      return reply.status(400).send({ message: 'Invalid username !' });
@@ -111,9 +156,9 @@ const start = async () => {
     try {
         await fastify.listen({
           host: '0.0.0.0',
-          port: 3000
+          port: 3002
         });
-        console.log('auth running and listening on port 3000');
+        console.log('auth running and listening on port 3002');
     } catch (err) {
         console.log(err);
         process.exit(1);

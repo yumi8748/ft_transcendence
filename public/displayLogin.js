@@ -38,8 +38,8 @@ function displayLogin()
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('http://localhost:3000/login', {
-                    method: 'POST',
+                const response = await fetch('http://localhost:3002/login', {
+                    method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -49,13 +49,13 @@ function displayLogin()
                 const result = await response.json();
 
                 if (response.ok) {
-                    alert(result.message);
+                    localStorage.setItem('token', result.token);
                     window.location.href = '/game.html'; // Redirect to the game page
                 } else {
                     errorMessage.textContent = result.message;
                 }
             } catch (error) {
-                errorMessage.textContent = 'An error occurred. Please try again.';
+                errorMessage.textContent = error;
             }
         });
 }
