@@ -28,11 +28,24 @@ fastify.register(fastifyWebsocket)
 
 let players = [];
 const game = new Game();
-setInterval(() => 
+
+let intervalId;
+
+function startSetInterval()
 {
-  game.updateGame();
-  broadcastState(players, game.gameState);
-}, 30);
+  intervalId = setInterval(() => 
+  {
+    game.updateGame();
+    broadcastState(players, game.gameState);
+  }, 30);
+}
+
+function stopSetInterval()
+{
+  clearInterval(intervalId);
+  intervalId = null;
+}
+
 const tournament = new Tournament();
 
 fastify.register(async (fastify) => {
@@ -47,7 +60,7 @@ fastify.register(async (fastify) => {
         console.log(data)
         if (data.route === "game")
         {
-            game.handleGameMessage(data, players);
+          game.handleGameMessage(data, players);
         }
         if (data.route === "tournament")
         {
@@ -74,4 +87,4 @@ try {
   process.exit(1)
 }
 
-export default broadcastState;
+export {broadcastState, startSetInterval, stopSetInterval} ;

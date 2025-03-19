@@ -1,4 +1,4 @@
-import broadcastState from "./index.js";
+import {broadcastState, stopSetInterval} from "./index.js";
 
 class Tournament {
     constructor()
@@ -61,7 +61,10 @@ class Tournament {
     handleTournamentMessage(data, players)
     {
         if (data.type === "start")
+        {
+            stopSetInterval();
             broadcastState(players, this.tournamentData);
+        }
         else if (data.type === "next round")
         {
             this.updateTournament();

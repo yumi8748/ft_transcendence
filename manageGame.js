@@ -1,5 +1,4 @@
-import broadcastState from "./index.js";
-
+import {startSetInterval, broadcastState} from "./index.js";
 // leave 10 pixels of space between the paddle and the edge of the screen
 
 class Game {
@@ -57,7 +56,10 @@ class Game {
     handleGameMessage(data, players)
     {
         if (data.type === "route")
+        {
+            startSetInterval(); 
             broadcastState(players, this.gameState);
+        }
         else if (data.type === "start")
             this.gameState.gameStart = true;
         else if (data.type === "key")
