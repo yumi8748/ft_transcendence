@@ -5,7 +5,23 @@ services:
     networks:
       - app-network
     ports:
-      - "3025:3000"
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthcheck"]
+      interval: 45s
+      timeout: 10s
+      retries: 5
+    restart: on-failure
+  
+  database:
+    container_name: data-service
+    build: ./services/database/
+    networks:
+      - app-network
+    ports:
+      - "3001:3001"
+    volumes:
+      - sqlite-db:/app/database/
     restart: on-failure
   node-app:
     build: .
@@ -20,6 +36,16 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  sqlite-db:
+    driver: "local"
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "./volumes/database"
+
+
 
 #volumes:
 #  sql-db:
