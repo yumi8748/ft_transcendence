@@ -43,6 +43,40 @@ function displayRegister()
             <a href="login.html" class="text-blue-300 hover:underline">Login here</a>
         </p>
     </div>`;
+    const form = document.getElementById('register-form');
+    const errorMessage = document.getElementById('error-message');
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        //const avatar = document.getElementById('avatar').value;
+        try {
+            const response = await fetch('http://localhost:3002/register', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'username': username,
+                    'password': password,
+                    'avatar': '/avatars/default.png'
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', result.token);
+                window.location.href = '/game.html'; // Redirect to the game page
+            } else {
+                errorMessage.textContent = result.message;
+            }
+        } catch (error) {
+            errorMessage.textContent = error;
+        }
+    });
 }
 
 export default displayRegister;

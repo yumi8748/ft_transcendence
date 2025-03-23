@@ -9,7 +9,8 @@ COPY tools/* ./
 RUN npm install
 
 #copy the rest of the files needed
-COPY app.js ./
+COPY ./plugins/* ./plugins/
+COPY app.js .
 
 EXPOSE 3002
 

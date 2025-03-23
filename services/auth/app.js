@@ -4,7 +4,11 @@ import fastifyCors from '@fastify/cors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+
 const fastify = Fastify({ logger: true });
+import {getService, postService} from './plugins/serviceRequest.js';
+
+
 
 //bcrypt for password hashing
 //jwt to sign the tokens
@@ -46,18 +50,22 @@ const secretkey = 'super-secret-key';
 async function registerHandler(request, reply)
 {
     console.log('in register');
-    const { username, password } = request.body;
+    const { username, password, avatar } = request.body;
 
 
-    const userExist = users.find(u => u.username === username);
+    const userPromise = getService("http://data-service:3001/users/" + username)
+    const passPromise = bcrypt.hash(password, salt);
+    const userExist = await userPromise;
     if (userExist) {
-        return reply.status(400).send({ message: 'Invalid username !'});
+      return reply.status(400).send({ message: 'Invalid username !'});
     }
-
-    const hashedPass = await bcrypt.hash(password, salt);
-    users.push({ username: username, password: hashedPass }); //add to the users
+    
+    const hashedPass = await passPromise;
+    const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, avatar: avatar})
+    //users.push({ username: username, password: hashedPass }); //add to the users
 
     //const token = fastify.jwt.sign({ username }, { expiresIn: '1h' });
+    console.log(result);
     console.log("registered new user:", username);
     const token = jwt.sign({
       username: username
@@ -72,9 +80,10 @@ const registerSchema = {
       type: 'object',
       properties: {
         username: { type: 'string' },
-        password: { type: 'string' }
+        password: { type: 'string' },
+        avatar: { type: 'string'}
       },
-      required: ['username', 'password']
+      required: ['username', 'password', 'avatar']
     },
   }
 };
@@ -110,7 +119,7 @@ fastify.post('/register',{ registerSchema, response: { 200: tokenResponseSchema 
 //want to add back the schema
 fastify.post('/login', async (request, reply) => {
   const {username, password, Authorization } = request.body;
-    //find user in db
+
   if (Authorization)
   {
     //might want to use an arrow function for error handling ?
@@ -124,8 +133,12 @@ fastify.post('/login', async (request, reply) => {
       return ;
     }
   }
+      //find user in db
   console.log (username, password);
-  const user = users.find(u => u.username === username);
+
+  const user = await getService("http://data-service:3001/users/" + username)
+  console.log("received user" + user);
+  //const user = users.find(u => u.username === username);
   if (!user) {
      return reply.status(400).send({ message: 'Invalid username !' });
   }
