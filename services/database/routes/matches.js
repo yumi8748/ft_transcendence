@@ -25,12 +25,12 @@ async function matchesRoutes(fastify, options) {
       const { player1_id, player2_id, player1_score, player2_score, game_start_time, game_end_time } = request.body;
       const formattedGameStartTime = new Date(game_start_time).toISOString().replace("T", " ").replace("Z", "");
       const formattedGameEndTime = new Date(game_end_time).toISOString().replace("T", " ").replace("Z", "");
-      console.log(player1_id, typeof player1_id);
-      console.log(player2_id, typeof player2_id);
-      console.log(player1_score, typeof player1_score);
-      console.log(player2_score, typeof player2_score);
-      console.log(formattedGameStartTime, typeof formattedGameStartTime);
-      console.log(formattedGameEndTime, typeof formattedGameEndTime);
+      // console.log(player1_id, typeof player1_id);
+      // console.log(player2_id, typeof player2_id);
+      // console.log(player1_score, typeof player1_score);
+      // console.log(player2_score, typeof player2_score);
+      // console.log(formattedGameStartTime, typeof formattedGameStartTime);
+      // console.log(formattedGameEndTime, typeof formattedGameEndTime);
       try {
         // Insert new match into the database
         fastify.sqlite.prepare(`
