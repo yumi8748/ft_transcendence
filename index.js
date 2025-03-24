@@ -22,10 +22,6 @@ fastify.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
 })
 
-// fastify.get('/', function (req, reply) {
-  // reply.sendFile('index.html')
-// })
-
 fastify.setNotFoundHandler((req, reply) => {
   reply.sendFile('index.html');
 });
@@ -34,10 +30,10 @@ fastify.register(fastifyWebsocket)
 
 let gameStart = false;
 let players = [];
-// leave 10 pixels of space between the paddle and the edge of the screen
+let playerCount = 0;
 let gameState = {
   type: "update",
-  paddles: [ { y: 160, playerID: 0, side: "left" }, { y: 160, playerID: 0, side: "right" } ],
+  paddles: [ { y: 160, playerID: 0, side: "left" }, { y: 160, playerID: 1, side: "right" } ],
   ball: { x: 300, y: 200, vx: 4, vy: 4 },
   scores: {left: 0, right: 0}
 };
@@ -45,28 +41,41 @@ let gameState = {
 let refresh = setInterval(updateGame, 30);
 
 fastify.register(async (fastify) => {
-    fastify.get("/ws", { websocket: true }, (connection, req) => {
-    
+  fastify.get("/ws", { websocket: true }, (connection, req) => {
+    if (playerCount > 2) {
+      connection.close();
+      return;
+    }
+
     gameStart = true;
     gameData.game_start_time = new Date().toISOString();
-    const playerIndex = players.length;
+    const playerIndex = playerCount++;
     players.push(connection);
+
+    connection.send(JSON.stringify({ type: "playerID", playerID: playerIndex }));
+    connection.send(JSON.stringify(gameState));
     
-    connection.on("message", (message) =>
-    {
-        const data = JSON.parse(message);
+    connection.on("message", (message) => {
+      const data = JSON.parse(message);
+      if (data.playerID === 0) {
         if (data.sKey === true && gameState.paddles[0].y < 310)
           gameState.paddles[0].y += 10;
         if (data.wKey === true && gameState.paddles[0].y > 10)
           gameState.paddles[0].y -= 10;
+      } else if (data.playerID === 1) {
         if (data.lKey === true && gameState.paddles[1].y < 310)
           gameState.paddles[1].y += 10;
         if (data.oKey === true && gameState.paddles[1].y > 10)
           gameState.paddles[1].y -= 10;
+      }
     });
-    connection.on('close', () =>
-    {
-      players.splice(playerIndex, 1)
+
+    connection.on('close', () => {
+      players.splice(players.indexOf(connection), 1);
+      playerCount--;
+      if (playerCount < 2) {
+        gameStart = false;
+      }
     });
   })
 })
@@ -104,8 +113,6 @@ function updateGame()
 }
 
 function resetBall() {
-  // generate v of ball to a direction ++ +- -+ --
-  // set vx randomly to 4 or -4
   gameState.ball.x = 300;
   gameState.ball.y = 200;
   gameState.ball.vx = Math.random() < 0.5 ? 4 : -4;

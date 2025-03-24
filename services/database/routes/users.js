@@ -16,9 +16,9 @@ async function usersRoutes(fastify, options) {
   
     // Create a new user
     fastify.post('/users', async (request, reply) => {
-      const { name, password, avatar } = request.body;
+      const { username, password, avatar } = request.body;
   
-      if (!name || !password) {
+      if (!username || !password) {
         return reply.status(400).send({ error: 'Username and password are required.' });
       }
   
@@ -38,7 +38,7 @@ async function usersRoutes(fastify, options) {
         // Insert new user into the database
         fastify.sqlite.prepare(
           'INSERT INTO users (name, password, avatar) VALUES (?, ?, ?)'
-        ).run(name, password, avatar);
+        ).run(username, password, avatar);
   
         return { message: 'User registered!' };
       } catch (error) {
