@@ -91,7 +91,7 @@ fastify.register(async (fastify) => {
 
 function updateGame()
 {
-  if (gameState.scores.left === 2 || gameState.scores.right === 2)
+  if (gameState.scores.left === 12 || gameState.scores.right === 12)
     {
         gameStart = false;
         clearInterval(refresh);
@@ -103,19 +103,19 @@ function updateGame()
         gameState.ball.y += gameState.ball.vy;
         if (gameState.ball.y <= 10 || gameState.ball.y >= 390)
             gameState.ball.vy *= -1;
-        if (gameState.ball.x <= 10) 
+        if (gameState.ball.x <= 11) 
         {
             gameState.scores.right++;
             resetBall();
         } 
-        else if (gameState.ball.x >= 590)
+        else if (gameState.ball.x >= 589)
         {
             gameState.scores.left++;
             resetBall();
         }
-        if (gameState.ball.x <= 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
+        if (gameState.ball.x === 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
             gameState.ball.vx *= -1;
-        if (gameState.ball.x >= 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
+        if (gameState.ball.x === 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
             gameState.ball.vx *= -1;
         
         broadcastState();
