@@ -6,11 +6,13 @@ import displayRegister from "./displayRegister.js";
 import displayDashboard from "./displayDashboard.js";
 
 const socket = new WebSocket(`ws://${location.host}/ws`);
+import displaySideMenu from "./displaySideMenu.js";
 
 var contentDiv = document.getElementById('content');
+let ws;
 
 const render = async () => {
-
+    displaySideMenu();
     switch (location.pathname)
     {
         case "/":
@@ -21,6 +23,7 @@ const render = async () => {
             break;
         case "/game":
             displayGame(socket);
+            setupWebSocket();
             break;
         case "/tournament":
             displayTournament(socket);
@@ -37,19 +40,70 @@ const render = async () => {
         default:
             contentDiv.innerHTML = '<h2>Page not found!</h2>';
     }
-
-}
+};
 
 document.addEventListener("DOMContentLoaded", render)
 
 window.addEventListener("popstate", render);
 
-document.getElementById("navigation").addEventListener("click", (e)=>{
+const navigationElement = document.getElementById("navigation");
+if (navigationElement) {
+    navigationElement.addEventListener("click", (e) => {
+        if (e.target.matches("[data-link]"))
+        {
+            e.preventDefault();
+        }
+    });
+}
 
-    if (e.target.matches("[data-link]"))
-    {
-        e.preventDefault();
-        history.pushState(null,null,e.target.href);
-        render()
+// WebSocket setup and key event handling
+function setupWebSocket() {
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+        console.log('WebSocket is already open or connecting');
+        return;
     }
-})
+
+    if (ws) {
+        ws.onclose = null; // Remove the onclose handler to avoid triggering it during close
+        ws.close(); // Close the existing WebSocket connection if it exists
+    }
+
+    ws = new WebSocket('ws://localhost:3000/ws');
+
+    ws.onopen = () => {
+        console.log('Connected to server');
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'playerID') {
+            const playerID = data.playerID;
+            document.addEventListener('keydown', (event) => {
+                const message = { playerID };
+                if (event.key === 's') message.sKey = true;
+                if (event.key === 'w') message.wKey = true;
+                if (event.key === 'l') message.lKey = true;
+                if (event.key === 'o') message.oKey = true;
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify(message));
+                } else {
+                    console.error('WebSocket is not open. Cannot send message.');
+                }
+            });
+        } else if (data.type === 'update') {
+            updateGameState(data);
+        }
+    };
+
+    ws.onclose = () => {
+        console.log('Disconnected from server');
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+}
+
+function updateGameState(gameState) {
+    console.log('Received game state:', gameState);
+}

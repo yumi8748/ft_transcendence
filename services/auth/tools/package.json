@@ -3,8 +3,17 @@
     "version": "0.0.1",
     "description": "The beginning of an authentification service",
     "main": "app.js",
-    "dependencies": { "fastify": "^5.0.0" },
-    "scripts": { "start": "node app.js"},
+    "type": "module",
+    "dependencies": {
+        "fastify": "4.0.0",
+        "bcrypt": "^5.1.1",
+        "jsonwebtoken": "^9.0.2",
+        "@fastify/cors": "^8.0.0",
+        "axios": "^1.8.4"
+    },
+    "scripts": {
+        "start": "node app.js"
+    },
     "author": "transcenDANCE",
     "license": "none"
 }

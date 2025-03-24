@@ -1,16 +1,17 @@
-FROM node:18
+FROM node:20
 
 WORKDIR /app
 
 #copy the list of dependencies if they exist
-COPY tools/package.json ./
+COPY tools/* ./
 
 #install the dependencies
 RUN npm install
 
 #copy the rest of the files needed
-COPY tools/app.js ./
+COPY ./plugins/* ./plugins/
+COPY app.js .
 
-EXPOSE 3000
+EXPOSE 3002
 
 CMD [ "node", "app.js" ]

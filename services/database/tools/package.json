@@ -1,0 +1,17 @@
+{
+    "type": "module",
+    "name": "data-service",
+    "version": "0.0.1",
+    "description": "The beginning of a database service",
+    "main": "app.js",
+    "dependencies": {
+        "fastify": "^5.0.0",
+        "fastify-plugin": "5.0.1",
+        "better-sqlite3": "11.8.1"
+    },
+    "scripts": {
+        "start": "node app.js"
+    },
+    "author": "transcenDANCE",
+    "license": "none"
+}

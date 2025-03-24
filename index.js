@@ -11,14 +11,18 @@ import { Game } from './manageGame.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const gameData = {
+  player1_id: 1,
+  player2_id: 2,
+  player1_score: 0,
+  player2_score: 0,
+  game_start_time: null,
+  game_end_time: null
+};
 
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
 })
-
-// fastify.get('/', function (req, reply) {
-  // reply.sendFile('index.html')
-// })
 
 fastify.setNotFoundHandler((req, reply) => {
   reply.sendFile('index.html');
@@ -53,6 +57,9 @@ fastify.register(async (fastify) => {
     
     const playerIndex = players.length;
     players.push(connection);
+
+    connection.send(JSON.stringify({ type: "playerID", playerID: playerIndex }));
+    connection.send(JSON.stringify(gameState));
     
     connection.on("message", (message) =>
     {
