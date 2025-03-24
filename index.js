@@ -63,7 +63,7 @@ fastify.register(async (fastify) => {
 
 function updateGame()
 {
-    if (gameState.scores.left == 11 || gameState.scores.right == 11)
+    if (gameState.scores.left === 11 || gameState.scores.right === 11)
     {
         gameStart = false;
     }
@@ -83,9 +83,9 @@ function updateGame()
             gameState.scores.left++;
             resetBall();
         }
-        if (gameState.ball.x == 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
+        if (gameState.ball.x === 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
             gameState.ball.vx *= -1;
-        if (gameState.ball.x == 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
+        if (gameState.ball.x === 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
             gameState.ball.vx *= -1;
         broadcastState();
     }
