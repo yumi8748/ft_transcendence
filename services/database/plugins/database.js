@@ -22,29 +22,39 @@ async function dbConnector(fastify, options) {
 
   
   // Create the 'matches' table if it doesn't exist
-  db.prepare(`
-    CREATE TABLE IF NOT EXISTS matches (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      player1_id INTEGER NOT NULL,
-      player2_id INTEGER NOT NULL,
-      player1_score INTEGER DEFAULT 0,
-      player2_score INTEGER DEFAULT 0,
-      game_start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      game_end_time TIMESTAMP,
-      FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (player2_id) REFERENCES users(id) ON DELETE CASCADE
-    )
-  `).run();
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS matches (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player1_id INTEGER NOT NULL,
+        player2_id INTEGER NOT NULL,
+        player1_score INTEGER NOT NULL DEFAULT 0,
+        player2_score INTEGER NOT NULL DEFAULT 0,
+        game_start_time TEXT,
+        game_end_time TEXT,
+        FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (player2_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `).run();
+    console.log('Matches table created successfully');
+  } catch (error) {
+    console.error('Error creating matches table:', error);
+  }
 
   // Create the 'tournaments' table if it doesn't exist
-  db.prepare(`
-    CREATE TABLE IF NOT EXISTS tournaments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      status TEXT CHECK(status IN ('upcoming', 'ongoing', 'finished')) DEFAULT 'upcoming',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `).run();
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS tournaments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        status TEXT CHECK(status IN ('upcoming', 'ongoing', 'finished')) DEFAULT 'upcoming',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    console.log('Tournaments table created successfully');
+  } catch (error) {
+    console.log('Error creating tournaments table:', error);
+  }
 
   fastify.decorate('sqlite', db); // Attach the db to Fastify instance
   

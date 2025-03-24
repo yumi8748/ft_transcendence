@@ -21,18 +21,27 @@ async function matchesRoutes(fastify, options) {
     //anothertruct
     // Record a new match
     fastify.post('/matches', async (request, reply) => {
-      const { player1_id, player2_id, player1_score, player2_score, game_end_time } = request.body;
-  
+      console.log(request.body);
+      const { player1_id, player2_id, player1_score, player2_score, game_start_time, game_end_time } = request.body;
+      const formattedGameStartTime = new Date(game_start_time).toISOString().replace("T", " ").replace("Z", "");
+      const formattedGameEndTime = new Date(game_end_time).toISOString().replace("T", " ").replace("Z", "");
+      console.log(player1_id, typeof player1_id);
+      console.log(player2_id, typeof player2_id);
+      console.log(player1_score, typeof player1_score);
+      console.log(player2_score, typeof player2_score);
+      console.log(formattedGameStartTime, typeof formattedGameStartTime);
+      console.log(formattedGameEndTime, typeof formattedGameEndTime);
       try {
         // Insert new match into the database
         fastify.sqlite.prepare(`
-          INSERT INTO matches (player1_id, player2_id, player1_score, player2_score, game_end_time) 
-          VALUES (?, ?, ?, ?, ?)
-        `).run(player1_id, player2_id, player1_score, player2_score, game_end_time);
+          INSERT INTO matches (player1_id, player2_id, player1_score, player2_score, game_start_time, game_end_time) 
+          VALUES (?, ?, ?, ?, ?, ?)
+        `).run(player1_id, player2_id, player1_score, player2_score, formattedGameStartTime, formattedGameEndTime);
   
         return { message: 'Match recorded!' };
       } catch (error) {
-        return reply.status(400).send({ error: 'Failed to record match. Ensure players exist.' });
+        console.error('Database Error:', error.message);
+        return reply.status(400).send({ error: `Failed to record match, details: ${error.message}` });
       }
     });
   }

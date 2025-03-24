@@ -23,8 +23,11 @@ services:
     volumes:
       - sqlite-db:/app/database/
     restart: on-failure
+  
   node-app:
     build: .
+    networks:
+      - app-network
     ports:
       - "3000:3000"
     volumes:

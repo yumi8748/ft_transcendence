@@ -5,9 +5,18 @@ import fastifyStatic from '@fastify/static'
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fastifyWebsocket from '@fastify/websocket';
+import { clearInterval } from 'node:timers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const gameData = {
+  player1_id: 1,
+  player2_id: 2,
+  player1_score: 0,
+  player2_score: 0,
+  game_start_time: null,
+  game_end_time: null
+};
 
 fastify.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
@@ -33,12 +42,13 @@ let gameState = {
   scores: {left: 0, right: 0}
 };
 
-setInterval(updateGame, 30);
+let refresh = setInterval(updateGame, 30);
 
 fastify.register(async (fastify) => {
     fastify.get("/ws", { websocket: true }, (connection, req) => {
     
     gameStart = true;
+    gameData.game_start_time = new Date().toISOString();
     const playerIndex = players.length;
     players.push(connection);
     
@@ -63,9 +73,11 @@ fastify.register(async (fastify) => {
 
 function updateGame()
 {
-    if (gameState.scores.left === 11 || gameState.scores.right === 11)
+    if (gameState.scores.left === 3 || gameState.scores.right === 3)
     {
         gameStart = false;
+        clearInterval(refresh);
+        saveGame();
     }
     if (gameStart)
     {
@@ -103,6 +115,26 @@ function resetBall() {
 function broadcastState()
 {
   players.forEach(player => player.send(JSON.stringify(gameState)));
+}
+
+async function saveGame() {
+  gameData.player1_score = gameState.scores.left;
+  gameData.player2_score = gameState.scores.right;
+  gameData.game_end_time = new Date().toISOString();
+
+  try {
+    const response = await fetch('http://data-service:3001/matches', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(gameData),
+    });
+    const data = await response.json();
+    console.log("Game saved: ", data);
+  } catch (error) {
+    console.log("Failed to save game: ", error);
+  }
 }
 
 try {

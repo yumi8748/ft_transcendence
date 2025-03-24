@@ -1,1 +1,10 @@
 node_modules/
+dist/
+.DS_Store
+.env
+*.log
+.vscode/
+build/
+coverage/
+*.sqlite
+*.sqlite-journal
