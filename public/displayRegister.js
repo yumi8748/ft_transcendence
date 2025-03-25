@@ -70,7 +70,7 @@ function displayRegister() {
         const avatar = document.querySelector('input[name="avatar"]:checked').value;
 
         try {
-            const response = await fetch('http://localhost:3002/register', {
+            const response = await fetch(`${window.location.origin}/service1/register`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'

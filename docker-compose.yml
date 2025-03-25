@@ -1,4 +1,14 @@
 services:
+  nginx:
+    container_name: api-gateway
+    build:  ./services/nginx/
+    networks:
+      - app-network
+    ports:
+      - "1234:1234"
+    depends_on:
+      - auth-service
+
   auth-service:
     container_name: auth-service
     build: ./services/auth/

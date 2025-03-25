@@ -65,14 +65,17 @@ fastify.register(async (fastify) => {
     connection.on("message", (message) =>
     {
         const data = JSON.parse(message);
-        if (data.sKey === true && gameState.paddles[0].y < 310)
-          gameState.paddles[0].y += 10;
-        if (data.wKey === true && gameState.paddles[0].y > 10)
-          gameState.paddles[0].y -= 10;
-        if (data.oKey === true && gameState.paddles[1].y > 10)
-          gameState.paddles[1].y -= 10;
-        if (data.lKey === true && gameState.paddles[1].y < 310)
-          gameState.paddles[1].y += 10;
+        // if (playerIndex === 0) {
+              if (data.sKey === true && gameState.paddles[0].y < 310)
+              gameState.paddles[0].y += 10;
+              if (data.wKey === true && gameState.paddles[0].y > 10)
+              gameState.paddles[0].y -= 10;
+            // } if (playerIndex == 1) {
+          if (data.oKey === true && gameState.paddles[1].y > 10)
+            gameState.paddles[1].y -= 10;
+          if (data.lKey === true && gameState.paddles[1].y < 310)
+            gameState.paddles[1].y += 10;
+        // }
      });
         
     connection.on('close', () =>
