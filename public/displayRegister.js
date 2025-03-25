@@ -59,6 +59,7 @@ function displayRegister() {
         }
     </style>`;
 
+    
     const form = document.getElementById('register-form');
     const errorMessage = document.getElementById('error-message');
 
