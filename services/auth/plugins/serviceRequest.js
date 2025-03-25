@@ -19,8 +19,8 @@ export async function getService(url) {
         const response = await axios.get(url);
         return response.data;
     } catch (error) {
-        console.error("error in getService:" + url, error);
-        throw error;
+        console.error("error in getService:" + url, error.data);
+        return error.status;
     } finally {
         console.log("finished getService:" + url);
     }
@@ -35,7 +35,7 @@ export async function postService(url, data) {
         });
         return response.data;
     } catch (error) {
-        console.error("error in postService:" + url, error.data);
+        console.error("error in postService:" + url, error);
         throw error;
     } finally {
         console.log("finished postService:" + url);

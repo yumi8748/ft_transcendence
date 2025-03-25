@@ -18,16 +18,16 @@ async function usersRoutes(fastify, options) {
     fastify.post('/users', async (request, reply) => {
       const { username, password, avatar } = request.body;
   
-      if (!username || !password) {
-        return reply.status(400).send({ error: 'Username and password are required.' });
+      if (!username || !password || !avatar) {
+        return reply.status(400).send({ message: "All fields are required" });
       }
   
       const validAvatars = [
-        '/avatars/boy.png', 
-        '/avatars/cat.png', 
-        '/avatars/default.png', 
-        '/avatars/dog.png', 
-        '/avatars/girl.png'
+        'boy.png', 
+        'cat.png', 
+        'default.png', 
+        'dog.png', 
+        'girl.png'
       ];
       
       if (!validAvatars.includes(avatar)) {
@@ -35,32 +35,47 @@ async function usersRoutes(fastify, options) {
       }
   
       try {
-        // Insert new user into the database
+        // check if user already exists
+        const existingUser = fastify.sqlite.prepare(
+            'SELECT * FROM users WHERE name = ?'
+        ).get(username);
+        if (existingUser) {
+            return reply.status(400).send({ error: "User already exists." });
+        }
+
+
+        // insert the user into the database
         fastify.sqlite.prepare(
-          'INSERT INTO users (name, password, avatar) VALUES (?, ?, ?)'
+            'INSERT INTO users (name, password, avatar) VALUES (?, ?, ?)'
         ).run(username, password, avatar);
-  
-        return { message: 'User registered!' };
-      } catch (error) {
-        return reply.status(500).send({ error: error});
-        return reply.status(400).send({ error: 'User already exists or invalid input.' });
-      }
-    });
+
+        return reply.send({ message: 'User registered successfully!' });
+
+    } catch (error) {
+        console.error(error);
+        return reply.status(500).send({ error: "Internal Server Error" });
+    }
+});
 
     // fetch a specific user
 
     fastify.get('/users/:name', async (request, reply) => {
       try {
-        const { name } = request.params;
-        const result = fastify.sqlite.prepare('SELECT * FROM users WHERE name = ?').get(name);
-        return reply.send(result);
-    } catch (error) {
-      console.log(error);
-      return reply.status(500).send({ err: error});
-    }
+          const { name } = request.params;
+          const user = fastify.sqlite.prepare(
+              'SELECT * FROM users WHERE name = ?'
+          ).get(name);
 
-    });
-  }
-  
+          if (!user) {
+              return reply.status(404).send({ error: "User not found" });
+          }
+
+          return reply.send(user);
+      } catch (error) {
+          console.error(error);
+          return reply.status(500).send({ error: "Internal Server Error" });
+      }
+  });
+}
   export default usersRoutes;
   

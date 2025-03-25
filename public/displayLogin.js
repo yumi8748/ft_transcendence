@@ -50,7 +50,7 @@ function displayLogin()
 
                 if (response.ok) {
                     localStorage.setItem('token', result.token);
-                    window.location.href = '/game.html'; // Redirect to the game page
+                    window.location.href = '/game'; // Redirect to the game page
                 } else {
                     errorMessage.textContent = result.message;
                 }

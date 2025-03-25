@@ -19,19 +19,19 @@ function displayRegister() {
             <div class="flex flex-col items-center space-y-4">
                 <label for="avatar" class="text-white text-lg">Choose Your Avatar</label>
                 <div class="flex space-x-4">
-                    <input type="radio" id="avatar1" name="avatar" value="avatar1" class="hidden" required>
+                    <input type="radio" id="avatar1" name="avatar" value="default.png" class="hidden" required>
                     <label for="avatar1" class="cursor-pointer"><img src="/avatars/default.png" alt="Avatar 1" class="w-16 h-16 rounded-full avatar-img"></label>
                     
-                    <input type="radio" id="avatar2" name="avatar" value="avatar2" class="hidden" required>
+                    <input type="radio" id="avatar2" name="avatar" value="boy.png" class="hidden" required>
                     <label for="avatar2" class="cursor-pointer"><img src="/avatars/boy.png" alt="Avatar 2" class="w-16 h-16 rounded-full avatar-img"></label>
                     
-                    <input type="radio" id="avatar3" name="avatar" value="avatar3" class="hidden" required>
+                    <input type="radio" id="avatar3" name="avatar" value="girl.png" class="hidden" required>
                     <label for="avatar3" class="cursor-pointer"><img src="/avatars/girl.png" alt="Avatar 3" class="w-16 h-16 rounded-full avatar-img"></label>
 
-                    <input type="radio" id="avatar4" name="avatar" value="avatar4" class="hidden" required>
+                    <input type="radio" id="avatar4" name="avatar" value="dog.png" class="hidden" required>
                     <label for="avatar4" class="cursor-pointer"><img src="/avatars/dog.png" alt="Avatar 4" class="w-16 h-16 rounded-full avatar-img"></label>
                     
-                    <input type="radio" id="avatar5" name="avatar" value="avatar5" class="hidden" required>
+                    <input type="radio" id="avatar5" name="avatar" value="cat.png" class="hidden" required>
                     <label for="avatar5" class="cursor-pointer"><img src="/avatars/cat.png" alt="Avatar 5" class="w-16 h-16 rounded-full avatar-img"></label>
                 </div>
             </div>
@@ -86,7 +86,7 @@ function displayRegister() {
 
             if (response.ok) {
                 localStorage.setItem('token', result.token);
-                window.location.href = '/game.html'; // Redirect to the game page
+                window.location.href = '/game'; // Redirect to the game page
             } else {
                 errorMessage.textContent = result.message;
             }

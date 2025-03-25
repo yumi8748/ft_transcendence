@@ -8,7 +8,7 @@ RUN npm install
 
 #COPY ./database ./database
 COPY ./plugins/* ./plugins/
-COPY ./public/* ./public/
+# COPY ./public/* ./public/
 COPY ./routes/* ./routes/
 
 COPY ./app.js .

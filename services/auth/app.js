@@ -56,7 +56,7 @@ async function registerHandler(request, reply)
     const userPromise = getService("http://data-service:3001/users/" + username)
     const passPromise = bcrypt.hash(password, salt);
     const userExist = await userPromise;
-    if (userExist) {
+    if (userExist != 404) {
       return reply.status(400).send({ message: 'Invalid username !'});
     }
     
@@ -139,7 +139,7 @@ fastify.post('/login', async (request, reply) => {
   const user = await getService("http://data-service:3001/users/" + username)
   console.log("received user" + user);
   //const user = users.find(u => u.username === username);
-  if (!user) {
+  if (user == 404) {
      return reply.status(400).send({ message: 'Invalid username !' });
   }
   //match the password
