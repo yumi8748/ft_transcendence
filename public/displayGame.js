@@ -58,7 +58,7 @@ function displayGame() {
     socket = new WebSocket(`ws://${location.host}/ws`);
 
     socket.onopen = function (event) {
-        console.log('Connected to server');
+        console.log('Connected to server yes', socket);
     };
     
     socket.onclose = function (event) {

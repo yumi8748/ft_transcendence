@@ -66,7 +66,7 @@ function setupWebSocket() {
         ws.close(); // Close the existing WebSocket connection if it exists
     }
 
-    ws = new WebSocket('ws://localhost:3000/ws');
+    ws = new WebSocket(`ws://${location.host}/ws`);
 
     ws.onopen = () => {
         console.log('Connected to server');
