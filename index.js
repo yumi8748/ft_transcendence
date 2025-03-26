@@ -32,37 +32,48 @@ fastify.setNotFoundHandler((req, reply) => {
 
 fastify.register(fastifyWebsocket)
 
-let gameStart = false;
-let players = [];
-let playerCount = 0;
-let gameState = {
-  type: "update",
-  paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
-  ball: { x: 300, y: 200, vx: 4, vy: 4 },
-  scores: {left: 0, right: 0}
-};
 
-let refresh = setInterval(updateGame, 30);
+let game = {
+  gameStart: false,
+  players: [],
+  playerCount: 0,
+  gameState: {
+    type: "update",
+    paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
+    ball: { x: 300, y: 200, vx: 4, vy: 4 },
+    scores: {left: 0, right: 0}
+  }
+};
+let games = []
+
+let newPlayer = {
+    connection: null,
+    newPlayerID: 0,
+    connectionTime: null
+};
+let waitingList = []; 
+
+let playerCounter = 1;
+
+
+//! LOOPS
+let refresh = setInterval(updateGames, 30); //?update game
+setInterval(Matchmaking, 1000); //? matchmaking every second (no need to stop with clear interval)
+
 
 fastify.register(async (fastify) => {
     fastify.get("/ws", { websocket: true }, (connection, req) => {
     
-      if (playerCount > 3) {
-      connection.close();
-      return;
-    }
-    gameStart = true;
+    addToWaitingList(playerCounter++, connection)
 
-    gameData.game_start_time = new Date().toISOString();
+    
+  })
+})
 
-    const playerIndex = playerCount++;
-    const paddleIndex = playerIndex % 2;
+//! GAME FUNCTIONS
 
-    players.push(connection);
-    connection.send(JSON.stringify({ type: "playerID", playerID: playerIndex }));
-    connection.send(JSON.stringify(gameState));
-
-    connection.on("message", (message) =>
+function parseConnection(connection, playerIndex) {
+  connection.on("message", (message) =>
     {
         const data = JSON.parse(message);
         // if (playerIndex === 0) {
@@ -86,16 +97,26 @@ fastify.register(async (fastify) => {
         gameStart = false;
       }
     });
-  })
-})
+}
 
-function updateGame()
+function updateGames() {
+  if (games.length === 0)
+      clearInterval(refresh);
+  games.forEach(element => {
+    updateGame(element);
+  });
+}
+
+function updateGame(game)
 {
+  const { gameState, players, gameStart } = game;
   if (gameState.scores.left === 12 || gameState.scores.right === 12)
     {
         gameStart = false;
-        clearInterval(refresh);
         saveGame();
+        waitingList.push(players[0]);
+        waitingList.push(players[1]);
+        games = games.filter(g => g !== game);
     }  
   if (gameStart)
     {
@@ -140,7 +161,7 @@ async function saveGame() {
   gameData.game_end_time = new Date().toISOString();
 
   try {
-    const response = await fetch('http://data-service:3001/matches', {
+    const response = await fetch('http://data-service:m3001/matches', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -153,6 +174,46 @@ async function saveGame() {
     console.log("Failed to save game: ", error);
   }
 }
+
+//! MATCHMAKING FUNCTION
+
+function Matchmaking() {
+  if (waitingList.length >= 2) {
+    const player1 = waitingList.shift();
+    const player2 = waitingList.shift();
+
+    const newGame = {
+      gameStart: true,
+      playerCount: 2,
+      players: [player1, player2],
+      gameState: {
+        type: "update",
+        paddles: [
+          { y: 10, playerID: 0, side: "left" },
+          { y: 10, playerID: 1, side: "right" }
+        ],
+        ball: { x: 300, y: 200, vx: 4, vy: 4 },
+        scores: { left: 0, right: 0 }
+      }
+    };
+
+    games.push(newGame);
+
+    player1.connection.send(JSON.stringify({ type: "matchFound", playerID: 0 }));
+    player2.connection.send(JSON.stringify({ type: "matchFound", playerID: 1 }));
+  }
+}
+
+function addToWaitingList(playerID, connection) {
+  const player = {
+    connection: connection,
+    newPlayerID: playerID,
+    connectionTime: new Date()
+  };
+  waitingList.push(player);
+}
+
+
 
 try {
   await fastify.listen({ port: 3000, host: '0.0.0.0'})
