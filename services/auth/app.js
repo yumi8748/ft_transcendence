@@ -160,6 +160,42 @@ fastify.post('/login', async (request, reply) => {
   }
 });
 
+
+const verifySchema = {
+  schema: {
+    headers: {
+      type: 'object',
+      properties: {
+        authorization: { type: 'string' },
+      },
+      required: ['authorization']
+    },
+  }
+};
+
+fastify.get('/verify',{ verifySchema }, async (request, reply) => {
+  console.log("verify route triggered");
+
+  const authorization = request.headers['authorization'];
+  
+  if (!authorization) {
+    return reply.status(401).send({ message: 'Authorization header missing' });
+  }
+  const parts = authorization.split(' ');
+
+  if (parts.length == 2 && parts[0] == 'Bearer')
+  {
+    try {
+      const result = await jwt.verify(parts[1], secretkey);
+      return reply.status(200).send({ message: "authentification successfull" });
+    } catch(err) {
+      console.log(err);
+      //return reply.status(401).send({ message: 'Invalid token' });
+    }
+  }
+  return reply.status(401).send({ message: 'Invalid token' });
+})
+
 fastify.get('/healthcheck', async (request, reply) => {
     reply.status(200).send({ message: 'Good!'});
   });
