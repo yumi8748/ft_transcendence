@@ -4,6 +4,9 @@ build:
 	mkdir -p volumes/database/ 
 	docker compose -f ./docker-compose.yml up --build -d
 
+logs:
+	docker compose logs -f
+
 stop:
 	docker-compose -f ./docker-compose.yml stop
 
