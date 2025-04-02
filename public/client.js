@@ -5,6 +5,7 @@ import displayLogin from "./displayLogin.js";
 import displayRegister from "./displayRegister.js";
 import displayDashboard from "./displayDashboard.js";
 import displaySideMenu from "./displaySideMenu.js";
+import displaySettings from "./displaySettings.js";
 
 var contentDiv = document.getElementById('content');
 let ws;
@@ -34,6 +35,9 @@ const render = async () => {
             break;
         case "/dashboard":
             displayDashboard();
+            break;
+        case "/settings":
+            displaySettings();
             break;
         default:
             contentDiv.innerHTML = '<h2>Page not found!</h2>';

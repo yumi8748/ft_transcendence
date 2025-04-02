@@ -1,0 +1,22 @@
+Welcome to the auth service Readme inside you will find information on how my authentification work and how to protect routes,
+
+the auth service feature:
+-register a route used to register a new user which expect in the body a username, a password and an avatar. will return an jwt on success,
+-login expect a username and password or a jwt, return another jwt on success,
+-verify, expect an authorization: Bearer Token header, if the authrozation header is present and well written and the token is valid will return a success http code otherwise and error.
+
+if you want to protect a route you need to head first to the nginx.conf file and add your route for example:
+
+location /example {
+	proxy_pass http://yourdockername:yourport/yourroute
+}
+
+now this is a simple forwarding what if you want to protect this example route, dont worry i got you:
+location /example {
+	auth_request    /service1/verify;
+        auth_request_set    $auth_status $upstream_status;
+
+	proxy_pass http://yourdockername:yourport/yourroute
+}
+
+now before forwarding the request nginx will send it to the verify service and if it success the request will go through to the requested service.
