@@ -5,13 +5,13 @@ class Game {
     constructor()
     {
         this.gameState = {
-            type: "gameUpdate",
+            id: "back-game",
             paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
             ball: { x: 300, y: 200, vx: 4, vy: 4 },
             scores: {left: 0, right: 0},
             gameStart : false,
             gameOver : false
-          };
+        };
     }
   
     updateGame()
@@ -46,38 +46,10 @@ class Game {
 
     resetBall()
     {
-        // generate v of ball to a direction ++ +- -+ --
-        // set vx randomly to 4 or -4
         this.gameState.ball.x = 300;
         this.gameState.ball.y = 200;
         this.gameState.ball.vx = Math.random() < 0.5 ? 4 : -4;
         this.gameState.ball.vy = Math.random() < 0.5 ? 4 : -4;
-    }
-
-    handleGameMessage(data, players)
-    {
-        if (data.type === "gameDisplay")
-        {
-            // startSetInterval(); 
-            // console.log("GOOD")
-            broadcastState(players, this.gameState);
-        }
-        else if (data.type === "start")
-        {
-            this.gameState.gameStart = true;
-            startSetInterval(); 
-        }
-        else if (data.type === "key")
-        {
-            if (data.sKey === true && this.gameState.paddles[0].y < 310)
-                this.gameState.paddles[0].y += 10;
-            if (data.wKey === true && this.gameState.paddles[0].y > 10)
-                this.gameState.paddles[0].y -= 10;
-            if (data.lKey === true && this.gameState.paddles[1].y < 310)
-                this.gameState.paddles[1].y += 10;
-            if (data.oKey === true && this.gameState.paddles[1].y > 10)
-                this.gameState.paddles[1].y -= 10;
-        }
     }
   }
 

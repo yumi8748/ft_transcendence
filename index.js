@@ -33,17 +33,17 @@ let intervalId;
 
 function startSetInterval()
 {
-  intervalId = setInterval(() => 
-  {
-    game.updateGame();
-    broadcastState(players, game.gameState);
-  }, 30);
+    intervalId = setInterval(() => 
+    {
+      game.updateGame();
+      broadcastState(players, game.gameState);
+    }, 30);
 }
 
 function stopSetInterval()
 {
-  clearInterval(intervalId);
-  intervalId = null;
+    clearInterval(intervalId);
+    intervalId = null;
 }
 
 const tournament = new Tournament();
@@ -56,17 +56,53 @@ fastify.register(async (fastify) => {
     
     connection.on("message", (message) =>
     {
-        
-      const data = JSON.parse(message);
-      console.log(data)
-
-        if (data.route === "game")
+        const data = JSON.parse(message);
+        if (data.id === "front-game" && data.type === "draw-game")
         {
-          game.handleGameMessage(data, players);
+            broadcastState(players, game.gameState);
         }
-        if (data.route === "tournament")
+        else if (data.id === "front-game" && data.type === "start-button")
         {
-            tournament.handleTournamentMessage(data,players);
+            game.gameState.gameStart = true;
+            startSetInterval(); 
+        }
+        else if (data.id === "front-game" && data.type === "key")
+        {
+            if (data.sKey === true && game.gameState.paddles[0].y < 310)
+                game.gameState.paddles[0].y += 10;
+            if (data.wKey === true && game.gameState.paddles[0].y > 10)
+                game.gameState.paddles[0].y -= 10;
+            if (data.lKey === true && game.gameState.paddles[1].y < 310)
+                game.gameState.paddles[1].y += 10;
+            if (data.oKey === true && game.gameState.paddles[1].y > 10)
+                game.gameState.paddles[1].y -= 10;
+        }
+        else if (data.id === "front-game" && data.type === "next-button")
+        {
+            if (game.gameState.scores.left === 2)
+              tournament.tournamentData.results[0] = tournament.tournamentData.tournament[0];
+            else
+              tournament.tournamentData.results[0] = tournament.tournamentData.tournament[1];
+            
+            console.log("winner is ", tournament.tournamentData.results[0])
+
+            tournament.tournamentData.type = "display-tournament";
+            game.gameState.scores.left = 0;
+            game.gameState.scores.right = 0;
+            game.gameState.gameOver = false;
+            broadcastState(players, tournament.tournamentData);
+        }  
+        
+        if (data.id === "front-tournament" && data.type === "draw-tournament")
+        {
+            tournament.tournamentData.type = "fill-players";
+            broadcastState(players, tournament.tournamentData);
+        }
+        else if (data.id === "front-tournament" && data.type === "next-button")
+        {
+            tournament.tournamentData.type = "display-game";  
+            tournament.updateTournament();
+            broadcastState(players, tournament.tournamentData);
         }
     });
 

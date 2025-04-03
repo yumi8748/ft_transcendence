@@ -18,20 +18,24 @@ socket.onclose = function (event) {
 };
 
 socket.onmessage = function (event) {
-    const test = JSON.parse(event.data);
-    console.log(test)
-    if (test.type === "gameUpdate")
+    const data = JSON.parse(event.data);
+    if (data.id === "back-game")
     {
-        gameDisplay.handleGameMess(test);
+        gameDisplay.handleGameMess(data);
     }
-    if (test.type === "tournament")
+    if (data.id === "back-tournament" && data.type === "fill-players")
     {
-        tournamentDisplay.displayPlayers(test);
+        tournamentDisplay.displayPlayers(data);
     }
-    if (test.type === "tournament" && test.round === 1)
+    if (data.id === "back-tournament" && data.type === "display-game")
     {
         gameDisplay.displayGame(socket);
     }
+    if (data.id === "back-tournament" && data.type === "display-tournament")
+    {
+        tournamentDisplay.displayTournament(socket);
+    }
+    
 };
 
 var contentDiv = document.getElementById('content');

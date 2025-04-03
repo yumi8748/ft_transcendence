@@ -4,7 +4,7 @@ class TournamentDisplay {
     constructor()
     {
         this.message = {
-            route: "tournament",
+            id: "front-tournament",
             type: "",
         };
     }
@@ -79,8 +79,17 @@ class TournamentDisplay {
 
     sendRoute(socket)
     {
-        this.message.type = "start";
+        this.message.type = "draw-tournament";
         socket.send(JSON.stringify(this.message));
+    }
+
+    sendNextRound(socket)
+    {
+        document.getElementById("tournament-next").addEventListener("click", (e)=>{
+
+            this.message.type = "next-button";
+            socket.send(JSON.stringify(this.message));
+        })
     }
 
     displayPlayers(test)
@@ -89,15 +98,6 @@ class TournamentDisplay {
         divs.forEach((div, index) =>
         {
             div.textContent = test.tournament[index]
-        })
-    }
-
-    sendNextRound(socket)
-    {
-        document.getElementById("tournament-next").addEventListener("click", (e)=>{
-
-            this.message.type = "next round";
-            socket.send(JSON.stringify(this.message));
         })
     }
 

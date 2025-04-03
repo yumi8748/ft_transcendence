@@ -7,8 +7,10 @@ class Tournament {
         {
             
             tournament: ["Alice", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank", "-","-","-", "-", "-", "-","-"],
-            type : "tournament",
-            round : 0
+            results: [],
+            type : "",
+            id : "back-tournament",
+            round : 0,
         };
         this.contestants = ["Alice", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank"];
     }
@@ -34,7 +36,6 @@ class Tournament {
     playMatch(player1, player2)
     {
         let winner = Math.random() > 0.5 ? player1 : player2;
-        // console.log(`${player1} vs ${player2} → Winner: ${winner}`);
         return winner;
     }
 
@@ -58,20 +59,6 @@ class Tournament {
             this.tournamentData.tournament[14] = this.contestants[0];
         }
         this.tournamentData.round++;
-    }
-
-    handleTournamentMessage(data, players)
-    {
-        if (data.type === "start")
-        {
-            stopSetInterval();
-            broadcastState(players, this.tournamentData);
-        }
-        else if (data.type === "next round")
-        {
-            this.updateTournament();
-            broadcastState(players, this.tournamentData);
-        }
     }
   }
 
