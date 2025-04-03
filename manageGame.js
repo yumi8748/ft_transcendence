@@ -1,4 +1,4 @@
-import {startSetInterval, broadcastState} from "./index.js";
+import {startSetInterval, broadcastState, stopSetInterval} from "./index.js";
 // leave 10 pixels of space between the paddle and the edge of the screen
 
 class Game {
@@ -16,9 +16,10 @@ class Game {
   
     updateGame()
     {
-        if (this.gameState.scores.left >= 5 || this.gameState.scores.right >= 5)
+        if (this.gameState.scores.left >= 2 || this.gameState.scores.right >= 2)
         {
             this.gameState.gameOver = true;
+            stopSetInterval();
         }
         if (this.gameState.gameStart && this.gameState.gameOver === false)
         {
