@@ -5,10 +5,12 @@ class Tournament {
     {
         this.tournamentData = 
         {
+            
             tournament: ["Alice", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank", "-","-","-", "-", "-", "-","-"],
+            type : "tournament",
+            round : 0
         };
         this.contestants = ["Alice", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank"];
-        this.round = 0;
     }
   
     generateMatches()
@@ -39,23 +41,23 @@ class Tournament {
     updateTournament()
     {
         this.generateMatches();
-        if (this.round === 0)
+        if (this.tournamentData.round === 0)
         {
             this.tournamentData.tournament[8] = this.contestants[0];
             this.tournamentData.tournament[9] = this.contestants[1];
             this.tournamentData.tournament[10] = this.contestants[2];
             this.tournamentData.tournament[11] = this.contestants[3];
         }
-        else if (this.round === 1)
+        else if (this.tournamentData.round === 1)
         {
             this.tournamentData.tournament[12] = this.contestants[0];
             this.tournamentData.tournament[13] = this.contestants[1];
         }
-        else if (this.round === 2)
+        else if (this.tournamentData.round === 2)
         {
             this.tournamentData.tournament[14] = this.contestants[0];
         }
-        this.round++;
+        this.tournamentData.round++;
     }
 
     handleTournamentMessage(data, players)

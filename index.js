@@ -56,8 +56,10 @@ fastify.register(async (fastify) => {
     
     connection.on("message", (message) =>
     {
-        const data = JSON.parse(message);
-        console.log(data)
+        
+      const data = JSON.parse(message);
+      console.log(data)
+
         if (data.route === "game")
         {
           game.handleGameMessage(data, players);

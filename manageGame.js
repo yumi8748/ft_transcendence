@@ -5,7 +5,7 @@ class Game {
     constructor()
     {
         this.gameState = {
-            type: "update",
+            type: "gameUpdate",
             paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
             ball: { x: 300, y: 200, vx: 4, vy: 4 },
             scores: {left: 0, right: 0},
@@ -55,13 +55,17 @@ class Game {
 
     handleGameMessage(data, players)
     {
-        if (data.type === "route")
+        if (data.type === "gameDisplay")
         {
-            startSetInterval(); 
+            // startSetInterval(); 
+            // console.log("GOOD")
             broadcastState(players, this.gameState);
         }
         else if (data.type === "start")
+        {
             this.gameState.gameStart = true;
+            startSetInterval(); 
+        }
         else if (data.type === "key")
         {
             if (data.sKey === true && this.gameState.paddles[0].y < 310)
