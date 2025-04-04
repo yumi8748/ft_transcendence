@@ -97,7 +97,7 @@ class TournamentDisplay {
         const divs = document.querySelectorAll('.player');
         divs.forEach((div, index) =>
         {
-            div.textContent = test.tournament[index]
+            div.textContent = test.brackets[index]
         })
     }
 

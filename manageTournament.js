@@ -6,13 +6,13 @@ class Tournament {
         this.tournamentData = 
         {
             
-            tournament: ["Alice", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank", "-","-","-", "-", "-", "-","-"],
+            brackets: ["Player 1", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank", "-","-","-", "-", "-", "-","-"],
             results: [],
             type : "",
             id : "back-tournament",
             round : 0,
         };
-        this.contestants = ["Alice", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank"];
+        this.contestants = ["Player 1", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank"];
     }
   
     generateMatches()
@@ -44,19 +44,19 @@ class Tournament {
         this.generateMatches();
         if (this.tournamentData.round === 0)
         {
-            this.tournamentData.tournament[8] = this.contestants[0];
-            this.tournamentData.tournament[9] = this.contestants[1];
-            this.tournamentData.tournament[10] = this.contestants[2];
-            this.tournamentData.tournament[11] = this.contestants[3];
+            this.tournamentData.brackets[8] = this.contestants[0];
+            this.tournamentData.brackets[9] = this.contestants[1];
+            this.tournamentData.brackets[10] = this.contestants[2];
+            this.tournamentData.brackets[11] = this.contestants[3];
         }
         else if (this.tournamentData.round === 1)
         {
-            this.tournamentData.tournament[12] = this.contestants[0];
-            this.tournamentData.tournament[13] = this.contestants[1];
+            this.tournamentData.brackets[12] = this.contestants[0];
+            this.tournamentData.brackets[13] = this.contestants[1];
         }
         else if (this.tournamentData.round === 2)
         {
-            this.tournamentData.tournament[14] = this.contestants[0];
+            this.tournamentData.brackets[14] = this.contestants[0];
         }
         this.tournamentData.round++;
     }

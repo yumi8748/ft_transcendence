@@ -79,12 +79,48 @@ fastify.register(async (fastify) => {
         }
         else if (data.id === "front-game" && data.type === "next-button")
         {
-            if (game.gameState.scores.left === 2)
-              tournament.tournamentData.results[0] = tournament.tournamentData.tournament[0];
-            else
-              tournament.tournamentData.results[0] = tournament.tournamentData.tournament[1];
             
-            console.log("winner is ", tournament.tournamentData.results[0])
+
+            if (tournament.tournamentData.round === 0)
+            {
+              if (game.gameState.scores.left === 2)
+                tournament.tournamentData.results.push(tournament.tournamentData.brackets[0]);
+              else
+                tournament.tournamentData.results.push(tournament.tournamentData.brackets[1]);  
+              
+                tournament.tournamentData.results.push(tournament.playMatch(tournament.contestants[2], tournament.contestants[3]));
+                tournament.tournamentData.results.push(tournament.playMatch(tournament.contestants[4], tournament.contestants[5]));
+                tournament.tournamentData.results.push(tournament.playMatch(tournament.contestants[6], tournament.contestants[7]));
+    
+                tournament.tournamentData.brackets[8] = tournament.tournamentData.results[0];
+                tournament.tournamentData.brackets[9] = tournament.tournamentData.results[1];
+                tournament.tournamentData.brackets[10] = tournament.tournamentData.results[2];
+                tournament.tournamentData.brackets[11] = tournament.tournamentData.results[3];
+            }
+            else if (tournament.tournamentData.round === 1)
+            {
+              if (game.gameState.scores.left === 2)
+                tournament.tournamentData.results.push(tournament.tournamentData.brackets[8]);
+              else
+                tournament.tournamentData.results.push(tournament.tournamentData.brackets[9]);  
+              
+                tournament.tournamentData.results.push(tournament.playMatch(tournament.tournamentData.results[2], tournament.tournamentData.results[3]));
+    
+                tournament.tournamentData.brackets[12] = tournament.tournamentData.results[4];
+                tournament.tournamentData.brackets[13] = tournament.tournamentData.results[5];
+            }
+            else if (tournament.tournamentData.round === 2)
+            {
+              if (game.gameState.scores.left === 2)
+                tournament.tournamentData.results.push(tournament.tournamentData.brackets[12]);
+              else
+                tournament.tournamentData.results.push(tournament.tournamentData.brackets[13]);  
+
+              tournament.tournamentData.brackets[14] = tournament.tournamentData.results[6];
+              
+            }
+
+            tournament.tournamentData.round++;
 
             tournament.tournamentData.type = "display-tournament";
             game.gameState.scores.left = 0;
@@ -101,7 +137,7 @@ fastify.register(async (fastify) => {
         else if (data.id === "front-tournament" && data.type === "next-button")
         {
             tournament.tournamentData.type = "display-game";  
-            tournament.updateTournament();
+            // tournament.updateTournament();
             broadcastState(players, tournament.tournamentData);
         }
     });
