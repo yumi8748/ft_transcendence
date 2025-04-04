@@ -46,6 +46,11 @@ function stopSetInterval()
     intervalId = null;
 }
 
+function getRandomUniqueElement(array) {
+  const index = Math.floor(Math.random() * array.length);
+  return array.splice(index, 1)[0]; // remove and return the element
+}
+
 const tournament = new Tournament();
 
 fastify.register(async (fastify) => {
@@ -90,41 +95,130 @@ fastify.register(async (fastify) => {
         {
             if (tournament.tournamentData.round === 0)
             {
-              if (game.gameState.scores.left === 2)
-                tournament.tournamentData.results.push(tournament.tournamentData.brackets[0]);
-              else
-                tournament.tournamentData.results.push(tournament.tournamentData.brackets[1]);  
-              
-                tournament.tournamentData.results.push(tournament.playMatch(tournament.contestants[2], tournament.contestants[3]));
-                tournament.tournamentData.results.push(tournament.playMatch(tournament.contestants[4], tournament.contestants[5]));
-                tournament.tournamentData.results.push(tournament.playMatch(tournament.contestants[6], tournament.contestants[7]));
-    
-                tournament.tournamentData.brackets[8] = tournament.tournamentData.results[0];
-                tournament.tournamentData.brackets[9] = tournament.tournamentData.results[1];
-                tournament.tournamentData.brackets[10] = tournament.tournamentData.results[2];
-                tournament.tournamentData.brackets[11] = tournament.tournamentData.results[3];
+              for (let i = 0; i < tournament.tournamentData.quarter.length; i += 2)
+              {
+                  if (i + 1 < tournament.tournamentData.quarter.length)
+                  {
+                      if (tournament.tournamentData.quarter[i] === "Player 1" || tournament.tournamentData.quarter[i + 1] === "Player 1")
+                      {
+                          if (game.gameState.scores.left === 2)
+                          {
+                              if (tournament.tournamentData.quarter[i] === "Player 1")
+                                  tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i]);
+                              else
+                                  tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i+1]);
+                          }
+                          else
+                          {
+                              if (tournament.tournamentData.quarter[i] === "Player 1")
+                                  tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i + 1]);
+                              else
+                                  tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i]);
+                          }
+                      }
+                      else
+                      {
+                          let winner = tournament.playMatch(tournament.tournamentData.quarter[i], tournament.tournamentData.quarter[i + 1]);
+                          tournament.tournamentData.semi.push(winner);
+                      }
+                  } 
+              }
+
+              for (let i = 0; i < tournament.tournamentData.semi.length; i++)
+              {
+                tournament.tournamentData.brackets.push(tournament.tournamentData.semi[i]);
+              }
             }
             else if (tournament.tournamentData.round === 1)
             {
-              if (game.gameState.scores.left === 2)
-                tournament.tournamentData.results.push(tournament.tournamentData.brackets[8]);
-              else
-                tournament.tournamentData.results.push(tournament.tournamentData.brackets[9]);  
+              for (let i = 0; i < tournament.tournamentData.semi.length; i += 2)
+              {
+                  // if (i + 1 < tournament.tournamentData.semi.length)
+                  // {
+                  //     if (tournament.tournamentData.semi[i] === "Player 1" || tournament.tournamentData.semi[i + 1] === "Player 1")
+                  //     {
+                  //       if (game.gameState.scores.left === 2)
+                  //         tournament.tournamentData.final.push(tournament.tournamentData.semi[i]);
+                  //       else
+                  //         tournament.tournamentData.final.push(tournament.tournamentData.semi[i + 1]);
+                  //     }
+                  //     else
+                  //     {
+                  //       let winner = tournament.playMatch(tournament.tournamentData.semi[i], tournament.tournamentData.semi[i + 1]);
+                  //       tournament.tournamentData.final.push(winner);
+                  //     }
+                  // }
+
+                  if (i + 1 < tournament.tournamentData.semi.length)
+                  {
+                      if (tournament.tournamentData.semi[i] === "Player 1" || tournament.tournamentData.semi[i + 1] === "Player 1")
+                      {
+                          if (game.gameState.scores.left === 2)
+                          {
+                              if (tournament.tournamentData.semi[i] === "Player 1")
+                                  tournament.tournamentData.final.push(tournament.tournamentData.semi[i]);
+                              else
+                                  tournament.tournamentData.final.push(tournament.tournamentData.semi[i+1]);
+                          }
+                          else
+                          {
+                              if (tournament.tournamentData.semi[i] === "Player 1")
+                                  tournament.tournamentData.final.push(tournament.tournamentData.semi[i + 1]);
+                              else
+                                  tournament.tournamentData.final.push(tournament.tournamentData.semi[i]);
+                          }
+                      }
+                      else
+                      {
+                          let winner = tournament.playMatch(tournament.tournamentData.semi[i], tournament.tournamentData.semi[i + 1]);
+                          tournament.tournamentData.final.push(winner);
+                      }
+                  } 
+              }
+
+              for (let i = 0; i < tournament.tournamentData.final.length; i++)
+              {
+                tournament.tournamentData.brackets.push(tournament.tournamentData.final[i]);
+              }
+              // if (game.gameState.scores.left === 2)
+              //   tournament.tournamentData.results.push(tournament.tournamentData.brackets[8]);
+              // else
+              //   tournament.tournamentData.results.push(tournament.tournamentData.brackets[9]);  
               
-                tournament.tournamentData.results.push(tournament.playMatch(tournament.tournamentData.results[2], tournament.tournamentData.results[3]));
+              //   tournament.tournamentData.results.push(tournament.playMatch(tournament.tournamentData.results[2], tournament.tournamentData.results[3]));
     
-                tournament.tournamentData.brackets[12] = tournament.tournamentData.results[4];
-                tournament.tournamentData.brackets[13] = tournament.tournamentData.results[5];
+              //   tournament.tournamentData.brackets[12] = tournament.tournamentData.results[4];
+              //   tournament.tournamentData.brackets[13] = tournament.tournamentData.results[5];
             }
             else if (tournament.tournamentData.round === 2)
             {
-              if (game.gameState.scores.left === 2)
-                tournament.tournamentData.results.push(tournament.tournamentData.brackets[12]);
-              else
-                tournament.tournamentData.results.push(tournament.tournamentData.brackets[13]);  
+                // if (game.gameState.scores.left === 2)
+                //   tournament.tournamentData.winner.push(tournament.tournamentData.final[i]);
+                // else
+                //   tournament.tournamentData.winner.push(tournament.tournamentData.final[i + 1]);
 
-              tournament.tournamentData.brackets[14] = tournament.tournamentData.results[6];
-              
+                if (game.gameState.scores.left === 2)
+                {
+                    if (tournament.tournamentData.final[0] === "Player 1")
+                        tournament.tournamentData.winner.push(tournament.tournamentData.final[0]);
+                    else
+                        tournament.tournamentData.winner.push(tournament.tournamentData.final[1]);
+                }
+                else
+                {
+                    if (tournament.tournamentData.final[0] === "Player 1")
+                        tournament.tournamentData.winner.push(tournament.tournamentData.final[1]);
+                    else
+                        tournament.tournamentData.winner.push(tournament.tournamentData.final[0]);
+                }
+
+                tournament.tournamentData.brackets.push(tournament.tournamentData.winner[0]);
+              // if (game.gameState.scores.left === 2)
+              //   tournament.tournamentData.results.push(tournament.tournamentData.brackets[12]);
+              // else
+              //   tournament.tournamentData.results.push(tournament.tournamentData.brackets[13]);  
+
+              // tournament.tournamentData.brackets[14] = tournament.tournamentData.results[6];
             }
 
             tournament.tournamentData.round++;
@@ -138,25 +232,51 @@ fastify.register(async (fastify) => {
         
         if (data.id === "front-tournament" && data.type === "draw-tournament")
         {
+          
+          if (tournament.tournamentData.round === 0)
+            {
+              
+              let list = ["Player 1", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank"];
+              while (list.length > 0) {
+                let element = getRandomUniqueElement(list);
+                tournament.tournamentData.quarter.push(element);
+              }
+              for (let i = 0; i < tournament.tournamentData.quarter.length; i++)
+              {
+                tournament.tournamentData.brackets.push(tournament.tournamentData.quarter[i]);
+              }
+            }
             tournament.tournamentData.type = "fill-players";
             broadcastState(players, tournament.tournamentData);
+            
         }
         else if (data.id === "front-tournament" && data.type === "next-button")
         {
-          if (tournament.tournamentData.round <= 2 )
+          if (tournament.tournamentData.round <= 2)
           {
+
+          // if (tournament.tournamentData.round === 0 )
+          // {
             tournament.tournamentData.type = "display-game";  
             // tournament.updateTournament();
             broadcastState(players, tournament.tournamentData);
-          }  
+          // }
+          // else if (tournament.tournamentData.round === 1 )
+          // {
+
+          // }
+          }
         }
         else if (data.id === "front-tournament" && data.type === "home-button")
         {
             // tournament.tournamentData.type = "display-game";  
             // tournament.updateTournament();
             tournament.tournamentData.type = "home";
-            tournament.tournamentData.brackets = ["Player 1", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank", "-","-","-", "-", "-", "-","-"]
-            tournament.tournamentData.results = []
+            tournament.tournamentData.brackets = []
+            tournament.tournamentData.quarter = []
+            tournament.tournamentData.semi = []
+            tournament.tournamentData.final = []
+            tournament.tournamentData.winner = [];
             tournament.tournamentData.round = 0;
           broadcastState(players, tournament.tournamentData);
 

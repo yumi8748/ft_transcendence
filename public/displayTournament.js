@@ -23,48 +23,48 @@ class TournamentDisplay {
 
             <div id = "quarterfinal" class="round basis-32 flex flex-col gap-4 justify-center"> 
                 <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> Player 1</div>
-                    <div class="player pl-2"> Player 2</div>
+                    <div class="player pl-2"> - </div>
+                    <div class="player pl-2"> - </div>
                 </div>
 
                 <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> Player 1</div>
-                    <div class="player pl-2"> Player 2</div>
+                    <div class="player pl-2"> - </div>
+                    <div class="player pl-2"> - </div>
                 </div>
 
                 <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> Player 1</div>
-                    <div class="player pl-2"> Player 2</div>
+                    <div class="player pl-2"> - </div>
+                    <div class="player pl-2"> - </div>
                 </div>
 
                 <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> Player 1</div>
-                    <div class="player pl-2"> Player 2</div>
+                    <div class="player pl-2"> - </div>
+                    <div class="player pl-2"> - </div>
                 </div>
             </div>
 
             <div id = "semifinal" class=" basis-32 round flex flex-col gap-4 justify-center">
                 <div class="match bg-white  pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> Player 1</div>
-                    <div class="player pl-2"> Player 2</div>
+                    <div class="player pl-2"> - </div>
+                    <div class="player pl-2"> - </div>
                 </div>
 
                 <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> Player 1</div>
-                    <div class="player pl-2"> Player 2</div>
+                    <div class="player pl-2"> - </div>
+                    <div class="player pl-2"> - </div>
                 </div>
             </div>
 
             <div id = "final" class="basis-32 round flex flex-col gap-4 justify-center">
                 <div class="match bg-white  pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200 "> 
-                    <div class="player pl-2"> Player 1</div>
-                    <div class="player pl-2"> Player 2</div>
+                    <div class="player pl-2"> - </div>
+                    <div class="player pl-2"> - </div>
                 </div>
             </div>
 
             <div id = "winner" class="basis-32 round flex flex-col gap-4 justify-center">
                 <div class="match bg-white  pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200 "> 
-                    <div class="player pl-2"> Player 1</div>
+                    <div class="player pl-2"> - </div>
                 </div>
             </div>
             
@@ -103,12 +103,15 @@ class TournamentDisplay {
         })
     }
 
-    displayPlayers(test)
+    displayPlayers(data)
     {
         const divs = document.querySelectorAll('.player');
+        let i = 0;
         divs.forEach((div, index) =>
         {
-            div.textContent = test.brackets[index]
+            if (i < data.brackets.length)
+                div.textContent = data.brackets[index]
+            i++;
         })
     }
 
