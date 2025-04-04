@@ -10,7 +10,8 @@ class Game {
             ball: { x: 300, y: 200, vx: 4, vy: 4 },
             scores: {left: 0, right: 0},
             gameStart : false,
-            gameOver : false
+            // gameOver : false,
+            home: false
         };
     }
   
@@ -18,10 +19,10 @@ class Game {
     {
         if (this.gameState.scores.left >= 2 || this.gameState.scores.right >= 2)
         {
-            this.gameState.gameOver = true;
+            this.gameState.gameStart = false;
             stopSetInterval();
         }
-        if (this.gameState.gameStart && this.gameState.gameOver === false)
+        if (this.gameState.gameStart)
         {
             this.gameState.ball.x += this.gameState.ball.vx;
             this.gameState.ball.y += this.gameState.ball.vy;

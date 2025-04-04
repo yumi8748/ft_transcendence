@@ -19,9 +19,13 @@ socket.onclose = function (event) {
 
 socket.onmessage = function (event) {
     const data = JSON.parse(event.data);
-    if (data.id === "back-game")
+    if (data.id === "back-game" && data.home === false)
     {
         gameDisplay.handleGameMess(data);
+    }
+    if (data.id === "back-game" && data.home === true)
+    {
+        displayHome(socket);
     }
     if (data.id === "back-tournament" && data.type === "fill-players")
     {

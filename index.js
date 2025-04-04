@@ -66,6 +66,15 @@ fastify.register(async (fastify) => {
             game.gameState.gameStart = true;
             startSetInterval(); 
         }
+        else if (data.id === "front-game" && data.type === "home-button")
+        {
+          game.gameState.scores.left = 0;
+          game.gameState.scores.right = 0;
+          game.gameState.gameStart = false;
+          game.gameState.home = true;
+          broadcastState(players, game.gameState);
+          game.gameState.home = false;
+        }
         else if (data.id === "front-game" && data.type === "key")
         {
             if (data.sKey === true && game.gameState.paddles[0].y < 310)
@@ -79,8 +88,6 @@ fastify.register(async (fastify) => {
         }
         else if (data.id === "front-game" && data.type === "next-button")
         {
-            
-
             if (tournament.tournamentData.round === 0)
             {
               if (game.gameState.scores.left === 2)
@@ -125,7 +132,7 @@ fastify.register(async (fastify) => {
             tournament.tournamentData.type = "display-tournament";
             game.gameState.scores.left = 0;
             game.gameState.scores.right = 0;
-            game.gameState.gameOver = false;
+            game.gameState.gameStart = false;
             broadcastState(players, tournament.tournamentData);
         }  
         
