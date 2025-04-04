@@ -143,9 +143,24 @@ fastify.register(async (fastify) => {
         }
         else if (data.id === "front-tournament" && data.type === "next-button")
         {
+          if (tournament.tournamentData.round <= 2 )
+          {
             tournament.tournamentData.type = "display-game";  
             // tournament.updateTournament();
             broadcastState(players, tournament.tournamentData);
+          }  
+        }
+        else if (data.id === "front-tournament" && data.type === "home-button")
+        {
+            // tournament.tournamentData.type = "display-game";  
+            // tournament.updateTournament();
+            tournament.tournamentData.type = "home";
+            tournament.tournamentData.brackets = ["Player 1", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank", "-","-","-", "-", "-", "-","-"]
+            tournament.tournamentData.results = []
+            tournament.tournamentData.round = 0;
+          broadcastState(players, tournament.tournamentData);
+
+          tournament.tournamentData.type = "";
         }
     });
 

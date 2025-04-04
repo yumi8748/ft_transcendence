@@ -70,10 +70,12 @@ class TournamentDisplay {
             
         </div>
         <button type="button" id="tournament-next" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Next round</button>
+        <button type="button" id="tournament-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">home</button>
         `;
 
         this.sendRoute(socket);
         this.sendNextRound(socket);
+        this.sendPressHome(socket);
         
     }
 
@@ -88,6 +90,15 @@ class TournamentDisplay {
         document.getElementById("tournament-next").addEventListener("click", (e)=>{
 
             this.message.type = "next-button";
+            socket.send(JSON.stringify(this.message));
+        })
+    }
+
+    sendPressHome(socket)
+    {
+        document.getElementById("tournament-home").addEventListener("click", (e)=>{
+
+            this.message.type = "home-button";
             socket.send(JSON.stringify(this.message));
         })
     }

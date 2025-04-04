@@ -39,6 +39,10 @@ socket.onmessage = function (event) {
     {
         tournamentDisplay.displayTournament(socket);
     }
+    if (data.id === "back-tournament" && data.type === "home")
+    {
+        displayHome(socket);
+    }
     
 };
 
