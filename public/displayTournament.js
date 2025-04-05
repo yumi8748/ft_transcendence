@@ -73,17 +73,9 @@ class TournamentDisplay {
         <button type="button" id="tournament-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">home</button>
         `;
 
-        // this.sendRoute(socket);
         this.sendNextRound(socket);
         this.sendPressHome(socket);
-        
     }
-
-    // sendRoute(socket)
-    // {
-    //     this.message.type = "draw-tournament";
-    //     socket.send(JSON.stringify(this.message));
-    // }
 
     sendDrawTournament(socket)
     {
@@ -120,7 +112,6 @@ class TournamentDisplay {
             i++;
         })
     }
-
   }
 
 export {TournamentDisplay};

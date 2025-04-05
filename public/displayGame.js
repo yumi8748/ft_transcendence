@@ -38,37 +38,6 @@ class GameDisplay {
         this.sendKeydown(socket);
         this.sendKeyup(socket);
         this.sendPressStart(socket)
-        
-
-        // if (location.pathname === "/game")
-        // {
-        //     contentDiv.innerHTML = `
-        //     <canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>
-        //     <button type="button" id="game-start" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">start</button>
-        //     <button type="button" id="game-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">home</button>
-        //     `;
-        //     this.canvas = document.getElementById("tutorial");
-        //     this.ctx = this.canvas.getContext("2d");
-        //     this.sendKeydown(socket);
-        //     this.sendKeyup(socket);
-        //     this.sendPressStart(socket)
-        //     this.sendPressHome(socket)
-        // }
-        // else if (location.pathname === "/tournament")
-        // {
-        //     contentDiv.innerHTML = `
-        //     <canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>
-        //     <button type="button" id="game-start" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">start</button>
-        //     <button type="button" id="game-next" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">next</button>
-        //     `;
-        //     this.canvas = document.getElementById("tutorial");
-        //     this.ctx = this.canvas.getContext("2d");
-        //     this.sendKeydown(socket);
-        //     this.sendKeyup(socket);
-        //     this.sendPressStart(socket)
-        //     this.sendPressNext(socket)
-        // }
-        
     }
 
     sendDrawGame(socket)
