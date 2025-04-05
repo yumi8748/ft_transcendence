@@ -29,27 +29,7 @@ fastify.register(fastifyWebsocket)
 let players = [];
 const game = new Game();
 
-let intervalId;
 
-function startSetInterval()
-{
-    intervalId = setInterval(() => 
-    {
-      game.updateGame();
-      broadcastState(players, game.gameState);
-    }, 30);
-}
-
-function stopSetInterval()
-{
-    clearInterval(intervalId);
-    intervalId = null;
-}
-
-function getRandomUniqueElement(array) {
-  const index = Math.floor(Math.random() * array.length);
-  return array.splice(index, 1)[0]; // remove and return the element
-}
 
 const tournament = new Tournament();
 
@@ -64,21 +44,22 @@ fastify.register(async (fastify) => {
         const data = JSON.parse(message);
         if (data.id === "front-game" && data.type === "draw-game")
         {
-            broadcastState(players, game.gameState);
+          game.gameState.type = "draw-game";
+          broadcastState(players, game.gameState);
         }
         else if (data.id === "front-game" && data.type === "start-button")
         {
-            game.gameState.gameStart = true;
-            startSetInterval(); 
+          game.gameState.type = "game-update";
+          game.gameState.gameStart = true;
+          game.startSetInterval(players); 
         }
         else if (data.id === "front-game" && data.type === "home-button")
         {
           game.gameState.scores.left = 0;
           game.gameState.scores.right = 0;
           game.gameState.gameStart = false;
-          game.gameState.home = true;
+          game.gameState.type = "home";
           broadcastState(players, game.gameState);
-          game.gameState.home = false;
         }
         else if (data.id === "front-game" && data.type === "key")
         {
@@ -97,208 +78,51 @@ fastify.register(async (fastify) => {
           {
               if (tournament.tournamentData.round === 0)
               {
-                  for (let i = 0; i < tournament.tournamentData.quarter.length; i += 2)
-                  {
-                      if (i + 1 < tournament.tournamentData.quarter.length)
-                      {
-                          if (tournament.tournamentData.quarter[i] === "Player 1" || tournament.tournamentData.quarter[i + 1] === "Player 1")
-                          {
-                                  if (tournament.tournamentData.quarter[i] === "Player 1")
-                                      tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i + 1]);
-                                  else
-                                      tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i]);
-                          }
-                          else
-                          {
-                              let winner = tournament.playMatch(tournament.tournamentData.quarter[i], tournament.tournamentData.quarter[i + 1]);
-                              tournament.tournamentData.semi.push(winner);
-                          }
-                      } 
-                  }
-    
-                  for (let i = 0; i < tournament.tournamentData.semi.length; i++)
-                  {
-                    tournament.tournamentData.brackets.push(tournament.tournamentData.semi[i]);
-                  }
-                  
-
-
-                  for (let i = 0; i < tournament.tournamentData.semi.length; i += 2)
-                  {
-                      if (i + 1 < tournament.tournamentData.semi.length)
-                      {
-                          let winner = tournament.playMatch(tournament.tournamentData.semi[i], tournament.tournamentData.semi[i + 1]);
-                          tournament.tournamentData.final.push(winner);
-                      } 
-                  }
-      
-                  for (let i = 0; i < tournament.tournamentData.final.length; i++)
-                  {
-                    tournament.tournamentData.brackets.push(tournament.tournamentData.final[i]);
-                  }
-
-                  let winner = tournament.playMatch(tournament.tournamentData.final[0], tournament.tournamentData.final[1]);
-                  tournament.tournamentData.winner.push(winner);
-
-                  tournament.tournamentData.brackets.push(tournament.tournamentData.winner[0]);
-
-
+                  tournament.updateResults("right");
+                  tournament.updateResults("right");
+                  tournament.updateResults("right");
               }
               else if (tournament.tournamentData.round === 1)
               {
-                for (let i = 0; i < tournament.tournamentData.semi.length; i += 2)
-                {
-                    if (i + 1 < tournament.tournamentData.semi.length)
-                    {
-                        if (tournament.tournamentData.semi[i] === "Player 1" || tournament.tournamentData.semi[i + 1] === "Player 1")
-                        {
-                                if (tournament.tournamentData.semi[i] === "Player 1")
-                                    tournament.tournamentData.final.push(tournament.tournamentData.semi[i + 1]);
-                                else
-                                    tournament.tournamentData.final.push(tournament.tournamentData.semi[i]);
-                        }
-                        else
-                        {
-                            let winner = tournament.playMatch(tournament.tournamentData.semi[i], tournament.tournamentData.semi[i + 1]);
-                            tournament.tournamentData.final.push(winner);
-                        }
-                    } 
-                }
-  
-                for (let i = 0; i < tournament.tournamentData.final.length; i++)
-                {
-                  tournament.tournamentData.brackets.push(tournament.tournamentData.final[i]);
-                }
-
-                  let winner = tournament.playMatch(tournament.tournamentData.final[0], tournament.tournamentData.final[1]);
-                  tournament.tournamentData.winner.push(winner);
-
-                  tournament.tournamentData.brackets.push(tournament.tournamentData.winner[0]);
+                  tournament.updateResults("right");
+                  tournament.updateResults("right");
               }
               else if (tournament.tournamentData.round === 2)
               {
-                  if (tournament.tournamentData.final[0] === "Player 1")
-                      tournament.tournamentData.winner.push(tournament.tournamentData.final[1]);
-                  else
-                      tournament.tournamentData.winner.push(tournament.tournamentData.final[0]);
-                  tournament.tournamentData.brackets.push(tournament.tournamentData.winner[0]);
+                  tournament.updateResults("right");
               }
-
               tournament.tournamentData.round = 3;
           }
           else if (game.gameState.scores.left === 2)
           {
-            if (tournament.tournamentData.round === 0)
+              if (tournament.tournamentData.round <= 2)
               {
-                for (let i = 0; i < tournament.tournamentData.quarter.length; i += 2)
-                {
-                    if (i + 1 < tournament.tournamentData.quarter.length)
-                    {
-                        if (tournament.tournamentData.quarter[i] === "Player 1" || tournament.tournamentData.quarter[i + 1] === "Player 1")
-                        {
-                                if (tournament.tournamentData.quarter[i] === "Player 1")
-                                    tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i]);
-                                else
-                                    tournament.tournamentData.semi.push(tournament.tournamentData.quarter[i+1]);
-                        }
-                        else
-                        {
-                            let winner = tournament.playMatch(tournament.tournamentData.quarter[i], tournament.tournamentData.quarter[i + 1]);
-                            tournament.tournamentData.semi.push(winner);
-                        }
-                    } 
-                }
-  
-                for (let i = 0; i < tournament.tournamentData.semi.length; i++)
-                {
-                  tournament.tournamentData.brackets.push(tournament.tournamentData.semi[i]);
-                }
+                  tournament.updateResults("left");
               }
-              else if (tournament.tournamentData.round === 1)
-              {
-                for (let i = 0; i < tournament.tournamentData.semi.length; i += 2)
-                {
-                    if (i + 1 < tournament.tournamentData.semi.length)
-                    {
-                        if (tournament.tournamentData.semi[i] === "Player 1" || tournament.tournamentData.semi[i + 1] === "Player 1")
-                        {
-                                if (tournament.tournamentData.semi[i] === "Player 1")
-                                    tournament.tournamentData.final.push(tournament.tournamentData.semi[i]);
-                                else
-                                    tournament.tournamentData.final.push(tournament.tournamentData.semi[i+1]);
-                        }
-                        else
-                        {
-                            let winner = tournament.playMatch(tournament.tournamentData.semi[i], tournament.tournamentData.semi[i + 1]);
-                            tournament.tournamentData.final.push(winner);
-                        }
-                    } 
-                }
-  
-                for (let i = 0; i < tournament.tournamentData.final.length; i++)
-                {
-                  tournament.tournamentData.brackets.push(tournament.tournamentData.final[i]);
-                }
-
-              }
-              else if (tournament.tournamentData.round === 2)
-              {
-                  if (tournament.tournamentData.final[0] === "Player 1")
-                      tournament.tournamentData.winner.push(tournament.tournamentData.final[0]);
-                  else
-                      tournament.tournamentData.winner.push(tournament.tournamentData.final[1]);
-                  tournament.tournamentData.brackets.push(tournament.tournamentData.winner[0]);
-              }
-  
-              tournament.tournamentData.round++;
-  
-             
           }  
-          
-          tournament.tournamentData.type = "display-tournament";
+          tournament.tournamentData.type = "draw-tournament";
           game.gameState.scores.left = 0;
           game.gameState.scores.right = 0;
           game.gameState.gameStart = false;
           broadcastState(players, tournament.tournamentData);
-          
         }  
         
         if (data.id === "front-tournament" && data.type === "draw-tournament")
         {
-          
-          if (tournament.tournamentData.round === 0)
+            if (tournament.tournamentData.round === 0)
             {
-              
-              let list = ["Player 1", "Bob", "Charlie", "Dave", "Eve", "Frank", "Grace", "Hank"];
-              while (list.length > 0) {
-                let element = getRandomUniqueElement(list);
-                tournament.tournamentData.quarter.push(element);
-              }
-              for (let i = 0; i < tournament.tournamentData.quarter.length; i++)
-              {
-                tournament.tournamentData.brackets.push(tournament.tournamentData.quarter[i]);
-              }
+                tournament.initializeTournament();
             }
-            tournament.tournamentData.type = "fill-players";
+            tournament.tournamentData.type = "draw-tournament";
             broadcastState(players, tournament.tournamentData);
-            
         }
         else if (data.id === "front-tournament" && data.type === "next-button")
         {
-          if (tournament.tournamentData.round <= 2)
-          {
-
-          // if (tournament.tournamentData.round === 0 )
-          // {
-            tournament.tournamentData.type = "display-game";  
-            // tournament.updateTournament();
-            broadcastState(players, tournament.tournamentData);
-          // }
-          // else if (tournament.tournamentData.round === 1 )
-          // {
-
-          // }
-          }
+            if (tournament.tournamentData.round <= 2)
+            {
+                tournament.tournamentData.type = "draw-game";  
+                broadcastState(players, tournament.tournamentData);
+            }
         }
         else if (data.id === "front-tournament" && data.type === "home-button")
         {
@@ -336,4 +160,4 @@ try {
   process.exit(1)
 }
 
-export {broadcastState, startSetInterval, stopSetInterval} ;
+export {broadcastState} ;

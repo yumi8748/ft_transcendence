@@ -1,4 +1,4 @@
-import {broadcastState, stopSetInterval} from "./index.js";
+import {broadcastState} from "./index.js";
 
 class Tournament {
     constructor()
@@ -7,10 +7,12 @@ class Tournament {
         {
             
             brackets: [],
-            final: [],
-            quarter: [],
-            winner: [],
-            semi: [],
+            // final: [],
+            // quarter: [],
+            // winner: [],
+            // semi: [],
+            current_round: [],
+            next_round: [],
             type : "",
             id : "back-tournament",
             round : 0,
@@ -63,6 +65,67 @@ class Tournament {
     //     }
     //     this.tournamentData.round++;
     // }
+
+    updateResults(winner)
+    {
+        for (let i = 0; i < this.tournamentData.current_round.length; i += 2)
+        {
+            if (this.tournamentData.current_round[i] === "Player 1" || this.tournamentData.current_round[i + 1] === "Player 1")
+            {
+                if (winner === "left")
+                {
+                    if (this.tournamentData.current_round[i] === "Player 1")
+                        this.tournamentData.next_round.push(this.tournamentData.current_round[i]);
+                    else
+                        this.tournamentData.next_round.push(this.tournamentData.current_round[i+1]);
+                }
+                else if (winner === "right")
+                {
+                    if (this.tournamentData.current_round[i] === "Player 1")
+                        this.tournamentData.next_round.push(this.tournamentData.current_round[i + 1]);
+                    else
+                        this.tournamentData.next_round.push(this.tournamentData.current_round[i]);
+                }
+            }
+            else
+            {
+                let winner = this.playMatch(this.tournamentData.current_round[i], this.tournamentData.current_round[i + 1]);
+                this.tournamentData.next_round.push(winner);
+            }
+        }
+
+        for (let i = 0; i < this.tournamentData.next_round.length; i++)
+        {
+            this.tournamentData.brackets.push(this.tournamentData.next_round[i]);
+        }
+
+        if (this.tournamentData.round === 2)
+            this.tournamentData.current_round = [];
+        else
+            this.tournamentData.current_round = this.tournamentData.next_round;
+        this.tournamentData.next_round = [];
+        this.tournamentData.round++;
+    }
+
+    getRandomUniqueElement(array)
+    {
+        const index = Math.floor(Math.random() * array.length);
+        return array.splice(index, 1)[0];
+    }
+
+    initializeTournament()
+    {
+        let list = [...this.contestants];
+        while (list.length > 0)
+        {
+            let element = this.getRandomUniqueElement(list);
+            this.tournamentData.current_round.push(element);
+        }
+        for (let i = 0; i < this.tournamentData.current_round.length; i++)
+        {
+            this.tournamentData.brackets.push(this.tournamentData.current_round[i]);
+        }
+    }
   }
 
 export {Tournament};

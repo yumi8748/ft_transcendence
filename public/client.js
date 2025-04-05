@@ -17,29 +17,32 @@ socket.onclose = function (event) {
     // console.log('C: Client closed connection');
 };
 
-socket.onmessage = function (event) {
+socket.onmessage = function (event) 
+{
     const data = JSON.parse(event.data);
-    if (data.id === "back-game" && data.home === false)
+    if (data.id === "back-game" && data.type === "game-update")
     {
-        gameDisplay.handleGameMess(data);
+        gameDisplay.draw(data);
     }
-    if (data.id === "back-game" && data.home === true)
+    else if (data.id === "back-game" && data.type === "home")
     {
         displayHome(socket);
     }
-    if (data.id === "back-tournament" && data.type === "fill-players")
-    {
-        tournamentDisplay.displayPlayers(data);
-    }
-    if (data.id === "back-tournament" && data.type === "display-game")
+    else if (data.id === "back-game" && data.type === "draw-game")
     {
         gameDisplay.displayGame(socket);
+        gameDisplay.draw(data);
     }
-    if (data.id === "back-tournament" && data.type === "display-tournament")
+    else if (data.id === "back-tournament" && data.type === "draw-tournament")
     {
         tournamentDisplay.displayTournament(socket);
+        tournamentDisplay.displayPlayers(data);
     }
-    if (data.id === "back-tournament" && data.type === "home")
+    else if (data.id === "back-tournament" && data.type === "draw-game")
+    {
+        gameDisplay.sendDrawGame(socket);
+    }
+    else if (data.id === "back-tournament" && data.type === "home")
     {
         displayHome(socket);
     }
@@ -59,10 +62,10 @@ const render = async () => {
             displayHome();
             break;
         case "/game":
-            gameDisplay.displayGame(socket);
+            gameDisplay.sendDrawGame(socket);
             break;
         case "/tournament":
-            tournamentDisplay.displayTournament(socket);
+            tournamentDisplay.sendDrawTournament(socket);
             break;
         case "/login":
             displayLogin();

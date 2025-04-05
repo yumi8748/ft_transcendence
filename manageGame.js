@@ -1,4 +1,4 @@
-import {startSetInterval, broadcastState, stopSetInterval} from "./index.js";
+import {broadcastState} from "./index.js";
 // leave 10 pixels of space between the paddle and the edge of the screen
 
 class Game {
@@ -10,8 +10,8 @@ class Game {
             ball: { x: 300, y: 200, vx: 4, vy: 4 },
             scores: {left: 0, right: 0},
             gameStart : false,
-            // gameOver : false,
-            home: false
+            type: "",
+            intervalId: ""
         };
     }
   
@@ -20,7 +20,7 @@ class Game {
         if (this.gameState.scores.left >= 2 || this.gameState.scores.right >= 2)
         {
             this.gameState.gameStart = false;
-            stopSetInterval();
+            this.stopSetInterval();
         }
         if (this.gameState.gameStart)
         {
@@ -51,6 +51,21 @@ class Game {
         this.gameState.ball.y = 200;
         this.gameState.ball.vx = Math.random() < 0.5 ? 4 : -4;
         this.gameState.ball.vy = Math.random() < 0.5 ? 4 : -4;
+    }
+
+    startSetInterval(players)
+    {
+        this.intervalId = setInterval(() => 
+        {
+          this.updateGame();
+          broadcastState(players, this.gameState);
+        }, 30);
+    }
+
+    stopSetInterval()
+    {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
     }
   }
 
