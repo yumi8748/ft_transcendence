@@ -67,6 +67,63 @@ class Game {
         clearInterval(this.intervalId);
         this.intervalId = null;
     }
+
+    updatePaddlePosition(data)
+    {
+        if (data.sKey === true && this.gameState.paddles[0].y < 310)
+            this.gameState.paddles[0].y += 10;
+        if (data.wKey === true && this.gameState.paddles[0].y > 10)
+            this.gameState.paddles[0].y -= 10;
+        if (data.lKey === true && this.gameState.paddles[1].y < 310)
+            this.gameState.paddles[1].y += 10;
+        if (data.oKey === true && this.gameState.paddles[1].y > 10)
+            this.gameState.paddles[1].y -= 10;
+    }
+
+    sendHomeMessage(players)
+    {
+        this.gameState.scores.left = 0;
+        this.gameState.scores.right = 0;
+        this.gameState.gameStart = false;
+        this.gameState.type = "home";
+        broadcastState(players, this.gameState);
+    }
+
+    sendStartMessage(players)
+    {
+        this.gameState.type = "game-update";
+        this.gameState.gameStart = true;
+        this.startSetInterval(players); 
+    }
+
+    sendDrawMessage(players)
+    {
+        this.gameState.type = "draw-game";
+        broadcastState(players, this.gameState);
+    }
+
+    sendNextMessage(players, tournament)
+    {
+        if (this.gameState.scores.right === 2)
+        {
+            while (tournament.tournamentData.round <= 2)
+            {
+                tournament.updateResults("right");
+            }
+        }
+        else if (this.gameState.scores.left === 2)
+        {
+            if (tournament.tournamentData.round <= 2)
+            {
+                tournament.updateResults("left");
+            }
+        }  
+        tournament.tournamentData.type = "draw-tournament";
+        this.gameState.scores.left = 0;
+        this.gameState.scores.right = 0;
+        this.gameState.gameStart = false;
+        broadcastState(players, tournament.tournamentData);
+    }
   }
 
 export {Game};

@@ -54,10 +54,7 @@ class Tournament {
             this.tournamentData.brackets.push(this.tournamentData.next_round[i]);
         }
 
-        if (this.tournamentData.round === 2)
-            this.tournamentData.current_round = [];
-        else
-            this.tournamentData.current_round = this.tournamentData.next_round;
+        this.tournamentData.current_round = this.tournamentData.next_round;
         this.tournamentData.next_round = [];
         this.tournamentData.round++;
     }
@@ -79,6 +76,35 @@ class Tournament {
         for (let i = 0; i < this.tournamentData.current_round.length; i++)
         {
             this.tournamentData.brackets.push(this.tournamentData.current_round[i]);
+        }
+    }
+
+    sendHomeMessage(players)
+    {
+        this.tournamentData.type = "home";
+        this.tournamentData.brackets = [];
+        this.tournamentData.next_round = [];
+        this.tournamentData.current_round = [];
+        this.tournamentData.round = 0;
+        broadcastState(players, this.tournamentData);
+    }
+
+    sendDrawMessage(players)
+    {
+        if (this.tournamentData.round === 0)
+        {
+            this.initializeTournament();
+        }
+        this.tournamentData.type = "draw-tournament";
+        broadcastState(players, this.tournamentData);
+    }
+
+    sendNextMessage(players)
+    {
+        if (this.tournamentData.round <= 2)
+        {
+            this.tournamentData.type = "draw-game";  
+            broadcastState(players, this.tournamentData);
         }
     }
   }
