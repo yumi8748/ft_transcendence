@@ -27,34 +27,36 @@ fastify.setNotFoundHandler((req, reply) => {
 fastify.register(fastifyWebsocket)
 
 let players = [];
+let playerIndex = 0;
+let contestants = ["Alice", "Bob", "Charlie", "Dave"];
 const game = new Game();
 const tournament = new Tournament();
 
 fastify.register(async (fastify) => {
     fastify.get("/ws", { websocket: true }, (connection, req) => {
     
+    connection.id = contestants[playerIndex];
     players.push(connection);
-    const playerIndex = players.length;
-    
+    playerIndex = players.length;
     connection.on("message", (message) =>
     {
-        const data = JSON.parse(message);
-        if (data.id === "front-game" && data.type === "draw-game")
-           game.sendDrawMessage(players);
-        else if (data.id === "front-game" && data.type === "start-button")
-            game.sendStartMessage(players);
-        else if (data.id === "front-game" && data.type === "key")
-            game.updatePaddlePosition(data);
-        else if (data.id === "front-game" && data.type === "home-button")
-            game.sendHomeMessage(players);
-        else if (data.id === "front-game" && data.type === "next-button")
-            game.sendNextMessage(players, tournament);
-        else if (data.id === "front-tournament" && data.type === "draw-tournament")
-            tournament.sendDrawMessage(players);
-        else if (data.id === "front-tournament" && data.type === "next-button")
-            tournament.sendNextMessage(players);
-        else if (data.id === "front-tournament" && data.type === "home-button")
-            tournament.sendHomeMessage(players);
+      const data = JSON.parse(message);
+      if (data.id === "front-game" && data.type === "draw-game")
+         game.sendDrawMessage(players, tournament);
+      else if (data.id === "front-game" && data.type === "start-button")
+          game.sendStartMessage(players);
+      else if (data.id === "front-game" && data.type === "key")
+          game.updatePaddlePosition(data);
+      else if (data.id === "front-game" && data.type === "home-button")
+          game.sendHomeMessage(players);
+      else if (data.id === "front-game" && data.type === "next-button")
+          game.sendNextMessage(players, tournament);
+      else if (data.id === "front-tournament" && data.type === "draw-tournament")
+          tournament.sendDrawMessage(players, connection.id);
+      else if (data.id === "front-tournament" && data.type === "next-button")
+          tournament.sendNextMessage(players);
+      else if (data.id === "front-tournament" && data.type === "home-button")
+          tournament.sendHomeMessage(players);
     });
 
     connection.on('close', () =>

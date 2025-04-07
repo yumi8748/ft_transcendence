@@ -11,7 +11,7 @@ class Tournament {
             type : "",
             id : "back-tournament",
             round : 0,
-            current_games: 0
+            current_games: 0,
         };
         this.contestants = ["Alice", "Bob", "Charlie", "Dave"];
     }
@@ -58,9 +58,13 @@ class Tournament {
         return array.splice(index, 1)[0];
     }
 
-    initializeTournament()
+    initializeTournament(players)
     {
-        let list = [...this.contestants];
+        let list = [];
+        for (let i = 0; i < players.length; i++)
+        {
+            list.push(players[i].id);
+        }
         while (list.length > 0)
         {
             let element = this.getRandomUniqueElement(list);
@@ -70,7 +74,6 @@ class Tournament {
         {
             this.tournamentData.brackets.push(this.tournamentData.current_round[i]);
         }
-        this.tournamentData.total_games = 2;
         this.tournamentData.current_games = 0;
     }
 
@@ -81,25 +84,39 @@ class Tournament {
         this.tournamentData.next_round = [];
         this.tournamentData.current_round = [];
         this.tournamentData.round = 0;
+        this.tournamentData.current_games = 0;
         broadcastState(players, this.tournamentData);
     }
 
-    sendDrawMessage(players)
+    sendDrawMessage(players, playerId)
     {
-        if (this.tournamentData.round === 0)
+        if (this.tournamentData.round === 0 && this.tournamentData.current_round.length === 0)
         {
-            this.initializeTournament();
+            this.initializeTournament(players);
         }
         this.tournamentData.type = "draw-tournament";
-        broadcastState(players, this.tournamentData);
+        console.log(playerId)
+        players.forEach(player => {
+            if (playerId === player.id)
+                player.send(JSON.stringify(this.tournamentData))
+        }
+        );
     }
 
     sendNextMessage(players)
     {
         if (this.tournamentData.round <= 1)
         {
-            this.tournamentData.type = "draw-game";  
-            broadcastState(players, this.tournamentData);
+            this.tournamentData.type = "draw-game";
+            let index = (this.tournamentData.current_games * 2);
+            players.forEach(player => 
+            {
+                if (player.id === this.tournamentData.current_round[index] || player.id === this.tournamentData.current_round[index + 1])
+                {
+                    player.send(JSON.stringify(this.tournamentData))
+                }
+            }
+            );
         }
     }
   }

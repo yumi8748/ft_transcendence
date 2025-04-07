@@ -96,10 +96,19 @@ class Game {
         this.startSetInterval(players); 
     }
 
-    sendDrawMessage(players)
+    sendDrawMessage(players, tournament)
     {
         this.gameState.type = "draw-game";
-        broadcastState(players, this.gameState);
+        let index = (tournament.tournamentData.current_games * 2);
+        console.log(index, " ",players[index].id, " ", players[index + 1].id)
+        players.forEach(player => 
+        {
+            if (player.id === tournament.tournamentData.current_round[index] || player.id === tournament.tournamentData.current_round[index + 1])
+            {
+                player.send(JSON.stringify(this.gameState))
+            }
+        }
+        );
     }
 
     sendNextMessage(players, tournament)
