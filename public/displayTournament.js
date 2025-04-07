@@ -13,35 +13,12 @@ class TournamentDisplay {
     {
         contentDiv.innerHTML = `
         <div class = "bracket flex flex-row  gap-10 bg-blue-500 p-2 ">
-            <p class="header basis-32 text-white p-2">Quarter final</p>
             <p class="header basis-32 text-white p-2">Semi final</p>
             <p class="header basis-32 text-white p-2">Final</p>
             <p class="header basis-32 text-white p-2">Winner</p>
         </div>
 
         <div class = "bracket flex flex-row  gap-10 bg-blue-500 p-2 ">
-
-            <div id = "quarterfinal" class="round basis-32 flex flex-col gap-4 justify-center"> 
-                <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> - </div>
-                    <div class="player pl-2"> - </div>
-                </div>
-
-                <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> - </div>
-                    <div class="player pl-2"> - </div>
-                </div>
-
-                <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> - </div>
-                    <div class="player pl-2"> - </div>
-                </div>
-
-                <div class="match  bg-white pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 
-                    <div class="player pl-2"> - </div>
-                    <div class="player pl-2"> - </div>
-                </div>
-            </div>
 
             <div id = "semifinal" class=" basis-32 round flex flex-col gap-4 justify-center">
                 <div class="match bg-white  pt-2 pb-2 border-solid rounded-md border-2 border-neutral-200"> 

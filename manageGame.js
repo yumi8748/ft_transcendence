@@ -104,20 +104,10 @@ class Game {
 
     sendNextMessage(players, tournament)
     {
-        if (this.gameState.scores.right === 2)
+        if (tournament.tournamentData.round <= 1)
         {
-            while (tournament.tournamentData.round <= 2)
-            {
-                tournament.updateResults("right");
-            }
+            tournament.updateResults(this.gameState.scores.left, this.gameState.scores.right);
         }
-        else if (this.gameState.scores.left === 2)
-        {
-            if (tournament.tournamentData.round <= 2)
-            {
-                tournament.updateResults("left");
-            }
-        }  
         tournament.tournamentData.type = "draw-tournament";
         this.gameState.scores.left = 0;
         this.gameState.scores.right = 0;

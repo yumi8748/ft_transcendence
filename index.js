@@ -33,8 +33,8 @@ const tournament = new Tournament();
 fastify.register(async (fastify) => {
     fastify.get("/ws", { websocket: true }, (connection, req) => {
     
-    const playerIndex = players.length;
     players.push(connection);
+    const playerIndex = players.length;
     
     connection.on("message", (message) =>
     {
