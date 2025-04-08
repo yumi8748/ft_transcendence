@@ -5,7 +5,6 @@ class Game {
     constructor()
     {
         this.gameState = {
-            id: "back-game",
             paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
             ball: { x: 300, y: 200, vx: 4, vy: 4 },
             scores: {left: 0, right: 0},
@@ -85,20 +84,20 @@ class Game {
         this.gameState.scores.left = 0;
         this.gameState.scores.right = 0;
         this.gameState.gameStart = false;
-        this.gameState.type = "home";
+        this.gameState.type = "back-game-home";
         broadcastState(players, this.gameState);
     }
 
     sendStartMessage(players)
     {
-        this.gameState.type = "game-update";
+        this.gameState.type = "back-game-position-update";
         this.gameState.gameStart = true;
         this.startSetInterval(players); 
     }
 
     sendDrawMessage(players, tournament)
     {
-        this.gameState.type = "draw-game";
+        this.gameState.type = "back-game-draw-game";
         let index = (tournament.tournamentData.current_games * 2);
         console.log(index, " ",players[index].id, " ", players[index + 1].id)
         players.forEach(player => 
@@ -117,7 +116,7 @@ class Game {
         {
             tournament.updateResults(this.gameState.scores.left, this.gameState.scores.right);
         }
-        tournament.tournamentData.type = "draw-tournament";
+        tournament.tournamentData.type = "back-game-draw-tournament";
         this.gameState.scores.left = 0;
         this.gameState.scores.right = 0;
         this.gameState.gameStart = false;

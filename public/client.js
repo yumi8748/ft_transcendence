@@ -20,29 +20,30 @@ socket.onclose = function (event) {
 socket.onmessage = function (event) 
 {
     const data = JSON.parse(event.data);
-    if (data.id === "back-game" && data.type === "game-update")
+    console.log(data)
+    if (data.type === "back-game-position-update")
     {
         gameDisplay.draw(data);
     }
-    else if (data.id === "back-game" && data.type === "home")
+    else if (data.type === "back-game-home")
     {
         displayHome(socket);
     }
-    else if (data.id === "back-game" && data.type === "draw-game")
+    else if (data.type === "back-game-draw-game")
     {
         gameDisplay.displayGame(socket);
         gameDisplay.draw(data);
     }
-    else if (data.id === "back-tournament" && data.type === "draw-tournament")
+    else if (data.type === "back-tournament-draw-tournament" || data.type === "back-game-draw-tournament")
     {
         tournamentDisplay.displayTournament(socket);
         tournamentDisplay.displayPlayers(data);
     }
-    else if (data.id === "back-tournament" && data.type === "draw-game")
+    else if (data.type === "back-tournament-draw-game")
     {
         gameDisplay.sendDrawGame(socket);
     }
-    else if (data.id === "back-tournament" && data.type === "home")
+    else if (data.type === "back-tournament-home")
     {
         displayHome(socket);
     }

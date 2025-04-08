@@ -6,7 +6,6 @@ class GameDisplay {
         this.canvas = null;
         this.ctx = null;
         this.message = {
-            id: "front-game",
             type: "",
             wKey: false,
             sKey: false,
@@ -42,7 +41,7 @@ class GameDisplay {
 
     sendDrawGame(socket)
     {
-        this.message.type = "draw-game";
+        this.message.type = "front-game-draw-game";
         socket.send(JSON.stringify(this.message));
     }
 
@@ -50,7 +49,7 @@ class GameDisplay {
     {
         document.getElementById("game-start").addEventListener("click", (e)=>{
 
-            this.message.type = "start-button";
+            this.message.type = "front-game-start-button";
             socket.send(JSON.stringify(this.message));
         })
     }
@@ -59,7 +58,7 @@ class GameDisplay {
     {
         document.getElementById("game-next").addEventListener("click", (e)=>{
 
-            this.message.type = "next-button";
+            this.message.type = "front-game-next-button";
             socket.send(JSON.stringify(this.message));
         })
     }
@@ -68,7 +67,7 @@ class GameDisplay {
     {
         document.getElementById("game-home").addEventListener("click", (e)=>{
 
-            this.message.type = "home-button";
+            this.message.type = "front-game-home-button";
             socket.send(JSON.stringify(this.message));
         })
     }
@@ -77,7 +76,7 @@ class GameDisplay {
     {
         document.addEventListener('keydown', (e) => 
         {
-            this.message.type = "key";
+            this.message.type = "front-game-key";
             if (e.key === 's')
                 this.message.sKey = true;
             else if (e.key === 'w')
@@ -94,7 +93,7 @@ class GameDisplay {
     {
         document.addEventListener('keyup', (e) => 
         {
-            this.message.type = "key";
+            this.message.type = "front-game-key";
             if (e.key === 's')
                 this.message.sKey = false;
             else if (e.key === 'w')

@@ -9,7 +9,6 @@ class Tournament {
             current_round: [],
             next_round: [],
             type : "",
-            id : "back-tournament",
             round : 0,
             current_games: 0,
         };
@@ -79,7 +78,7 @@ class Tournament {
 
     sendHomeMessage(players)
     {
-        this.tournamentData.type = "home";
+        this.tournamentData.type = "back-tournament-home";
         this.tournamentData.brackets = [];
         this.tournamentData.next_round = [];
         this.tournamentData.current_round = [];
@@ -94,7 +93,7 @@ class Tournament {
         {
             this.initializeTournament(players);
         }
-        this.tournamentData.type = "draw-tournament";
+        this.tournamentData.type = "back-tournament-draw-tournament";
         console.log(playerId)
         players.forEach(player => {
             if (playerId === player.id)
@@ -107,7 +106,7 @@ class Tournament {
     {
         if (this.tournamentData.round <= 1)
         {
-            this.tournamentData.type = "draw-game";
+            this.tournamentData.type = "back-tournament-draw-game";
             let index = (this.tournamentData.current_games * 2);
             players.forEach(player => 
             {

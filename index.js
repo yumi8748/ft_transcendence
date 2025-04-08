@@ -41,21 +41,21 @@ fastify.register(async (fastify) => {
     connection.on("message", (message) =>
     {
       const data = JSON.parse(message);
-      if (data.id === "front-game" && data.type === "draw-game")
+      if (data.type === "front-game-draw-game")
          game.sendDrawMessage(players, tournament);
-      else if (data.id === "front-game" && data.type === "start-button")
+      else if (data.type === "front-game-start-button")
           game.sendStartMessage(players);
-      else if (data.id === "front-game" && data.type === "key")
+      else if (data.type === "front-game-key")
           game.updatePaddlePosition(data);
-      else if (data.id === "front-game" && data.type === "home-button")
+      else if (data.type === "front-game-home-button")
           game.sendHomeMessage(players);
-      else if (data.id === "front-game" && data.type === "next-button")
+      else if (data.type === "front-game-next-button")
           game.sendNextMessage(players, tournament);
-      else if (data.id === "front-tournament" && data.type === "draw-tournament")
+      else if (data.type === "front-tournament-draw-tournament")
           tournament.sendDrawMessage(players, connection.id);
-      else if (data.id === "front-tournament" && data.type === "next-button")
+      else if (data.type === "front-tournament-next-button")
           tournament.sendNextMessage(players);
-      else if (data.id === "front-tournament" && data.type === "home-button")
+      else if (data.type === "front-tournament-home-button")
           tournament.sendHomeMessage(players);
     });
 

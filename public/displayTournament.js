@@ -4,7 +4,6 @@ class TournamentDisplay {
     constructor()
     {
         this.message = {
-            id: "front-tournament",
             type: "",
         };
     }
@@ -56,7 +55,7 @@ class TournamentDisplay {
 
     sendDrawTournament(socket)
     {
-        this.message.type = "draw-tournament";
+        this.message.type = "front-tournament-draw-tournament";
         socket.send(JSON.stringify(this.message));
     }
 
@@ -64,7 +63,7 @@ class TournamentDisplay {
     {
         document.getElementById("tournament-next").addEventListener("click", (e)=>{
 
-            this.message.type = "next-button";
+            this.message.type = "front-tournament-next-button";
             socket.send(JSON.stringify(this.message));
         })
     }
@@ -73,7 +72,7 @@ class TournamentDisplay {
     {
         document.getElementById("tournament-home").addEventListener("click", (e)=>{
 
-            this.message.type = "home-button";
+            this.message.type = "front-tournament-home-button";
             socket.send(JSON.stringify(this.message));
         })
     }
