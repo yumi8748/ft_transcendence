@@ -40,23 +40,31 @@ fastify.register(async (fastify) => {
     playerIndex = players.length;
     connection.on("message", (message) =>
     {
-      const data = JSON.parse(message);
-      if (data.type === "front-game-draw-game")
-         game.sendDrawMessage(players, tournament);
-      else if (data.type === "front-game-start-button")
-          game.sendStartMessage(players);
-      else if (data.type === "front-game-key")
-          game.updatePaddlePosition(data);
-      else if (data.type === "front-game-home-button")
-          game.sendHomeMessage(players);
-      else if (data.type === "front-game-next-button")
-          game.sendNextMessage(players, tournament);
-      else if (data.type === "front-tournament-draw-tournament")
-          tournament.sendDrawMessage(players, connection.id);
-      else if (data.type === "front-tournament-next-button")
-          tournament.sendNextMessage(players);
-      else if (data.type === "front-tournament-home-button")
-          tournament.sendHomeMessage(players);
+        const data = JSON.parse(message);
+        // Game part
+        if (data.type === "front_game_draw")
+            game.sendDrawGame(connection);
+        else if (data.type === "front_game_start")
+            game.sendStartGame(connection);
+        else if (data.type === "front_game_key")
+            game.updatePaddlePosition(data);
+        else if (data.type === "front_game_home")
+            game.sendHomeGame(connection);
+        
+        // Tournament part
+        if (data.type === "front_tournamentTable_draw")
+            tournament.sendDrawTournamentTable(players, connection);
+        else if (data.type === "front_tournamentTable_next")
+            tournament.sendNextTournamentTable(players);
+        else if (data.type === "front_tournamentTable_home")
+            tournament.sendHomeTournamentTable(players);
+        else if (data.type === "front_tournamentGame_start")
+            tournament.sendStartTournamentGame(players);
+        else if (data.type === "front_tournamentGame_key")
+            tournament.updatePaddlePosition(data);
+        else if (data.type === "front_tournamentGame_next")
+            tournament.sendNextTournamentGame(players);
+       
     });
 
     connection.on('close', () =>

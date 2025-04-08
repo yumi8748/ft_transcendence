@@ -52,12 +52,12 @@ class Game {
         this.gameState.ball.vy = Math.random() < 0.5 ? 4 : -4;
     }
 
-    startSetInterval(players)
+    startSetInterval(connection)
     {
         this.intervalId = setInterval(() => 
         {
-          this.updateGame();
-          broadcastState(players, this.gameState);
+            this.updateGame();
+            connection.send(JSON.stringify(this.gameState))
         }, 30);
     }
 
@@ -79,49 +79,55 @@ class Game {
             this.gameState.paddles[1].y -= 10;
     }
 
-    sendHomeMessage(players)
+    sendHomeGame(connection)
     {
         this.gameState.scores.left = 0;
         this.gameState.scores.right = 0;
         this.gameState.gameStart = false;
-        this.gameState.type = "back-game-home";
-        broadcastState(players, this.gameState);
+        this.gameState.type = "back_game_home";
+        connection.send(JSON.stringify(this.gameState))
     }
 
-    sendStartMessage(players)
+    sendStartGame(connection)
     {
-        this.gameState.type = "back-game-position-update";
+        this.gameState.type = "back_game_position";
         this.gameState.gameStart = true;
-        this.startSetInterval(players); 
+        this.startSetInterval(connection); 
     }
 
-    sendDrawMessage(players, tournament)
+    sendDrawGame(connection)
     {
-        this.gameState.type = "back-game-draw-game";
-        let index = (tournament.tournamentData.current_games * 2);
-        console.log(index, " ",players[index].id, " ", players[index + 1].id)
-        players.forEach(player => 
-        {
-            if (player.id === tournament.tournamentData.current_round[index] || player.id === tournament.tournamentData.current_round[index + 1])
-            {
-                player.send(JSON.stringify(this.gameState))
-            }
-        }
-        );
-    }
-
-    sendNextMessage(players, tournament)
-    {
-        if (tournament.tournamentData.round <= 1)
-        {
-            tournament.updateResults(this.gameState.scores.left, this.gameState.scores.right);
-        }
-        tournament.tournamentData.type = "back-game-draw-tournament";
-        this.gameState.scores.left = 0;
-        this.gameState.scores.right = 0;
-        this.gameState.gameStart = false;
-        broadcastState(players, tournament.tournamentData);
+        this.gameState.type = "back_game_draw";
+        connection.send(JSON.stringify(this.gameState))
     }
   }
 
 export {Game};
+
+  // sendDrawMessage(players, tournament)
+    // {
+    //     // this.gameState.type = "back-game-draw-game";
+    //     let index = (tournament.tournamentData.current_games * 2);
+    //     players.forEach(player => 
+    //     {
+    //         if (player.id === tournament.tournamentData.current_round[index] || player.id === tournament.tournamentData.current_round[index + 1])
+    //         {
+    //             player.send(JSON.stringify(this.gameState))
+    //         }
+    //     }
+    //     );
+    // }
+
+
+        // sendNextMessage(players, tournament)
+    // {
+    //     if (tournament.tournamentData.round <= 1)
+    //     {
+    //         tournament.updateResults(this.gameState.scores.left, this.gameState.scores.right);
+    //     }
+    //     tournament.tournamentData.type = "back-game-draw-tournament";
+    //     this.gameState.scores.left = 0;
+    //     this.gameState.scores.right = 0;
+    //     this.gameState.gameStart = false;
+    //     broadcastState(players, tournament.tournamentData);
+    // }

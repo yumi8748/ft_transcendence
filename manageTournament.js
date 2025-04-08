@@ -11,6 +11,15 @@ class Tournament {
             type : "",
             round : 0,
             current_games: 0,
+
+        };
+        this.gameState = {
+            paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
+            ball: { x: 300, y: 200, vx: 4, vy: 4 },
+            scores: {left: 0, right: 0},
+            gameStart : false,
+            type: "",
+            intervalId: ""
         };
         this.contestants = ["Alice", "Bob", "Charlie", "Dave"];
     }
@@ -76,7 +85,7 @@ class Tournament {
         this.tournamentData.current_games = 0;
     }
 
-    sendHomeMessage(players)
+    sendHomeTournamentTable(players)
     {
         this.tournamentData.type = "back-tournament-home";
         this.tournamentData.brackets = [];
@@ -87,36 +96,127 @@ class Tournament {
         broadcastState(players, this.tournamentData);
     }
 
-    sendDrawMessage(players, playerId)
+    sendDrawTournamentTable(players, connection)
     {
         if (this.tournamentData.round === 0 && this.tournamentData.current_round.length === 0)
         {
             this.initializeTournament(players);
         }
-        this.tournamentData.type = "back-tournament-draw-tournament";
-        console.log(playerId)
-        players.forEach(player => {
-            if (playerId === player.id)
-                player.send(JSON.stringify(this.tournamentData))
-        }
-        );
+        this.tournamentData.type = "back_tournamentTable_draw";
+        connection.send(JSON.stringify(this.tournamentData))
     }
 
-    sendNextMessage(players)
+    sendNextTournamentTable(players)
     {
         if (this.tournamentData.round <= 1)
         {
-            this.tournamentData.type = "back-tournament-draw-game";
+            
+            this.gameState.type = "back_tournamentTable_next";
             let index = (this.tournamentData.current_games * 2);
             players.forEach(player => 
             {
                 if (player.id === this.tournamentData.current_round[index] || player.id === this.tournamentData.current_round[index + 1])
                 {
-                    player.send(JSON.stringify(this.tournamentData))
+                    player.send(JSON.stringify(this.gameState))
                 }
             }
             );
         }
+    }
+
+
+
+
+    sendStartTournamentGame(players)
+    {
+        this.gameState.type = "back_tournamentGame_position";
+        this.gameState.gameStart = true;
+        this.startSetInterval(players); 
+    }
+
+    sendNextTournamentGame(players)
+    {
+        if (this.tournamentData.round <= 1)
+        {
+            this.updateResults(this.gameState.scores.left, this.gameState.scores.right);
+        }
+        this.tournamentData.type = "back_tournamentTable_draw";
+        this.gameState.scores.left = 0;
+        this.gameState.scores.right = 0;
+        this.gameState.gameStart = false;
+        broadcastState(players, this.tournamentData);
+    }
+
+    updatePaddlePosition(data)
+    {
+        if (data.sKey === true && this.gameState.paddles[0].y < 310)
+            this.gameState.paddles[0].y += 10;
+        if (data.wKey === true && this.gameState.paddles[0].y > 10)
+            this.gameState.paddles[0].y -= 10;
+        if (data.lKey === true && this.gameState.paddles[1].y < 310)
+            this.gameState.paddles[1].y += 10;
+        if (data.oKey === true && this.gameState.paddles[1].y > 10)
+            this.gameState.paddles[1].y -= 10;
+    }
+
+    updateGame()
+    {
+        if (this.gameState.scores.left >= 2 || this.gameState.scores.right >= 2)
+        {
+            this.gameState.gameStart = false;
+            this.stopSetInterval();
+        }
+        if (this.gameState.gameStart)
+        {
+            this.gameState.ball.x += this.gameState.ball.vx;
+            this.gameState.ball.y += this.gameState.ball.vy;
+            if (this.gameState.ball.y <= 10 || this.gameState.ball.y >= 390)
+                this.gameState.ball.vy *= -1;
+            if (this.gameState.ball.x <= 10) 
+            {
+                this.gameState.scores.right += 1;
+                this.resetBall();
+            } 
+            else if (this.gameState.ball.x >= 590)
+            {
+                this.gameState.scores.left++;
+                this.resetBall();
+            }
+            if (this.gameState.ball.x == 20 && this.gameState.ball.y >= this.gameState.paddles[0].y && this.gameState.ball.y <= this.gameState.paddles[0].y + 80)
+                this.gameState.ball.vx *= -1;
+            if (this.gameState.ball.x == 580 && this.gameState.ball.y >= this.gameState.paddles[1].y && this.gameState.ball.y <= this.gameState.paddles[1].y + 80)
+                this.gameState.ball.vx *= -1;
+        }
+    }
+
+    resetBall()
+    {
+        this.gameState.ball.x = 300;
+        this.gameState.ball.y = 200;
+        this.gameState.ball.vx = Math.random() < 0.5 ? 4 : -4;
+        this.gameState.ball.vy = Math.random() < 0.5 ? 4 : -4;
+    }
+
+    startSetInterval(players)
+    {
+        this.intervalId = setInterval(() => 
+        {
+            this.updateGame();
+            let index = (this.tournamentData.current_games * 2);
+            players.forEach(player => 
+            {
+                if (player.id === this.tournamentData.current_round[index] || player.id === this.tournamentData.current_round[index + 1])
+                {
+                    player.send(JSON.stringify(this.gameState))
+                }
+            })
+        }, 30);
+    }
+
+    stopSetInterval()
+    {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
     }
   }
 

@@ -20,34 +20,41 @@ socket.onclose = function (event) {
 socket.onmessage = function (event) 
 {
     const data = JSON.parse(event.data);
-    console.log(data)
-    if (data.type === "back-game-position-update")
+
+    // Game part
+    if (data.type === "back_game_position")
     {
         gameDisplay.draw(data);
     }
-    else if (data.type === "back-game-home")
+    else if (data.type === "back_game_home")
     {
         displayHome(socket);
     }
-    else if (data.type === "back-game-draw-game")
+    else if (data.type === "back_game_draw")
     {
         gameDisplay.displayGame(socket);
         gameDisplay.draw(data);
     }
-    else if (data.type === "back-tournament-draw-tournament" || data.type === "back-game-draw-tournament")
+
+    // Tournament part
+    if (data.type === "back_tournamentTable_draw")
     {
-        tournamentDisplay.displayTournament(socket);
+        tournamentDisplay.displayTournamentTable(socket);
         tournamentDisplay.displayPlayers(data);
     }
-    else if (data.type === "back-tournament-draw-game")
+    else if (data.type === "back_tournamentTable_next")
     {
-        gameDisplay.sendDrawGame(socket);
+        tournamentDisplay.displayTournamentGame(socket);
+        tournamentDisplay.draw(data);
+    }
+    else if (data.type === "back_tournamentGame_position")
+    {
+        tournamentDisplay.draw(data);
     }
     else if (data.type === "back-tournament-home")
     {
         displayHome(socket);
     }
-    
 };
 
 var contentDiv = document.getElementById('content');
@@ -66,7 +73,7 @@ const render = async () => {
             gameDisplay.sendDrawGame(socket);
             break;
         case "/tournament":
-            tournamentDisplay.sendDrawTournament(socket);
+            tournamentDisplay.sendDrawTournamentTable(socket);
             break;
         case "/login":
             displayLogin();

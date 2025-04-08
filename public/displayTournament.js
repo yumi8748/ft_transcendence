@@ -8,7 +8,7 @@ class TournamentDisplay {
         };
     }
   
-    displayTournament(socket)
+    displayTournamentTable(socket)
     {
         contentDiv.innerHTML = `
         <div class = "bracket flex flex-row  gap-10 bg-blue-500 p-2 ">
@@ -45,34 +45,50 @@ class TournamentDisplay {
             </div>
             
         </div>
-        <button type="button" id="tournament-next" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Next round</button>
-        <button type="button" id="tournament-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">home</button>
+        <button type="button" id="tournament-next" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Next</button>
+        <button type="button" id="tournament-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Home</button>
         `;
 
-        this.sendNextRound(socket);
-        this.sendPressHome(socket);
+        this.sendPressNextTournamentTable(socket);
+        this.sendPressHomeTournamentTable(socket);
     }
 
-    sendDrawTournament(socket)
+    displayTournamentGame(socket)
     {
-        this.message.type = "front-tournament-draw-tournament";
+        contentDiv.innerHTML = `
+            <canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>
+            <button type="button" id="game-start" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Start</button>
+            <button type="button" id="game-next" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Next</button>
+            `;
+        
+        this.canvas = document.getElementById("tutorial");
+        this.ctx = this.canvas.getContext("2d");
+        this.sendPressNextTournamentGame(socket)
+        this.sendKeydownTournamentGame(socket);
+        this.sendKeyupTournamentGame(socket);
+        this.sendPressStartTournamentGame(socket)
+    }
+
+    sendDrawTournamentTable(socket)
+    {
+        this.message.type = "front_tournamentTable_draw";
         socket.send(JSON.stringify(this.message));
     }
 
-    sendNextRound(socket)
+    sendPressNextTournamentTable(socket)
     {
         document.getElementById("tournament-next").addEventListener("click", (e)=>{
 
-            this.message.type = "front-tournament-next-button";
+            this.message.type = "front_tournamentTable_next";
             socket.send(JSON.stringify(this.message));
         })
     }
 
-    sendPressHome(socket)
+    sendPressHomeTournamentTable(socket)
     {
         document.getElementById("tournament-home").addEventListener("click", (e)=>{
 
-            this.message.type = "front-tournament-home-button";
+            this.message.type = "front_tournamentTable_home";
             socket.send(JSON.stringify(this.message));
         })
     }
@@ -87,6 +103,88 @@ class TournamentDisplay {
                 div.textContent = data.brackets[index]
             i++;
         })
+    }
+
+
+
+    sendPressStartTournamentGame(socket)
+    {
+        document.getElementById("game-start").addEventListener("click", (e)=>{
+
+            this.message.type = "front_tournamentGame_start";
+            socket.send(JSON.stringify(this.message));
+        })
+    }
+
+    sendKeydownTournamentGame(socket)
+    {
+        document.addEventListener('keydown', (e) => 
+        {
+            this.message.type = "front_tournamentGame_key";
+            if (e.key === 's')
+                this.message.sKey = true;
+            else if (e.key === 'w')
+                this.message.wKey = true;
+            else if (e.key === 'o')
+                this.message.oKey = true;
+            else if (e.key === 'l')
+                this.message.lKey = true;
+            socket.send(JSON.stringify(this.message));
+        });
+    }
+
+    sendKeyupTournamentGame(socket)
+    {
+        document.addEventListener('keyup', (e) => 
+        {
+            this.message.type = "front_tournamentGame_key";
+            if (e.key === 's')
+                this.message.sKey = false;
+            else if (e.key === 'w')
+                this.message.wKey = false;
+            else if (e.key === 'o')
+                this.message.oKey = false;
+            else if (e.key === 'l')
+                this.message.lKey = false;
+            socket.send(JSON.stringify(this.message));
+        });
+    }
+
+    sendPressNextTournamentGame(socket)
+    {
+        document.getElementById("game-next").addEventListener("click", (e)=>{
+
+            this.message.type = "front_tournamentGame_next";
+            socket.send(JSON.stringify(this.message));
+        })
+    }
+
+    drawRect(ctx, x, y, w, h, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, w, h);
+    }
+
+    drawCircle(ctx, x, y, radius, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    drawText(ctx, text, x, y) {
+        ctx.fillStyle = "white";
+        ctx.font = "20px Arial";
+        ctx.fillText(text, x, y);
+    }
+
+    draw (message)
+    {
+        this.ctx.clearRect(0,0,600,400)
+        this.drawCircle(this.ctx, message.ball.x, message.ball.y, 10, "white")
+        this.drawRect(this.ctx, 10, message.paddles[0].y, 10, 80, "white")
+        this.drawRect(this.ctx, this.canvas.width - 20, message.paddles[1].y, 10, 80, "white")
+        this.drawText(this.ctx, message.scores.left, 100, 50)
+        this.drawText(this.ctx, message.scores.right, this.canvas.width - 100, 50)
     }
   }
 

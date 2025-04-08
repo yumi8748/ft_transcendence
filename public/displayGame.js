@@ -18,65 +18,47 @@ class GameDisplay {
     {
         contentDiv.innerHTML = `
             <canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>
-            <button type="button" id="game-start" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">start</button>
+            <button type="button" id="game-start" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Start</button>
+            <button type="button" id="game-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Home</button>
             `;
         
-        if (location.pathname === "/game")
-        {
-            contentDiv.innerHTML+= `<button type="button" id="game-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">home</button>`
-            this.sendPressHome(socket);
-        }
-        else if (location.pathname === "/tournament")
-        {
-            contentDiv.innerHTML+= `<button type="button" id="game-next" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">next</button>`
-            this.sendPressNext(socket)
-        }
-
         this.canvas = document.getElementById("tutorial");
         this.ctx = this.canvas.getContext("2d");
-        this.sendKeydown(socket);
-        this.sendKeyup(socket);
-        this.sendPressStart(socket)
+        this.sendPressHomeGame(socket);
+        this.sendKeydownGame(socket);
+        this.sendKeyupGame(socket);
+        this.sendPressStartGame(socket)
     }
 
     sendDrawGame(socket)
     {
-        this.message.type = "front-game-draw-game";
+        this.message.type = "front_game_draw";
         socket.send(JSON.stringify(this.message));
     }
 
-    sendPressStart(socket)
+    sendPressStartGame(socket)
     {
         document.getElementById("game-start").addEventListener("click", (e)=>{
 
-            this.message.type = "front-game-start-button";
+            this.message.type = "front_game_start";
             socket.send(JSON.stringify(this.message));
         })
     }
 
-    sendPressNext(socket)
-    {
-        document.getElementById("game-next").addEventListener("click", (e)=>{
-
-            this.message.type = "front-game-next-button";
-            socket.send(JSON.stringify(this.message));
-        })
-    }
-
-    sendPressHome(socket)
+    sendPressHomeGame(socket)
     {
         document.getElementById("game-home").addEventListener("click", (e)=>{
 
-            this.message.type = "front-game-home-button";
+            this.message.type = "front_game_home";
             socket.send(JSON.stringify(this.message));
         })
     }
 
-    sendKeydown(socket)
+    sendKeydownGame(socket)
     {
         document.addEventListener('keydown', (e) => 
         {
-            this.message.type = "front-game-key";
+            this.message.type = "front_game_key";
             if (e.key === 's')
                 this.message.sKey = true;
             else if (e.key === 'w')
@@ -89,11 +71,11 @@ class GameDisplay {
         });
     }
 
-    sendKeyup(socket)
+    sendKeyupGame(socket)
     {
         document.addEventListener('keyup', (e) => 
         {
-            this.message.type = "front-game-key";
+            this.message.type = "front_game_key";
             if (e.key === 's')
                 this.message.sKey = false;
             else if (e.key === 'w')
@@ -137,3 +119,37 @@ class GameDisplay {
   }
 
 export {GameDisplay};
+
+// displayGame(socket, message)
+// {
+//     contentDiv.innerHTML = `
+//         <canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>
+//         <button type="button" id="game-start" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">start</button>
+//         `;
+    
+//     if (message === "back_game_drawGame")
+//     {
+//         contentDiv.innerHTML+= `<button type="button" id="game-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">home</button>`
+//         this.sendPressHome(socket);
+//     }
+//     else if (location.pathname === "/tournament")
+//     {
+//         contentDiv.innerHTML+= `<button type="button" id="game-next" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">next</button>`
+//         this.sendPressNext(socket)
+//     }
+
+//     this.canvas = document.getElementById("tutorial");
+//     this.ctx = this.canvas.getContext("2d");
+//     this.sendKeydown(socket);
+//     this.sendKeyup(socket);
+//     this.sendPressStart(socket)
+// }
+
+// sendPressNext(socket)
+// {
+//     document.getElementById("game-next").addEventListener("click", (e)=>{
+
+//         this.message.type = "front-game-next-button";
+//         socket.send(JSON.stringify(this.message));
+//     })
+// }
