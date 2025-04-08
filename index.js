@@ -61,7 +61,7 @@ fastify.register(async (fastify) => {
         else if (data.type === "front_tournamentGame_start")
             tournament.sendStartTournamentGame(players);
         else if (data.type === "front_tournamentGame_key")
-            tournament.updatePaddlePosition(data);
+            tournament.updatePaddlePosition(data, connection.id);
         else if (data.type === "front_tournamentGame_next")
             tournament.sendNextTournamentGame(players);
        

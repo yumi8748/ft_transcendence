@@ -24,11 +24,7 @@ class Tournament {
         this.contestants = ["Alice", "Bob", "Charlie", "Dave"];
     }
   
-    playMatch(player1, player2)
-    {
-        let winner = Math.random() > 0.5 ? player1 : player2;
-        return winner;
-    }
+    // TOURNAMENT TABLE
 
     updateResults(score_left, score_right)
     {
@@ -124,8 +120,7 @@ class Tournament {
         }
     }
 
-
-
+    // TOURNAMENT GAME
 
     sendStartTournamentGame(players)
     {
@@ -147,16 +142,23 @@ class Tournament {
         broadcastState(players, this.tournamentData);
     }
 
-    updatePaddlePosition(data)
+    updatePaddlePosition(data, playerId)
     {
-        if (data.sKey === true && this.gameState.paddles[0].y < 310)
-            this.gameState.paddles[0].y += 10;
-        if (data.wKey === true && this.gameState.paddles[0].y > 10)
-            this.gameState.paddles[0].y -= 10;
-        if (data.lKey === true && this.gameState.paddles[1].y < 310)
-            this.gameState.paddles[1].y += 10;
-        if (data.oKey === true && this.gameState.paddles[1].y > 10)
-            this.gameState.paddles[1].y -= 10;
+        let index = (this.tournamentData.current_games * 2);
+        if (playerId === this.tournamentData.current_round[index])
+        {
+            if (data.sKey === true && this.gameState.paddles[0].y < 310)
+                this.gameState.paddles[0].y += 10;
+            if (data.wKey === true && this.gameState.paddles[0].y > 10)
+                this.gameState.paddles[0].y -= 10;
+        }
+        else
+        {
+            if (data.lKey === true && this.gameState.paddles[1].y < 310)
+                this.gameState.paddles[1].y += 10;
+            if (data.oKey === true && this.gameState.paddles[1].y > 10)
+                this.gameState.paddles[1].y -= 10;
+        }
     }
 
     updateGame()
@@ -296,3 +298,9 @@ export {Tournament};
     // this.tournamentData.current_round = this.tournamentData.next_round;
     // this.tournamentData.next_round = [];
     // this.tournamentData.round++;
+
+    // playMatch(player1, player2)
+    // {
+    //     let winner = Math.random() > 0.5 ? player1 : player2;
+    //     return winner;
+    // }
