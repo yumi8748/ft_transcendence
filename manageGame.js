@@ -1,4 +1,4 @@
-import {broadcastState} from "./index.js";
+// import {broadcastState} from "./index.js";
 // leave 10 pixels of space between the paddle and the edge of the screen
 
 class Game {

@@ -1,29 +1,74 @@
 var contentDiv = document.getElementById('content');
 
-function displayLogin()
+function displayAuthentification(username)
 {
-    contentDiv.innerHTML = `<h1 class="text-4xl font-bold mb-8">Pong Game</h1>
-
-    <div class="bg-gray-800 p-12 rounded-lg shadow-lg w-96 text-center">
-        <h2 class="text-2xl font-semibold mb-4">Login</h2>
-        
-        <form id="login-form" class="flex flex-col">
-            <input type="text" id="username" placeholder="Username" required
-                class="w-full p-3 mb-3 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <input type="password" id="password" placeholder="Password" required
-                class="w-full p-3 mb-4 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button type="submit"
-                class="w-full p-3 bg-blue-500 rounded-md hover:bg-blue-700 transition duration-200">
-                Login
-            </button>
-        </form>
-
-        <div id="error-message" class="text-red-400 mt-3"></div>
-
-        <p class="mt-4 text-sm">
-            Don't have an account? <a href="register.html" class="text-blue-300 hover:underline">Register here</a>
-        </p>
-    </div>`;
+    contentDiv.innerHTML = ` 
+    <h2 id="username">Welcome</h2>
+    `;
+    document.getElementById("username").textContent = `Welcome ${username}`;
 }
 
+function displayLogin()
+{
+    contentDiv.innerHTML = `
+    <div class="w-full max-w-xs">
+    <form action="/login" method="POST class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        
+        <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+            Username
+        </label>
+        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="login-username" type="text"  name="username" placeholder="Username">
+        </div>
+        
+        <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+            Password
+        </label>
+        <input class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="login-password" name="password" type="password" placeholder="******************">
+        <p class="text-red-500 text-xs italic">Please choose a password.</p>
+        </div>
+       
+        <div class="flex items-center justify-between">
+        <button id="login" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+            Login
+        </button>
+        </div>
+
+    </form>
+
+    </div>
+    `;
+
+    document.getElementById("login").addEventListener("click", async function login() {
+        const username = document.getElementById('login-username').value
+        const password = document.getElementById('login-password').value
+
+        const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+        })
+
+        const data = await res.json();
+        if (data.success) {
+        checkSession()
+        } else {
+        alert('Login failed')
+        }
+      })
+
+    
+}
+
+async function checkSession() {
+    // console.log("OK")
+    const res = await fetch('/api/session')
+    const data = await res.json()
+    if (data.authenticated) {
+      displayAuthentification(data.user)
+    } else {
+    // //   showLogin()
+    }
+  }
 export default displayLogin;
