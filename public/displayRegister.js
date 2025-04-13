@@ -1,48 +1,68 @@
+import displayHome from "./displayHome.js";
+
 var contentDiv = document.getElementById('content');
 
 function displayRegister()
 {
-    contentDiv.innerHTML = `<h1 class="text-3xl font-bold mb-8">Pong Game</h1>
-    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-lg text-center">
+    contentDiv.innerHTML = ` 
+    <div class="w-full max-w-xs">
+    <form action="/register" method="POST class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        
+        <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+            Username
+        </label>
+        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="register-username" type="text"  name="username" placeholder="Username">
+        </div>
+        
+        <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+            Password
+        </label>
+        <input class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="register-password" name="password" type="password" placeholder="******************">
+        <p class="text-red-500 text-xs italic">Please choose a password.</p>
+        </div>
+       
+        <div class="flex items-center justify-between">
+        <button id="register" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+            Register
+        </button>
+        </div>
 
-        <h2 class="text-xl font-semibold mb-6">Register</h2>
+    </form>
 
-        <form id="register-form" class="flex flex-col space-y-7">
-            <input type="text" id="username" placeholder="Username" required 
-                   class="w-full p-3 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-            
-            <input type="password" id="password" placeholder="Password" required 
-                   class="w-full p-3 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-            
-            <input type="password" id="confirm-password" placeholder="Confirm Password" required 
-                   class="w-full p-3 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-            
-            <div class="flex flex-col items-center space-y-4">
-                <label for="avatar" class="text-white text-lg">Choose Your Avatar</label>
-                <div class="flex space-x-4">
-                    <input type="radio" id="avatar1" name="avatar" value="avatar1" class="hidden" required>
-                    <label for="avatar1" class="cursor-pointer"><img src="path/to/avatar1.png" alt="Avatar 1" class="w-16 h-16 rounded-full"></label>
-                    
-                    <input type="radio" id="avatar2" name="avatar" value="avatar2" class="hidden" required>
-                    <label for="avatar2" class="cursor-pointer"><img src="path/to/avatar2.png" alt="Avatar 2" class="w-16 h-16 rounded-full"></label>
-                    
-                    <input type="radio" id="avatar3" name="avatar" value="avatar3" class="hidden" required>
-                    <label for="avatar3" class="cursor-pointer"><img src="path/to/avatar3.png" alt="Avatar 3" class="w-16 h-16 rounded-full"></label>
-                </div>
-            </div>
+    </div>
+    `;
 
-            <button type="submit" 
-                    class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 rounded transition duration-200">
-                Register
-            </button>
-        </form>
-
-        <div id="error-message" class="text-red-400 text-sm mt-2"></div>
-
-        <p class="mt-4 text-lg">Already have an account? 
-            <a href="login.html" class="text-blue-300 hover:underline">Login here</a>
-        </p>
-    </div>`;
+    document.getElementById("register").addEventListener("click", async function register() {
+        const username = document.getElementById('register-username').value
+        const password = document.getElementById('register-password').value
+    
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        })
+    
+        const data = await res.json();
+        console.log(data)
+        if (data.success) {
+          checkSession()
+        } else {
+          alert(`Registration failed : ${data.message}`)
+        }
+      })
 }
+
+async function checkSession() {
+    // console.log("OK")
+    const res = await fetch('/api/session')
+    const data = await res.json()
+    if (data.authenticated) {
+      displayHome()
+    } else {
+    // //   showLogin()
+    }
+  }
 
 export default displayRegister;
