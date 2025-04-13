@@ -55,7 +55,7 @@ function displayRegister()
         if (data.success) {
           checkSession()
         } else {
-          alert('Registration failed')
+          alert(`Registration failed : ${data.message}`)
         }
       })
 }

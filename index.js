@@ -136,11 +136,24 @@ fastify.register(fastifyWebsocket)
 fastify.post('/api/register', async (req,res) =>
 {
     const { password, username} = req.body;
-    const hash = await bcrypt.hash(password, 12)
-    let sql = `INSERT INTO users(username, password) VALUES(?, ?)`;
-    await execute(db, sql, [username, hash]);
-    req.session.user_id = username;
-    return { success: true }
+    let sql = `SELECT * FROM users WHERE username = ?`;
+    try
+    {
+      const user = await fetchFirst(db, sql, [username]);
+      if (user !== undefined)
+        return { success: false, message: 'Email already exist' }
+      else
+      {
+        const hash = await bcrypt.hash(password, 12);
+        sql = `INSERT INTO users(username, password) VALUES(?, ?)`;
+        await execute(db, sql, [username, hash]);
+        req.session.user_id = username;
+        return { success: true }
+
+      }
+    } catch (err) {
+      console.log(err);
+    } 
 })
 
 fastify.post('/api/login', async (req, reply) => {
@@ -156,7 +169,7 @@ fastify.post('/api/login', async (req, reply) => {
   }
   else
   {
-    return { success: false }
+    return { success: false, message: 'wrong username or password' }
   }
 })
 
