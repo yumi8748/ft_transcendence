@@ -10,8 +10,26 @@ function displayGame() {
     }
     
     contentDiv.innerHTML = `
-    <div class="flex justify-center items-center min-h-screen p-8">
-    <canvas id="game-canvas" class="bg-black rounded-lg" width="600" height="400"></canvas>
+    <div class="flex min-h-screen flex-col items-center p-16">
+        <!-- Top Section: Circles with Text -->
+        <div class="mb-8 flex w-full max-w-xl justify-between">
+            <!-- Left Circle (Profile) -->
+            <div class="flex flex-col items-center">
+            <div class="h-20 w-20 rounded-full border-4 border-gray-700 bg-gray-300"></div>
+            <p id="result-player1" class="mt-2 text-sm text-gray-900">result</p>
+            </div>
+            <!-- Middle Box (Game Start) -->
+            <div class="flex flex-col items-center">
+            <button id="start-game" class="w-full rounded-md bg-gray-300 p-3 transition duration-200 hover:bg-blue-300 text-gray-700">Start</button>
+            </div>
+            <!-- Right Circle (Game Result) -->
+            <div class="flex flex-col items-center">
+            <div id="result-player2" class="h-20 w-20 rounded-full border-4 border-gray-700 bg-gray-300"></div>
+            <p class="mt-2 text-sm text-gray-900">result</p>
+            </div>
+        </div>
+        <!-- Bottom Section: Game Canvas -->
+        <canvas id="game-canvas" class="rounded-lg bg-black" width="600" height="400"></canvas>
     </div>`;
     const canvas = document.getElementById("game-canvas");
     const ctx = canvas.getContext("2d");
