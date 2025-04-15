@@ -30,9 +30,9 @@ async function usersRoutes(fastify, options) {
         'girl.png'
       ];
       
-      if (!validAvatars.includes(avatar)) {
-        return reply.status(400).send({ error: 'Invalid avatar selected.' });
-      }
+      //if (!validAvatars.includes(avatar)) {
+      //  return reply.status(400).send({ error: 'Invalid avatar selected.' });
+      //}
   
       try {
         // check if user already exists

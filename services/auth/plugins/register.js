@@ -2,12 +2,16 @@ import fs from 'node:fs'
 import pump from 'pump'
 import path from 'node:path'
 import bcrypt from 'bcrypt';
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath } from 'node:url';
+import multipart from '@fastify/multipart';
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+// fastify.register(multipart);
 
-async function registerRoutes(fastify, options) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function registerRoute(fastify, options) {
+	fastify.register(multipart)
 	fastify.post('/register', async (req, res) => {
 		const parts = req.parts()
 		const fields = {}
@@ -38,6 +42,7 @@ async function registerRoutes(fastify, options) {
 
 		const { username, password, confirmPassword } = fields
 
+		
 		// validate the input
 		if (!username || !password) {
 			return res.status(400).send({ error: 'Username and password are required' })
@@ -60,4 +65,5 @@ async function registerRoutes(fastify, options) {
 		return res.send({ message: 'User registered successfully!' })
 	})
 }
-export default registerRoutes
+
+//module.exports = registerRoute;

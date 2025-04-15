@@ -3,11 +3,25 @@ import Fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import fs from 'node:fs'
+import pump from 'pump'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url';
+import multipart from '@fastify/multipart';
 
 
 const fastify = Fastify({ logger: true });
+
+fastify.register(multipart);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import {getService, postService} from './plugins/serviceRequest.js';
 
+//import {registerRoute} from './plugins/register.js'
+//
+//fastify.register(registerRoute);
 
 
 //bcrypt for password hashing
@@ -50,7 +64,34 @@ const secretkey = 'super-secret-key';
 async function registerHandler(request, reply)
 {
     console.log('in register');
-    const { username, password, avatar } = request.body;
+    const parts = request.parts()
+        const fields = {}
+        let avatarInfo = null
+        try {
+          for await (const part of parts) {
+            if (part.file) {
+              let uploadPath
+              uploadPath = path.join(__dirname, '../volume/uploads', 'default_avatar.png')
+              if (part.filename.length !== 0)
+              {
+                uploadPath = path.join(__dirname, '../volume/uploads', part.filename)
+                pump(part.file, fs.createWriteStream(uploadPath))
+              }
+              avatarInfo = {
+                filename: part.filename,
+                mimetype: part.mimetype,
+                path: uploadPath
+              }
+            }
+            else {
+              fields[part.fieldname] = part.value
+            }
+          }
+        } catch (err) {
+          console.error('Error processing multipart form:', err)
+          return reply.status(400).send({ error: 'Error processing multipart form' })
+        }
+    const { username, password } = fields;
 
 
     const userPromise = getService("http://data-service:3001/users/" + username)
@@ -61,7 +102,7 @@ async function registerHandler(request, reply)
     }
     
     const hashedPass = await passPromise;
-    const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, avatar: avatar})
+    const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, avatar: avatarInfo.path})
     //users.push({ username: username, password: hashedPass }); //add to the users
 
     //const token = fastify.jwt.sign({ username }, { expiresIn: '1h' });
