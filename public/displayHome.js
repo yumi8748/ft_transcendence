@@ -18,8 +18,15 @@ function displayHome() {
 		</div>
 	</div>`;
 
+
+		// console.log("OKOKOKO")
+		const token = localStorage.getItem('token');
+		console.log("token is:", token);
+		const name = localStorage.getItem('name');
+		console.log("name is:", name);
     document.getElementById('get-started-btn').addEventListener('click', () => {
         const token = localStorage.getItem('token');
+		console.log("token is:", token);
         if (token) {
             window.location.href = '/game';
         } else {
@@ -27,5 +34,19 @@ function displayHome() {
         }
     });
 }
+
+// async function displayHome()
+// {
+   
+//    const res = await fetch('/verify')
+//    const data = await res.json()
+//    if (data.authenticated) {
+//        contentDiv.innerHTML = `<h2>Welcome to the Home Page ${data.user}!</h2>`;
+//    } else {
+//    // //   showLogin()
+//        contentDiv.innerHTML = `<h2>Welcome to the Home Page!</h2>`;
+
+//    }
+// }
 
 export default displayHome;

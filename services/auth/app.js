@@ -111,7 +111,7 @@ async function registerHandler(request, reply)
     const token = jwt.sign({
       username: username
     }, secretkey, { expiresIn: '1h' });
-    return reply.status(200).send({ message: token});
+    return reply.status(200).send({ token: token});
 };
 
 
@@ -197,7 +197,7 @@ fastify.post('/login', async (request, reply) => {
 
   function sendToken(user) {
     const newToken = jwt.sign({ username: user}, secretkey, {expiresIn: '1h'});
-    reply.send({ token: newToken });
+    reply.send({ token: newToken, username: username });
   }
 });
 

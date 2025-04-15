@@ -107,5 +107,5 @@ function setupWebSocket() {
 }
 
 function updateGameState(gameState) {
-    console.log('Received game state:', gameState);
+    // console.log('Received game state:', gameState);
 }
