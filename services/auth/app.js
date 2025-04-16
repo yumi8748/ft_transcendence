@@ -38,7 +38,7 @@ function verifyMagicToken(token) {
 async function sendEmail(email, text) {
   console.log('sending email to: ', email, ' text is: ', text);
   await transporter.sendMail({
-    from: '"Transcendance 2FA service" <transcendance.verif>',
+    from: 'Transcendance 2FA service" <transcendance.verif>',
     to: email,
     subject: 'Verify your email !',
     text
@@ -52,9 +52,9 @@ fastify.get('/magic', async (request, reply) => {
   const umail = user.email;
 
   const token = generateMagicToken(user.username);
-  const link = 'http://transcendance:1234/service1/magic-link?token=${token}';
+  const link = `http://transcendance:1234/service1/magic-link?token=${token}`;
 
-  await sendEmail(umail, 'Click to verify your email: ${link}');
+  await sendEmail(umail, `Click to verify your email: ${link}`);
 
   reply.status(200).send({ ok: true});
 });
