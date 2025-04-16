@@ -19,9 +19,9 @@ const fastify = Fastify({ logger: true });
 //used to parse form/multipart enc type
 fastify.register(multipart);
 
-function createSessionToken(username)
+function createSessionToken(user)
 {
-  return jwt.sign({ username: username }, secretkey, { expiresIn: '1h'});
+  return jwt.sign({ name: user.name, id: user.id }, secretkey, { expiresIn: '1h'});
 }
 
 /* ------------- Cookie utils ----------------- */
@@ -74,7 +74,7 @@ const transporter = nodemailer.createTransport({
 
 function generateMagicToken(user) {
   console.log("generating jwt for ", user.name , " with id: ", user.id);
-  return jwt.sign({ username: user.name, userId: user.id }, secretkey, { expiresIn: '15m'})
+  return jwt.sign({ name: user.name, id: user.id }, secretkey, { expiresIn: '15m'})
 }
 
 function verifyMagicToken(token) {
@@ -115,8 +115,8 @@ fastify.get('/2FA', async (request, reply) => {
     const decoded = verifyMagicToken(token);
     console.log("email sucessfully verified, decoded:", decoded.username);
     const newtoken = jwt.sign({
-      username: decoded.username,
-      userId: decoded.userId
+      name: decoded.name,
+      id: decoded.id
     }, secretkey, { expiresIn: '1h' });
     //reply.status(302).send({ token: newtoken })
     //set the secure session cookie and redirect to the home page
@@ -184,7 +184,7 @@ async function registerHandler(request, reply)
     }
     const hashedPass = await passPromise;
     
-    //post new user to db
+    //post new user to db, we get the user's id in response
     const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, email: email, avatar: avatarInfo.path})
 
     console.log(result);
@@ -193,7 +193,8 @@ async function registerHandler(request, reply)
       name: username,
       id: result.userid
     }, secretkey, { expiresIn: '1h' });
-    return reply.status(200).send({ token: token});
+    setSessionCookie(reply, token);
+    return reply.status(200).send({ message: 'Session cookie set token sent too for testing purposes', token: token });
 };
 
 
@@ -243,13 +244,17 @@ fastify.post('/register',{ registerSchema, response: { 200: tokenResponseSchema 
 fastify.post('/login', async (request, reply) => {
   const {username, password, Authorization } = request.body;
 
-  if (Authorization)
+  const cookies = parseCookies(request);
+  const sessionToken = cookies['session'];
+
+  if (sessionToken)
   {
     //might want to use an arrow function for error handling ?
     try {
-      const decoded = jwt.verify(Authorization, secretkey);
-      const username = decoded;
-      sendToken(username);
+      const decoded = jwt.verify(sessionToken, secretkey);
+      const token = createSessionToken(decoded);
+      setSessionCookie(reply, token);
+      sendToken(decoded); //will be removed once switch to cookie based jwt is complete
       return ;
     } catch (err){
       console.log(err);
@@ -276,7 +281,8 @@ fastify.post('/login', async (request, reply) => {
 
   // set the user status to online
   // fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE name = ?`).run(username);
-
+  const token = createSessionToken(user);
+  setSessionCookie(reply, token);
   sendToken(username);
   //return { newToken };
   //return reply.status(200).send({ message: 'Authentification successfull !'});
@@ -300,43 +306,43 @@ const verifySchema = {
   }
 };
 
-fastify.get('/verify2', async(request, reply) => {
+fastify.get('/verify', async(request, reply) => {
   const cookies = parseCookies(request);
   const sessionToken = cookies['session'];
   try {
     const decoded = jwt.verify(sessionToken, secretkey);
     console.log("decoded token:", decoded);
-    reply.header('auth_username', decoded.username);
+    reply.header('auth_username', decoded.name);
     reply.header('auth_userid', decoded.id);
     console.log("headers sending out:\n\n", reply.getHeaders());
-    return (reply.status(200).send({ message: `Successfully verified as ${decoded.username}`}));
+    return (reply.status(200).send({ message: `Successfully verified as ${decoded.name}`}));
   } catch (err) {
-    return reply.status(400).send({ message: err.message});
+    return reply.status(401).send({ message: err.message});
   }
 })
-
-fastify.get('/verify',{ verifySchema }, async (request, reply) => {
-  console.log("verify route triggered");
-
-  const authorization = request.headers['authorization'];
-  if (!authorization) {
-    return reply.status(401).send({ message: 'Authorization header missing' });
-  }
-  const parts = authorization.split(' ');
-
-  if (parts.length == 2 && parts[0] == 'Bearer')
-  {
-    try {
-      const result = jwt.verify(parts[1], secretkey);
-      reply.setHeader('X-username', result.username);
-      return reply.status(200).send({ message: "authentification successfull" });
-    } catch(err) {
-      console.log(err);
-      //return reply.status(401).send({ message: 'Invalid token' });
-    }
-  }
-  return reply.status(401).send({ message: 'Invalid token' });
-})
+//keeping this for archives
+//fastify.get('/verify',{ verifySchema }, async (request, reply) => {
+//  console.log("verify route triggered");
+//
+//  const authorization = request.headers['authorization'];
+//  if (!authorization) {
+//    return reply.status(401).send({ message: 'Authorization header missing' });
+//  }
+//  const parts = authorization.split(' ');
+//
+//  if (parts.length == 2 && parts[0] == 'Bearer')
+//  {
+//    try {
+//      const result = jwt.verify(parts[1], secretkey);
+//      reply.setHeader('X-username', result.username);
+//      return reply.status(200).send({ message: "authentification successfull" });
+//    } catch(err) {
+//      console.log(err);
+//      //return reply.status(401).send({ message: 'Invalid token' });
+//    }
+//  }
+//  return reply.status(401).send({ message: 'Invalid token' });
+//})
 
 
 

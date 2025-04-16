@@ -44,16 +44,17 @@ async function friendsRoutes(fastify, options) {
 
   // Add a friend
   fastify.post('/friends', async (request, reply) => {
-    const { tofriend } = request.body;
+    const { username } = request.body;
     
-    //const user = request.headers['x_username'];
+    const user = request.headers['x_username'];// not required, logging currently
     const userid = request.headers['x_userid'];
-    if (!tofriend) {
+    console.log("user :" + user + " id:" + userid + " adding as a friend:" + username);
+    if (!username) {
       return reply.status(400).send({ message: 'Username is required' });
     }
   
     try {
-      const friend = db.prepare('SELECT id FROM users WHERE name = ?').get(tofriend);
+      const friend = db.prepare('SELECT id FROM users WHERE name = ?').get(username);
       if (!friend) {
         return reply.status(404).send({ message: 'User not found' });
       }
