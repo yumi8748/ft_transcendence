@@ -24,7 +24,7 @@ function displayDashboard() {
         <!-- Match Records Table -->
         <section class="p-6">
             <h2 class="text-white text-2xl font-semibold mb-2">Match Records</h2>
-            <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+            <div class="bg-white rounded-lg shadow-md p-6 overflow-x-auto min-h-[600px] min-w-[600px]">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-indigo-600 text-white">

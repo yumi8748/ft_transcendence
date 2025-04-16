@@ -13,7 +13,8 @@ async function dbConnector(fastify, options) {
       name TEXT NOT NULL,
       password TEXT NOT NULL,
       avatar TEXT NOT NULL,
-      register_time DATETIME DEFAULT CURRENT_TIMESTAMP
+      register_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+      is_online BOOLEAN DEFAULT 0
     )`).run();
     console.log('Users table created successfully');
   } catch (error) {
@@ -54,6 +55,21 @@ async function dbConnector(fastify, options) {
     console.log('Tournaments table created successfully');
   } catch (error) {
     console.log('Error creating tournaments table:', error);
+  }
+
+   // Create the 'friends' table if it doesn't exist
+   try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS friends (
+        user_id INTEGER,
+        friend_id INTEGER,
+        status TEXT,
+        PRIMARY KEY (user_id, friend_id)
+      )
+    `).run();
+    console.log('Friends table created successfully');
+  } catch (error) {
+    console.log('Error creating friends table:', error);
   }
 
   fastify.decorate('sqlite', db); // Attach the db to Fastify instance

@@ -4,6 +4,7 @@ import displayTournament from "./displayTournament.js";
 import displayLogin from "./displayLogin.js";
 import displayRegister from "./displayRegister.js";
 import displayDashboard from "./displayDashboard.js";
+import displayFriends from "./displayFriends.js";
 import displaySideMenu from "./displaySideMenu.js";
 import displaySettings from "./displaySettings.js";
 
@@ -35,6 +36,9 @@ const render = async () => {
             break;
         case "/dashboard":
             displayDashboard();
+            break;
+        case "/friends":
+            displayFriends();
             break;
         case "/settings":
             displaySettings();
