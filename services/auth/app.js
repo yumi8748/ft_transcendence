@@ -237,6 +237,34 @@ fastify.get('/verify',{ verifySchema }, async (request, reply) => {
   return reply.status(401).send({ message: 'Invalid token' });
 })
 
+// List friends
+fastify.get('/friends', async (request, reply) => {
+  try {
+    const friends = await getService('http://data-service:3001/friends');
+    reply.send(friends);
+  } catch (err) {
+    console.error('Error fetching friends:', err);
+    reply.status(500).send({ error: 'Unable to fetch friends' });
+  }
+});
+
+// Add a friend
+fastify.post('/friends', async (request, reply) => {
+  const { username, avatar, status } = request.body;
+  if (!username || !avatar || !status) {
+    return reply.status(400).send({ error: 'Missing required fields' });
+  }
+
+  try {
+    const result = await postService('http://data-service:3001/friends', { username, avatar, status });
+    reply.send(result);
+  } catch (err) {
+    console.error('Error adding friend:', err);
+    reply.status(500).send({ error: 'Unable to add friend' });
+  }
+});
+
+
 fastify.get('/healthcheck', async (request, reply) => {
     reply.status(200).send({ message: 'Good!'});
   });
