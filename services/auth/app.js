@@ -18,10 +18,12 @@ fastify.register(multipart);
 
 //instantiate the transporter for nodemailer
 const transporter = nodemailer.createTransport({
-  host: "gmail",
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: 'transcendance.verif@gmail.com',
-    pass: 'transcendancepass',
+    pass: 'berx ufcf ukka ydke ',
   },
 });
 
