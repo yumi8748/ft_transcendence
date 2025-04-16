@@ -61,6 +61,7 @@ export async function putService(url, data) {
     }
 };
 
+//use DELETE when deleting ressources.
 export async function delService(url) {
     try {
         const response = await axios.delete(url);
