@@ -14,6 +14,12 @@ services:
     build: ./services/auth/
     networks:
       - app-network
+    environment:
+      - AUTH_HOST=${AUTH_HOST}
+      - AUTH_PORT=${AUTH_PORT}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
+      - AUTH_MAIL=${AUTH_MAIL}
+      - AUTH_PASS=${AUTH_PASS}
     ports:
       - "3002:3002"
     healthcheck:

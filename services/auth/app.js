@@ -10,7 +10,7 @@ import multipart from '@fastify/multipart'; //multipart body from forms parsing
 import nodemailer from 'nodemailer' //sending mails
 
 //secret key for jwt need to come from a .env
-const secretkey = 'super-secret-key';
+const secretkey = process.env.AUTH_SECRET_KEY;
 //salt for hashing could come from .env as well
 const salt = 10;
 
@@ -67,8 +67,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: 'transcendance.verif@gmail.com',
-    pass: 'berx ufcf ukka ydke ',
+    user: process.env.AUTH_MAIL,
+    pass: process.env.AUTH_PASS,
   },
 });
 
@@ -354,8 +354,8 @@ fastify.get('/healthcheck', async (request, reply) => {
 const start = async () => {
     try {
         await fastify.listen({
-          host: '0.0.0.0',
-          port: 3002
+          host: process.env.AUTH_HOST,
+          port: process.env.AUTH_PORT
         });
         console.log('auth running and listening on port 3002');
     } catch (err) {
