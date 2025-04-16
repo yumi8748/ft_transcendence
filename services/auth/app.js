@@ -1,4 +1,3 @@
-
 import Fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 import bcrypt from 'bcrypt';
@@ -8,21 +7,71 @@ import pump from 'pump'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url';
 import multipart from '@fastify/multipart';
-
+import nodemailer from 'nodemailer'
 
 const fastify = Fastify({ logger: true });
 
 fastify.register(multipart);
 
+
+/* ------------- setting up 2fa ----------------- */
+
+//instantiate the transporter for nodemailer
+const transporter = nodemailer.createTransport({
+  host: "gmail",
+  auth: {
+    user: 'transcendance.verif@gmail.com',
+    pass: 'transcendancepass',
+  },
+});
+
+function generateMagicToken(userId) {
+  return jwt.sign({ userId }, secretkey, { expiresIn: '5m'})
+}
+
+function verifyMagicToken(token) {
+  return jwt.verify(token, secretkey);
+}
+
+async function sendEmail(email, text) {
+  console.log('sending email to: ', email, ' text is: ', text);
+  await transporter.sendMail({
+    from: '"Transcendance 2FA service" <transcendance.verif>',
+    to: email,
+    subject: 'Verify your email !',
+    text
+  });
+}
+
+fastify.get('/magic', async (request, reply) => {
+  const { username } = request.query;
+
+  const user = await getService("http://data-service:3001/users/" + username);
+  const umail = user.email;
+
+  const token = generateMagicToken(user.username);
+  const link = 'http://transcendance:1234/service1/magic-link?token=${token}';
+
+  await sendEmail(umail, 'Click to verify your email: ${link}');
+
+  reply.status(200).send({ ok: true});
+});
+
+fastify.get('/link', async (request, reply) => {
+  const { token } = request.query;
+
+  try {
+    verifyMagicToken(token);
+    console.log("email sucessfully verified");
+  } catch (err) {
+    console.log("error verifying email");
+  }
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import {getService, postService} from './plugins/serviceRequest.js';
-
-//import {registerRoute} from './plugins/register.js'
-//
-//fastify.register(registerRoute);
-
 
 //bcrypt for password hashing
 //jwt to sign the tokens
@@ -51,10 +100,6 @@ fastify.register(fastifyCors, {
 //    .send();
 //});
 
-
-//fake db to replace with real db
-//access to the real db will be made through await to asynchronously fetch data from it
-const users = [];
 //salt for hashing
 const salt = 10;
 
@@ -91,7 +136,7 @@ async function registerHandler(request, reply)
           console.error('Error processing multipart form:', err)
           return reply.status(400).send({ error: 'Error processing multipart form' })
         }
-    const { username, password } = fields;
+    const { username, password, email } = fields;
 
 
     const userPromise = getService("http://data-service:3001/users/" + username)
@@ -102,7 +147,7 @@ async function registerHandler(request, reply)
     }
     
     const hashedPass = await passPromise;
-    const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, avatar: avatarInfo.path})
+    const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, email: email, avatar: avatarInfo.path})
     //users.push({ username: username, password: hashedPass }); //add to the users
 
     //const token = fastify.jwt.sign({ username }, { expiresIn: '1h' });

@@ -12,6 +12,7 @@ async function dbConnector(fastify, options) {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       password TEXT NOT NULL,
+      email TEXT NOT NULL,
       avatar TEXT NOT NULL,
       register_time DATETIME DEFAULT CURRENT_TIMESTAMP,
       is_online BOOLEAN DEFAULT 0
