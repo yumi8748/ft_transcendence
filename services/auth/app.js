@@ -28,10 +28,11 @@ const transporter = nodemailer.createTransport({
 });
 
 function generateMagicToken(userId) {
-  return jwt.sign({ userId }, secretkey, { expiresIn: '5m'})
+  return jwt.sign({ username: userId }, secretkey, { expiresIn: '15m'})
 }
 
 function verifyMagicToken(token) {
+  console.log('verifying token:', token);
   return jwt.verify(token, secretkey);
 }
 
@@ -44,29 +45,34 @@ async function sendEmail(email, text) {
     text
   });
 }
-
-fastify.get('/magic', async (request, reply) => {
+//on request such as /magic-link?username=user's name, will send an email to the user containing a link to 2FA and a token
+fastify.get('/magic-link', async (request, reply) => {
   const { username } = request.query;
 
   const user = await getService("http://data-service:3001/users/" + username);
   const umail = user.email;
 
   const token = generateMagicToken(user.username);
-  const link = `http://transcendance:1234/service1/magic-link?token=${token}`;
+  const link = `http://127.0.0.1:1234/service1/2FA?token=${token}`;
 
   await sendEmail(umail, `Click to verify your email: ${link}`);
 
   reply.status(200).send({ ok: true});
 });
-
-fastify.get('/link', async (request, reply) => {
+//on request such as /2FA?token=dzadZDAZD45524d.dzqdzqd.... will return a session token
+fastify.get('/2FA', async (request, reply) => {
   const { token } = request.query;
 
   try {
-    verifyMagicToken(token);
+    const decoded = verifyMagicToken(token);
     console.log("email sucessfully verified");
+    const newtoken = jwt.sign({
+      username: decoded.username
+    }, secretkey, { expiresIn: '1h' });
+    reply.status(200).send({ token: newtoken })
   } catch (err) {
     console.log("error verifying email");
+    reply.status(400).send({message: err.message})
   }
 });
 
