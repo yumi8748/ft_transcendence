@@ -94,7 +94,7 @@ function displayDashboard() {
 
 async function getUsername() {
 	try {
-		const res = await fetch('http://auth-service:3002/auth/status', {
+		const res = await fetch(`${window.location.origin}/service1/auth/status`, {
 			method: 'GET',
 			credentials: 'include'
 		})
@@ -110,7 +110,7 @@ async function getUsername() {
 
 async function fillProfile(username) {
 	try {
-		const user = await fetch(`http://data-service:3001/users/${username}`, {
+		const user = await fetch(`${window.location.origin}/service2/users/${username}`, {
 			method: 'GET',
 			credentials: 'include'
 		})
@@ -139,7 +139,7 @@ async function fillStatsAndHistory(username) {
 		const totalLoss = document.getElementById('total-loss');
 		const winningPercentage = document.getElementById('winning-percentage');
 		const matchHistory = document.getElementById('match-history');
-		const res = await fetch('http://data-service:3001/matches', {
+		const res = await fetch(`${window.location.origin}/service2/matches`, {
 			method: 'GET',
 			credentials: 'include'
 		})
@@ -258,7 +258,12 @@ async function buttonController() {
 			if (formData) {
 				try {
 					const username = await getUsername();
-					const res = await fetch(`http://data-service:3001/matches/users/${username}`, {
+					//the route doen't exist yet
+					//const res = await fetch(`${window.location.origin}/service2/matches/users/${username}`, {
+					//	method: 'POST',
+					//	body: formData,
+					//});
+					const res = await fetch(`${window.location.origin}/service2/users/${username}`, {
 						method: 'POST',
 						body: formData,
 					});

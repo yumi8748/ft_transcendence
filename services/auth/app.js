@@ -324,15 +324,16 @@ fastify.get('/verify', async(request, reply) => {
 fastify.get('/auth/status', async function (request, reply) {
   try {
     // Check if there's a token in the cookies
-    const res = await fetch('http://auth-service:3002/verify', {
-      method: 'GET',
-      credentials: 'include' // to send cookies (like 'session')
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || 'Verification failed');
-    }
-    const authUsername = res.headers.get('auth_username');
+    //const res = await fetch('http://auth-service:3002/verify', {
+    //  method: 'GET',
+    //  credentials: 'include' // to send cookies (like 'session')
+    //});
+    //if (!res.ok) {
+    //  const errorData = await res.json();
+    //  throw new Error(errorData.message || 'Verification failed');
+    //}
+    //const authUsername = request.headers.get('auth_username');
+    const authUsername = request.headers['x_username'];
     return reply.status(200).send({ loggedIn: true, username: authUsername });
   } catch (error) {
     reply.send(error)

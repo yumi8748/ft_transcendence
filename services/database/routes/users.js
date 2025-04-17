@@ -57,7 +57,6 @@ async function usersRoutes(fastify, options) {
         return reply.status(500).send({ error: "Internal Server Error" });
     }
 });
-
     // fetch a specific user
 
     fastify.get('/users/:name', async (request, reply) => {
@@ -105,5 +104,6 @@ async function usersRoutes(fastify, options) {
 		}
 	})
 }
+
   export default usersRoutes;
   

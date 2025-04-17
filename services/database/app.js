@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import formbody from '@fastify/formbody'
+import multipart from '@fastify/multipart';
 import dbConnector from './plugins/database.js';
 import usersRoutes from './routes/users.js';
 import matchesRoutes from './routes/matches.js';
@@ -10,6 +11,7 @@ const fastify = Fastify({ logger: true });
 
 // Register database plugin
 fastify.register(dbConnector);
+fastify.register(multipart)
 
 // Register routes
 
