@@ -62,6 +62,17 @@ services:
       - ./public:/app/public
       - /app/node_modules
 
+  chat-service:
+    container_name: chat-service
+    build: ./services/chat-service/
+    ports:
+      - "3005:3005"
+    networks:
+      - app-network
+    volumes:
+      - ./services/chat-service:/app
+      - /app/node_modules
+
 networks:
   app-network:
     driver: bridge

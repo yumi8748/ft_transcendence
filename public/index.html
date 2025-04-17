@@ -6,41 +6,35 @@
     <title>Document</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="./output.css" rel="stylesheet">
+    <!-- <body class="flex flex-col justify-center items-center h-screen bg-gradient-to-r from-indigo-700 to-purple-600 text-white"></body> -->
 </head>
-<body class="flex flex-col justify-center items-center h-screen bg-gradient-to-r from-indigo-700 to-purple-600 text-white">
-    <h1 class="absolute left-10 top-8 text-3xl font-bold">Pong Game</h1>
-    
-    <nav id="navigation" class="fixed left-0 top-0 h-full w-64 p-4 bg-indigo-950 rounded-r-lg shadow-lg">
-
-        <ul class="space-y-4">
+<body>
+    <h1 class="text-3xl font-bold underline">Transcendence</h1>
+     <nav id="navigation">
+        <ul>
             <li>
-                <a href="/home" id="home" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200" data-link>Home</a>
+                <a href="/home" data-link>Home</a>
             </li>
             <li>
-                <a href="/game" id="game" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200" data-link>Game</a>
+                <a href="/game" data-link>Game</a>
             </li>
             <li>
-                <a href="/tournament" id="tournament" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200" data-link>Tournament</a>
+                <a href="/tournament" data-link>tournament</a>
             </li>
             <li>
-                <a href="/dashboard" id="dashboard" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200" data-link>Dashboard</a>
+                <a href="/login" data-link>login</a>
             </li>
             <li>
-                <a href="/login" id="login" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200" data-link>Login</a>
+                <a href="/register" data-link>Register</a>
             </li>
             <li>
-                <a href="/register" id="register" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200" data-link>Register</a>
-            </li>
-            <li>
-                <a href="/settings" id="settings" class="block text-lg text-white hover:bg-blue-500 hover:rounded-lg p-2 transition duration-200" data-link>Settings</a>
+                <a href="/dashboard" data-link>Dashboard</a>
             </li>
         </ul>
     </nav>
-    
-    <div id="content" class="mt-16">
-        <!-- contents -->
+    <div id="content">
+
     </div>
-    
-    <script type="module" src="client.js?v=Date.now()"></script>
+    <script type="module" src="client.js"></script>
 </body>
 </html>
