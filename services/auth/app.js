@@ -271,6 +271,10 @@ fastify.post('/login', async (request, reply) => {
   //logic goes here
   //TODO: replaced username by user id maybe ? dont know if needed
   console.log(username);
+
+  // set the user status to online
+  // fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE name = ?`).run(username);
+
   sendToken(username);
   //return { newToken };
   //return reply.status(200).send({ message: 'Authentification successfull !'});
@@ -317,7 +321,8 @@ fastify.get('/verify',{ verifySchema }, async (request, reply) => {
   if (parts.length == 2 && parts[0] == 'Bearer')
   {
     try {
-      const result = await jwt.verify(parts[1], secretkey);
+      const result = jwt.verify(parts[1], secretkey);
+      reply.setHeader('X-username', result.username);
       return reply.status(200).send({ message: "authentification successfull" });
     } catch(err) {
       console.log(err);
@@ -326,6 +331,34 @@ fastify.get('/verify',{ verifySchema }, async (request, reply) => {
   }
   return reply.status(401).send({ message: 'Invalid token' });
 })
+
+// List friends
+fastify.get('/friends', async (request, reply) => {
+  try {
+    const friends = await getService('http://data-service:3001/friends');
+    reply.send(friends);
+  } catch (err) {
+    console.error('Error fetching friends:', err);
+    reply.status(500).send({ error: 'Unable to fetch friends' });
+  }
+});
+
+// Add a friend
+fastify.post('/friends', async (request, reply) => {
+  const { username, avatar, status } = request.body;
+  if (!username || !avatar || !status) {
+    return reply.status(400).send({ error: 'Missing required fields' });
+  }
+
+  try {
+    const result = await postService('http://data-service:3001/friends', { username, avatar, status });
+    reply.send(result);
+  } catch (err) {
+    console.error('Error adding friend:', err);
+    reply.status(500).send({ error: 'Unable to add friend' });
+  }
+});
+
 
 fastify.get('/healthcheck', async (request, reply) => {
     reply.status(200).send({ message: 'Good!'});
