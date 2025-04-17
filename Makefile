@@ -1,38 +1,25 @@
-all: build
 
-build:
-	mkdir -p volumes/database/ 
-	docker compose -f ./docker-compose.yml up --build -d
+APP_NAME=transcendence
 
-stop:
-	docker-compose -f ./docker-compose.yml stop
+.PHONY: up down clean logs build restart
 
-start:
-	docker-compose -f ./docker-compose.yml start
+up:
+	docker-compose up --build -d
+
+down:
+	docker-compose down
 
 clean:
-	docker compose -f ./docker-compose.yml down -v --rmi all --remove-orphans
+	docker-compose down -v --rmi all --remove-orphans
 
-ls-container:	
-	docker compose -f ./docker-compose.yml ps
+logs:
+	docker-compose logs -f
 
-ls-volume:
-	docker volume ls
+build:
+	docker-compose build
 
-ls-network:
-	docker network ls
+restart:
+	docker-compose down && docker-compose up --build -d
 
-ls-all:
-	docker image ls
-	docker ps -a
-
-clean-all:
-	@if [ -n "$$(docker ps -qa)" ]; then docker stop $$(docker ps -qa); fi
-	@if [ -n "$$(docker ps -qa)" ]; then docker rm $$(docker ps -qa); fi
-	@if [ -n "$$(docker images -qa)" ]; then docker rmi $$(docker images -qa); fi
-	@if [ -n "$$(docker volume ls -q)" ]; then docker volume rm $$(docker volume ls -q); fi
-	@if [ -n "$$(docker network ls -q | grep -v 'bridge\|host\|none')" ]; then docker network rm $$(docker network ls -q | grep -v 'bridge\|host\|none'); fi || true
-
-re: clean all
-
-.PHONY: all build stop start clean ls-container ls-volume ls-network ls-all clean-all re
+superclean: clean
+	docker system prune --volumes

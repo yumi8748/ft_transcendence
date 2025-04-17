@@ -1,5 +1,8 @@
 node_modules
-Dockerfile
-.dockerignore
+npm-debug.log
+.DS_Store
 .git
 .gitignore
+docker-compose.yml
+Makefile
+.env

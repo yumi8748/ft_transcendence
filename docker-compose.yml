@@ -1,59 +1,14 @@
-services:
-  auth-service:
-    container_name: auth-service
-    build: ./services/auth/
-    networks:
-      - app-network
-    ports:
-      - "3002:3002"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/healthcheck"]
-      interval: 45s
-      timeout: 10s
-      retries: 5
-    restart: on-failure
-  
-  database:
-    container_name: data-service
-    build: ./services/database/
-    networks:
-      - app-network
-    ports:
-      - "3001:3001"
-    volumes:
-      - sqlite-db:/app/database/
-    restart: on-failure
-  
-  node-app:
-    build: .
-    networks:
-      - app-network
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./:/app
-      - /app/node_modules
-    env_file:
-      - .env
 
-networks:
-  app-network:
-    driver: bridge
+services:
+  myapp:
+    build: .
+    ports:
+      - "6789:6789"
+    volumes:
+      - db-data:/app/volume/database
+      - uploads:/app/volume/uploads
+    restart: unless-stopped
 
 volumes:
-  sqlite-db:
-    driver: "local"
-    driver_opts:
-      type: "none"
-      o: "bind"
-      device: "./volumes/database"
-
-
-
-#volumes:
-#  sql-db:
-#    driver: local
-#    driver_opts:
-#      - type: none
-#      - o: bind
-#      - device: /home/data/transcendanceDB
+  db-data:
+  uploads:

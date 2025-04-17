@@ -1,112 +1,144 @@
-const contentDiv = document.getElementById('content');
-let socket;
+function displayGame() {
+    fetch('game.html')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            const targetDiv = document.getElementById('game-inject');
+            targetDiv.innerHTML = html;
+            initGame();
+        })
+        .catch(err => console.error('Failed to fetch game.html:', err));
+}
 
-function displayGame(socket) {
-    let message = {
-        route: "game",
-        type: "",
-        wKey: false,
-        sKey: false,
-        oKey: false,
-        lKey: false
+async function getUserId() {
+    try {
+        const res = await fetch('/auth/status', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await res.json();
+        return data.username || '';
+    } catch (error) {
+        console.error('Login check failed:', error);
+        return '';
     }
-    
-    contentDiv.innerHTML = `
-    <div class="flex justify-center items-center min-h-screen p-8">
-    <canvas id="game-canvas" class="bg-black rounded-lg" width="600" height="400"></canvas>
-    </div>`;
+}
+
+async function getUserAvatarPath(username) {
+    try {
+        const res = await fetch(`/users/${username}/avatar`);
+        if (res.ok) {
+            const data = await res.json();
+            console.log('User avatar: ', data.avatar);
+            return data.avatar;
+        } else {
+            console.error('Failed to fetch user avatar:', res.status);
+            return '/default-avatar.png';
+        }
+    } catch (error) {
+        console.error('Error fetching user avatar:', error);
+        return '/default-avatar.png';
+    }
+}
+
+function drawRect(ctx, x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+}
+
+function drawCircle(ctx, x, y, radius, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function drawText(ctx, text, x, y) {
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText(text, x, y);
+}
+
+function draw(ctx, canvas, message) {
+    ctx.clearRect(0, 0, 600, 400);
+    if (message.type === "output") {
+        drawCircle(ctx, message.ball.x, message.ball.y, 10, "white");
+        drawRect(ctx, 10, message.paddles[0].y, 10, 80, "white");
+        drawRect(ctx, canvas.width - 20, message.paddles[1].y, 10, 80, "white");
+        drawText(ctx, message.scores.left, 100, 50);
+        drawText(ctx, message.scores.right, canvas.width - 100, 50);
+    }
+}
+
+async function putUserInfo(message, isSinglePlayer) {
+    const leftUserAvatar = document.getElementById("player1-avatar");
+    const rightUserAvatar = document.getElementById("player2-avatar");
+    const leftUserName = document.getElementById("player1");
+    const rightUserName = document.getElementById("player2");
+
+    leftUserAvatar.src = await getUserAvatarPath(message.player1);
+    rightUserAvatar.src = isSinglePlayer
+        ? leftUserAvatar.src
+        : await getUserAvatarPath(message.player2);
+
+    leftUserName.innerText = message.player1;
+    rightUserName.innerText = isSinglePlayer ? message.player1 : message.player2;
+}
+
+async function initGame() {
+    const startDoublePlayerGame = document.getElementById("start-game");
+    const startSinglePlayerGame = document.getElementById("start-game-single");
+
+    startDoublePlayerGame.addEventListener("click", async () => {
+        await startGame(false);
+    });
+
+    startSinglePlayerGame.addEventListener("click", async () => {
+        await startGame(true);
+    });
+}
+
+async function startGame(isSinglePlayer) {
+    console.log(`Initializing ${isSinglePlayer ? 'single' : 'double'}-player game...`);
     const canvas = document.getElementById("game-canvas");
     const ctx = canvas.getContext("2d");
-    
-    function drawRect(x, y, w, h, color) {
-        ctx.fillStyle = color;
-        ctx.fillRect(x, y, w, h);
-    }
-    
-    function drawCircle(x, y, radius, color) {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    const userId = await getUserId();
+    console.log('User ID:', userId);
 
-    function drawText(text, x, y) {
-        ctx.fillStyle = "white";
-        ctx.font = "20px Arial";
-        ctx.fillText(text, x, y);
-    }
-
-    function draw(message) {
-        ctx.clearRect(0, 0, 600, 400);
-        if (message.type == "update") {
-            drawCircle(message.ball.x, message.ball.y, 10, "white");
-            drawRect(10, message.paddles[0].y, 10, 80, "white");
-            drawRect(canvas.width - 20, message.paddles[1].y, 10, 80, "white");
-            drawText(message.scores.left, 100, 50);
-            drawText(message.scores.right, canvas.width - 100, 50);
-        }
-    }
-
-    if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-        console.log('WebSocket is already open or connecting');
-        return;
-    }
-
-    if (socket) {
-        socket.onclose = null; // Remove the onclose handler to avoid triggering it during close
-        socket.close(); // Close the existing WebSocket connection if it exists
-    }
-
-    socket = new WebSocket(`ws://${location.host}/ws`);
-
-    socket.onopen = function (event) {
-        console.log('Connected to server');
-    };
-    
-    socket.onclose = function (event) {
-        console.log('Disconnected from server');
+    const socket = new WebSocket(`ws://${location.host}/ws`);
+    socket.onopen = function () {
+        console.log('WebSocket connection opened');
+        socket.send(JSON.stringify({ type: isSinglePlayer ? "join-single" : "join-double", userId }));
     };
 
     socket.onmessage = function (event) {
         const message = JSON.parse(event.data);
-        draw(message);
+        if (message.type === (isSinglePlayer ? "gameStart-single" : "gameStart-double")) {
+            putUserInfo(message, isSinglePlayer);
+        }
+        if (message.type === "output") {
+            draw(ctx, canvas, message);
+        }
     };
 
     socket.onerror = function (error) {
         console.error('WebSocket error:', error);
     };
 
-    //document.addEventListener('keydown', (e) => {
-    //    if (e.key === 's')
-    //        keyboard.sKey = true;
-    //    else if (e.key === 'w')
-    //        keyboard.wKey = true;
-    //    else if (e.key === 'o')
-    //        keyboard.oKey = true;
-    //    else if (e.key === 'l')
-    //        keyboard.lKey = true;
-    //    if (socket.readyState === WebSocket.OPEN) {
-    //        socket.send(JSON.stringify(keyboard));
-    //    } else {
-    //        console.error('WebSocket is not open. Cannot send message.');
-    //    }
-    //});
-
-    //document.addEventListener('keyup', (e) => {
-    //    if (e.key === 's')
-    //        keyboard.sKey = false;
-    //    else if (e.key === 'w')
-    //        keyboard.wKey = false;
-    //    else if (e.key === 'o')
-    //        keyboard.oKey = false;
-    //    else if (e.key === 'l')
-    //        keyboard.lKey = false;
-    //    if (socket.readyState === WebSocket.OPEN) {
-    //        socket.send(JSON.stringify(keyboard));
-    //    } else {
-    //        console.error('WebSocket is not open. Cannot send message.');
-    //    }
-    //});
+    document.addEventListener("keydown", (e) => {
+        const message = { type: "input", userId: userId };
+        if (e.key === "s") message.sKey = true;
+        if (e.key === "w") message.wKey = true;
+        if (e.key === "l") message.lKey = true;
+        if (e.key === "o") message.oKey = true;
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(message));
+        }
+    });
 }
 
 export default displayGame;
