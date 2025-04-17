@@ -15,7 +15,7 @@ async function dbConnector(fastify, options) {
       email TEXT NOT NULL,
       avatar TEXT NOT NULL,
       register_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-      is_online BOOLEAN DEFAULT 0
+      status TEXT DEFAULT 'offline'
     )`).run();
     console.log('Users table created successfully');
   } catch (error) {
@@ -59,7 +59,7 @@ async function dbConnector(fastify, options) {
   }
 
    // Create the 'friends' table if it doesn't exist
-   try {
+  try {
     db.prepare(`
       CREATE TABLE IF NOT EXISTS friends (
         user_id INTEGER,
