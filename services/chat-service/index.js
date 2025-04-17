@@ -28,18 +28,44 @@ fastify.register(async function (fastify) {
       gameState.gameStart = true;
       players.push(socket);
       const playerIndex = players.length;
-      startSetInterval(socket);
+      // startSetInterval(socket);
       socket.on('message', function incoming(message)
       {
+        console.log("OK")
+        
         const data = JSON.parse(message);
-        if (data.sKey === true)
-          gameState.paddles[0].y += 5;
-        if (data.wKey === true)
-          gameState.paddles[0].y -= 5;
-        if (data.oKey === true)
-          gameState.paddles[1].y -= 5;
-        if (data.lKey === true)
-          gameState.paddles[1].y += 5;
+        console.log(data)
+        if (data.type === "front_game_draw")
+        {
+          gameState.type = "back_game_draw";  
+          socket.send(JSON.stringify(gameState))
+        }
+        else if (data.type === "front_game_start")
+        {
+           gameState.type = "back_game_position";  
+            gameState.gameStart = true;
+            startSetInterval(socket); 
+        }
+        else if (data.type === "front_game_home")
+        {
+          gameState.scores.left = 0;
+          gameState.scores.right = 0;
+          gameState.gameStart = false;
+          gameState.type = "back_game_home";
+          socket.send(JSON.stringify(gameState))
+        }
+        else if (data.type === "front_game_key")
+        {
+          if (data.sKey === true)
+            gameState.paddles[0].y += 5;
+          if (data.wKey === true)
+            gameState.paddles[0].y -= 5;
+          if (data.oKey === true)
+            gameState.paddles[1].y -= 5;
+          if (data.lKey === true)
+            gameState.paddles[1].y += 5;
+        }
+     
       });
       socket.on('close', function ()
       {
