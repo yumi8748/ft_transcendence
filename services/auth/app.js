@@ -191,6 +191,10 @@ fastify.post('/login', async (request, reply) => {
   //logic goes here
   //TODO: replaced username by user id maybe ? dont know if needed
   console.log(username);
+
+  // set the user status to online
+  // fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE name = ?`).run(username);
+
   sendToken(username);
   //return { newToken };
   //return reply.status(200).send({ message: 'Authentification successfull !'});

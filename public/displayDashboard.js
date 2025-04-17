@@ -51,7 +51,7 @@ async function fetchMatches() {
             method: "GET",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // 适用于需要身份验证的 API
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
 

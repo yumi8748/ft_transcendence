@@ -3,19 +3,38 @@ async function friendsRoutes(fastify, options) {
 
   // get friend's info
   fastify.get('/friends', async (request, reply) => {
-    try {
-      const friends = db.prepare(`
-        SELECT f.friend_id, u.name AS friend_name, u.avatar AS friend_avatar, f.status AS friend_status
-        FROM friends f
-        JOIN users u ON u.id = f.friend_id
-        WHERE f.user_id = ?`)
-        .all(request.user.id);
-      reply.send(friends);
-    } catch (error) {
-      console.error('Error loading friends:', error);
-      reply.status(500).send({ message: 'Error loading friends' });
+  try {
+    const token = request.headers.authorization?.split(' ')[1];
+    console.log('Received token:', token);
+
+    const decoded = fastify.jwt.verify(token);
+    console.log('Decoded token:', decoded);
+
+    const currentUser = fastify.sqlite.prepare(`SELECT id FROM users WHERE name = ?`).get(decoded.name);
+    console.log('Current user:', currentUser);
+    if (!currentUser) {
+      return reply.status(404).send({ error: 'Current user not found' });
     }
-  });
+
+    const query = `
+      SELECT 
+        u.name AS username,
+        u.avatar AS avatar_url,
+        u.status
+      FROM friends f
+      JOIN users u ON u.id = f.friend_id
+      WHERE f.user_id = ? AND f.status = 'accepted'
+    `;
+    const friends = fastify.sqlite.prepare(query).all(currentUser.id);
+    console.log('Friends found:', friends);
+
+    reply.send(friends);
+  } catch (error) {
+    console.error('Error in /friends route:', error);
+    reply.status(500).send({ error: 'Failed to fetch friends' });
+  }
+});
+
 
   // Add a friend
   fastify.post('/friends', async (request, reply) => {
