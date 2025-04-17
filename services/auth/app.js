@@ -72,9 +72,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function generateMagicToken(userId) {
-  console.log("generating jwt for ", userId);
-  return jwt.sign({ username: userId }, secretkey, { expiresIn: '15m'})
+function generateMagicToken(user) {
+  console.log("generating jwt for ", user.name , " with id: ", user.id);
+  return jwt.sign({ username: user.name, userId: user.id }, secretkey, { expiresIn: '15m'})
 }
 
 function verifyMagicToken(token) {
@@ -99,7 +99,7 @@ fastify.get('/magic-link', async (request, reply) => {
   const user = await getService("http://data-service:3001/users/" + username);
   const umail = user.email;
 
-  const token = generateMagicToken(user.name);
+  const token = generateMagicToken(user);
   const link = `http://127.0.0.1:1234/service1/2FA?token=${token}`;
 
   await sendEmail(umail, `Click to verify your email: ${link}`);
@@ -115,7 +115,8 @@ fastify.get('/2FA', async (request, reply) => {
     const decoded = verifyMagicToken(token);
     console.log("email sucessfully verified, decoded:", decoded.username);
     const newtoken = jwt.sign({
-      username: decoded.username
+      username: decoded.username,
+      userId: decoded.userId
     }, secretkey, { expiresIn: '1h' });
     //reply.status(302).send({ token: newtoken })
     //set the secure session cookie and redirect to the home page
@@ -189,7 +190,8 @@ async function registerHandler(request, reply)
     console.log(result);
     console.log("registered new user:", username);
     const token = jwt.sign({
-      username: username
+      name: username,
+      id: result.userid
     }, secretkey, { expiresIn: '1h' });
     return reply.status(200).send({ token: token});
 };
@@ -246,7 +248,7 @@ fastify.post('/login', async (request, reply) => {
     //might want to use an arrow function for error handling ?
     try {
       const decoded = jwt.verify(Authorization, secretkey);
-      const username = decoded.username;
+      const username = decoded;
       sendToken(username);
       return ;
     } catch (err){
@@ -258,7 +260,7 @@ fastify.post('/login', async (request, reply) => {
   console.log (username, password);
 
   const user = await getService("http://data-service:3001/users/" + username)
-  console.log("received user" + user);
+  console.log("received user" + user.name + " with id: " + user.id);
   //const user = users.find(u => u.username === username);
   if (user == 404) {
      return reply.status(400).send({ message: 'Invalid username !' });
@@ -280,7 +282,7 @@ fastify.post('/login', async (request, reply) => {
   //return reply.status(200).send({ message: 'Authentification successfull !'});
 
   function sendToken(user) {
-    const newToken = jwt.sign({ username: user}, secretkey, {expiresIn: '1h'});
+    const newToken = jwt.sign({ name: user.name, id: user.id}, secretkey, {expiresIn: '1h'});
     reply.send({ token: newToken, username: username });
   }
 });
@@ -303,6 +305,10 @@ fastify.get('/verify2', async(request, reply) => {
   const sessionToken = cookies['session'];
   try {
     const decoded = jwt.verify(sessionToken, secretkey);
+    console.log("decoded token:", decoded);
+    reply.header('auth_username', decoded.username);
+    reply.header('auth_userid', decoded.id);
+    console.log("headers sending out:\n\n", reply.getHeaders());
     return (reply.status(200).send({ message: `Successfully verified as ${decoded.username}`}));
   } catch (err) {
     return reply.status(400).send({ message: err.message});
@@ -332,32 +338,6 @@ fastify.get('/verify',{ verifySchema }, async (request, reply) => {
   return reply.status(401).send({ message: 'Invalid token' });
 })
 
-// List friends
-fastify.get('/friends', async (request, reply) => {
-  try {
-    const friends = await getService('http://data-service:3001/friends');
-    reply.send(friends);
-  } catch (err) {
-    console.error('Error fetching friends:', err);
-    reply.status(500).send({ error: 'Unable to fetch friends' });
-  }
-});
-
-// Add a friend
-fastify.post('/friends', async (request, reply) => {
-  const { username, avatar, status } = request.body;
-  if (!username || !avatar || !status) {
-    return reply.status(400).send({ error: 'Missing required fields' });
-  }
-
-  try {
-    const result = await postService('http://data-service:3001/friends', { username, avatar, status });
-    reply.send(result);
-  } catch (err) {
-    console.error('Error adding friend:', err);
-    reply.status(500).send({ error: 'Unable to add friend' });
-  }
-});
 
 
 fastify.get('/healthcheck', async (request, reply) => {
