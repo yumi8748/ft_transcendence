@@ -34,17 +34,33 @@ services:
       - sqlite-db:/app/database/
     restart: on-failure
   
-  node-app:
-    build: .
-    networks:
-      - app-network
+  # node-app:
+  #   build: .
+  #   networks:
+  #     - app-network
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./:/app
+  #     - /app/node_modules
+  #   env_file:
+  #     - .env
+
+  static:
+    container_name: static
+    build: ./services/static/
     ports:
       - "3000:3000"
+
+    # depends_on:
+    #   - chat-service
+    networks:
+      - app-network
+
     volumes:
-      - ./:/app
+      - ./services/static:/app
+      - ./public:/app/public
       - /app/node_modules
-    env_file:
-      - .env
 
 networks:
   app-network:
