@@ -231,7 +231,8 @@ fastify.get('/verify',{ verifySchema }, async (request, reply) => {
   if (parts.length == 2 && parts[0] == 'Bearer')
   {
     try {
-      const result = await jwt.verify(parts[1], secretkey);
+      const result = jwt.verify(parts[1], secretkey);
+      reply.setHeader('X-username', result.username);
       return reply.status(200).send({ message: "authentification successfull" });
     } catch(err) {
       console.log(err);

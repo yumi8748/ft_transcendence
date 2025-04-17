@@ -4,13 +4,18 @@ async function friendsRoutes(fastify, options) {
   // get friend's info
   fastify.get('/friends', async (request, reply) => {
   try {
-    const token = request.headers.authorization?.split(' ')[1];
-    console.log('Received token:', token);
+    //const token = request.headers.authorization?.split(' ')[1];
+    //console.log('Received token:', token);
+//
+    //const decoded = fastify.jwt.verify(token);
+    //console.log('Decoded token:', decoded);
+    // once the verify route is called, it sends back a header containing the username extracted from the token, this header is forwarded by nginx to protected routes, and can be retrieved as such:
+    const username = request.headers['x-username'];
+    console.log('Username from headers:', username);
 
-    const decoded = fastify.jwt.verify(token);
-    console.log('Decoded token:', decoded);
-
-    const currentUser = fastify.sqlite.prepare(`SELECT id FROM users WHERE name = ?`).get(decoded.name);
+    //const currentUser = fastify.sqlite.prepare(`SELECT id FROM users WHERE name = ?`).get(decoded.name);
+    const currentUser = fastify.sqlite.prepare(`SELECT id FROM users WHERE name = ?`).get(username);
+    
     console.log('Current user:', currentUser);
     if (!currentUser) {
       return reply.status(404).send({ error: 'Current user not found' });
