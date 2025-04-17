@@ -19,9 +19,28 @@ async function friendsRoutes(fastify, options) {
 
   // Add a friend
   fastify.post('/friends', async (request, reply) => {
-    const { user_id, friend_id, status } = request.body;
+    const { username } = request.body;
+  
+    if (!username) {
+      return reply.status(400).send({ message: 'Username is required' });
+    }
+  
     try {
-      db.prepare('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, ?)').run(request.user.id, friend_id, status);
+      const friend = db.prepare('SELECT id FROM users WHERE name = ?').get(username);
+      if (!friend) {
+        return reply.status(404).send({ message: 'User not found' });
+      }
+  
+      // avoid repetition
+      const existing = db.prepare('SELECT * FROM friends WHERE user_id = ? AND friend_id = ?')
+        .get(request.user.id, friend.id);
+      if (existing) {
+        return reply.status(400).send({ message: 'Already added as friend' });
+      }
+  
+      db.prepare('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, ?)')
+        .run(request.user.id, friend.id, 'offline');
+  
       reply.send({ message: 'Friend added' });
     } catch (error) {
       console.error('Error adding friend:', error);
@@ -29,5 +48,4 @@ async function friendsRoutes(fastify, options) {
     }
   });
 }
-
 export default friendsRoutes;

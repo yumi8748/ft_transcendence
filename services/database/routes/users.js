@@ -2,7 +2,7 @@ async function usersRoutes(fastify, options) {
     // Get all users
     fastify.get('/users', async (request, reply) => {
       const users = fastify.sqlite.prepare(
-        'SELECT id, name, avatar, register_time, is_online FROM users'
+        'SELECT id, name, avatar, register_time, status FROM users'
       ).all();
       return users;
     });

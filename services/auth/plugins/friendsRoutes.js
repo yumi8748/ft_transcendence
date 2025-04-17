@@ -2,7 +2,7 @@
 export async function friendsRoutes(fastify, options) {
     fastify.get('/friends', async (request, reply) => {
       try {
-        const res = await fastify.http.get('http://database:3001/friends');
+        const res = await fastify.http.get('http://data-service:3001/friends');
         return res.data;
       } catch (err) {
         console.error(err);
@@ -12,7 +12,7 @@ export async function friendsRoutes(fastify, options) {
   
     fastify.post('/friends', async (request, reply) => {
       try {
-        const res = await fastify.http.post('http://database:3001/friends', request.body);
+        const res = await fastify.http.post('http://data-service:3001/friends', request.body);
         return res.data;
       } catch (err) {
         console.error(err);

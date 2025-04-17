@@ -67,7 +67,7 @@ async function fetchFriends() {
         friendList.innerHTML = '';
 
         friends.forEach(friend => {
-            const isOnline = friend.friend_status === 'online'; // 根据 friend_status 来确定是否在线
+            const isOnline = friend.friend_status === 'online';
             const statusColor = isOnline ? 'text-green-600' : 'text-gray-500';
             const statusText = isOnline ? 'Online' : 'Offline';
 
