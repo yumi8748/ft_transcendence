@@ -4,6 +4,15 @@ const fastify = Fastify({logger: true})
 import fastifyWebsocket from '@fastify/websocket';
 fastify.register(fastifyWebsocket)
 
+const gameData = {
+  player1_id: 1,
+  player2_id: 2,
+  player1_score: 0,
+  player2_score: 0,
+  game_start_time: null,
+  game_end_time: null
+};
+
 let gameStart = false;
 let players = [];
 let playerCount = 0;
@@ -26,7 +35,7 @@ fastify.register(async (fastify) => {
     }
     gameStart = true;
 
-    // gameData.game_start_time = new Date().toISOString();
+    gameData.game_start_time = new Date().toISOString();
 
     const playerIndex = playerCount++;
     const paddleIndex = playerIndex % 2;
@@ -64,11 +73,11 @@ fastify.register(async (fastify) => {
 
 function updateGame()
 {
-  if (gameState.scores.left === 12 || gameState.scores.right === 12)
+  if (gameState.scores.left === 5 || gameState.scores.right === 5)
     {
         gameStart = false;
         clearInterval(refresh);
-        // saveGame();
+        saveGame();
     }  
   if (gameStart)
     {
@@ -105,6 +114,26 @@ function resetBall() {
 function broadcastState()
 {
   players.forEach(player => player.send(JSON.stringify(gameState)));
+}
+
+async function saveGame() {
+  gameData.player1_score = gameState.scores.left;
+  gameData.player2_score = gameState.scores.right;
+  gameData.game_end_time = new Date().toISOString();
+
+  try {
+    const response = await fetch('http://data-service:3001/matches', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(gameData),
+    });
+    const data = await response.json();
+    console.log("Game saved: ", data);
+  } catch (error) {
+    console.log("Failed to save game: ", error);
+  }
 }
 
 fastify.listen({ port: 3005, host: '0.0.0.0'  }, () => {
