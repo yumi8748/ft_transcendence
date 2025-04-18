@@ -16,6 +16,10 @@ fastify.register(fastifyStatic, {
   root: path.join(__dirname, 'public'),
 });
 
+fastify.setNotFoundHandler((req, reply) => {
+  reply.sendFile('index.html');
+});
+
 fastify.listen({ port: 3000, host: '0.0.0.0' }, () => {
     console.log('API Gateway running on http://localhost:3000');
   });
