@@ -1,66 +1,18 @@
 import displayHome from "./displayHome.js";
-// import {TournamentDisplay} from "./displayTournament.js";
+import displayGame from "./displayGame.js";
+import displayTournament from "./displayTournament.js";
 import displayLogin from "./displayLogin.js";
 import displayRegister from "./displayRegister.js";
 import displayDashboard from "./displayDashboard.js";
-import displayGame from './displayGame.js';
-
-// const socket = new WebSocket(`ws://${location.host}/ws`);
-// const gameDisplay = new GameDisplay();
-// const tournamentDisplay = new TournamentDisplay();
-
-// socket.onopen = function (event) {
-    // socket.send("C: Client openend connection");
-// };
-
-// socket.onclose = function (event) {
-    // console.log('C: Client closed connection');
-// };
-
-// socket.onmessage = function (event) 
-// {
-//     const data = JSON.parse(event.data);
-
-//     // Game part
-//     if (data.type === "back_game_position")
-//     {
-//         gameDisplay.draw(data);
-//     }
-//     else if (data.type === "back_game_home")
-//     {
-//         displayHome(socket);
-//     }
-//     else if (data.type === "back_game_draw")
-//     {
-//         gameDisplay.displayGame(socket);
-//         gameDisplay.draw(data);
-//     }
-
-//     // Tournament part
-//     if (data.type === "back_tournamentTable_draw")
-//     {
-//         tournamentDisplay.displayTournamentTable(socket);
-//         tournamentDisplay.displayPlayers(data);
-//     }
-//     else if (data.type === "back_tournamentTable_next")
-//     {
-//         tournamentDisplay.displayTournamentGame(socket);
-//         tournamentDisplay.draw(data);
-//     }
-//     else if (data.type === "back_tournamentGame_position")
-//     {
-//         tournamentDisplay.draw(data);
-//     }
-//     else if (data.type === "back-tournament-home")
-//     {
-//         displayHome(socket);
-//     }
-// };
+import displayFriends from "./displayFriends.js";
+import displaySideMenu from "./displaySideMenu.js";
+import displaySettings from "./displaySettings.js";
 
 var contentDiv = document.getElementById('content');
+let ws;
 
 const render = async () => {
-
+    displaySideMenu();
     switch (location.pathname)
     {
         case "/":
@@ -71,10 +23,10 @@ const render = async () => {
             break;
         case "/game":
             displayGame();
-            // gameDisplay.sendDrawGame(socket);
+            setupWebSocket();
             break;
         case "/tournament":
-            // tournamentDisplay.sendDrawTournamentTable(socket);
+            displayTournament();
             break;
         case "/login":
             displayLogin();
@@ -85,11 +37,16 @@ const render = async () => {
         case "/dashboard":
             displayDashboard();
             break;
+        case "/friends":
+            displayFriends();
+            break;
+        case "/settings":
+            displaySettings();
+            break;
         default:
             contentDiv.innerHTML = '<h2>Page not found!</h2>';
     }
-
-}
+};
 
 document.addEventListener("DOMContentLoaded", render)
 
