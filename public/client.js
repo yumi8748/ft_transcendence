@@ -2,6 +2,7 @@ import displayHome from "./displayHome.js";
 import displayGame from "./displayGame.js";
 import displayLogin from "./displayLogin.js";
 import displayRegister from "./displayRegister.js";
+import displayDashboard from "./displayDashboard.js";
 
 const render = () => {
 	switch (window.location.pathname) {
@@ -20,6 +21,12 @@ const render = () => {
 		case "/register":
 			displayRegister();
 			break;
+		case "/dashboard":
+			displayDashboard();
+			break;
+		default:
+			displayHome();
+			break;
 	}
 }
 
@@ -35,7 +42,7 @@ const updateAuthUI = async () => {
 		isLoggedIn = data.loggedIn === true
 		username = data.username + " 🟢 " || ''
 	} catch (error) {
-		console.error('Login check failed:', err)
+		console.error('Login check failed:', error)
 	}
 	console.log('User logged in:', isLoggedIn, 'Username:', username)
 	document.getElementById('username').textContent = username
