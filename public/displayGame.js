@@ -94,7 +94,7 @@ function displayGame()
     //     ws.close(); // Close the existing WebSocket connection if it exists
     // }
 
-    ws = new WebSocket(`ws://localhost:3005/ws`);
+    ws = new WebSocket(`ws://localhost:1234/ws`);
 
     ws.onopen = () => {
         console.log('Connected to server');
