@@ -1,17 +1,8 @@
-
-
 import Fastify from 'fastify'
-
 const fastify = Fastify({logger: true})
-import fastifyStatic from '@fastify/static'
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+
 import fastifyWebsocket from '@fastify/websocket';
-import { clearInterval } from 'node:timers';
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+fastify.register(fastifyWebsocket)
 
 const gameData = {
   player1_id: 1,
@@ -22,16 +13,6 @@ const gameData = {
   game_end_time: null
 };
 
-fastify.register(fastifyStatic, {
-  root: path.join(__dirname, 'public'),
-})
-
-fastify.setNotFoundHandler((req, reply) => {
-  reply.sendFile('index.html');
-});
-
-fastify.register(fastifyWebsocket)
-
 let gameStart = false;
 let players = [];
 let playerCount = 0;
@@ -41,6 +22,7 @@ let gameState = {
   ball: { x: 300, y: 200, vx: 4, vy: 4 },
   scores: {left: 0, right: 0}
 };
+
 
 let refresh = setInterval(updateGame, 30);
 
@@ -91,7 +73,7 @@ fastify.register(async (fastify) => {
 
 function updateGame()
 {
-  if (gameState.scores.left === 12 || gameState.scores.right === 12)
+  if (gameState.scores.left === 5 || gameState.scores.right === 5)
     {
         gameStart = false;
         clearInterval(refresh);
@@ -154,9 +136,6 @@ async function saveGame() {
   }
 }
 
-try {
-  await fastify.listen({ port: 3000, host: '0.0.0.0'})
-} catch (err) {
-  fastify.log.error(err)
-  process.exit(1)
-}
+fastify.listen({ port: 3005, host: '0.0.0.0'  }, () => {
+  console.log('Chat service running on ws://localhost:3005/ws');
+});
