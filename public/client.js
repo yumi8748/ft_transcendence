@@ -23,7 +23,7 @@ const render = async () => {
             break;
         case "/game":
             displayGame();
-            setupWebSocket();
+            // setupWebSocket();
             break;
         case "/tournament":
             displayTournament();

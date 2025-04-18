@@ -4,128 +4,106 @@ const fastify = Fastify({logger: true})
 import fastifyWebsocket from '@fastify/websocket';
 fastify.register(fastifyWebsocket)
 
-// let gameStart = false;
+let gameStart = false;
 let players = [];
-// let gameState = {
-//   type: "update",
-//   paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
-//   ball: { x: 300, y: 200, vx: 4, vy: 4 },
-//   scores: {left: 0, right: 0}
-// };
-
+let playerCount = 0;
 let gameState = {
+  type: "update",
   paddles: [ { y: 10, playerID: 0, side: "left" }, { y: 10, playerID: 0, side: "right" } ],
   ball: { x: 300, y: 200, vx: 4, vy: 4 },
-  scores: {left: 0, right: 0},
-  gameStart : false,
-  type: "",
-  intervalId: ""
+  scores: {left: 0, right: 0}
 };
 
 
-fastify.register(async function (fastify) {
-  fastify.get('/ws', { websocket: true }, (socket, req) => {
-      gameState.gameStart = true;
-      players.push(socket);
-      const playerIndex = players.length;
-      // startSetInterval(socket);
-      socket.on('message', function incoming(message)
-      {
-        console.log("OK")
-        
+let refresh = setInterval(updateGame, 30);
+
+fastify.register(async (fastify) => {
+    fastify.get("/ws", { websocket: true }, (connection, req) => {
+    
+      if (playerCount > 3) {
+      connection.close();
+      return;
+    }
+    gameStart = true;
+
+    // gameData.game_start_time = new Date().toISOString();
+
+    const playerIndex = playerCount++;
+    const paddleIndex = playerIndex % 2;
+
+    players.push(connection);
+    connection.send(JSON.stringify({ type: "playerID", playerID: playerIndex }));
+    connection.send(JSON.stringify(gameState));
+
+    connection.on("message", (message) =>
+    {
         const data = JSON.parse(message);
-        console.log(data)
-        if (data.type === "front_game_draw")
-        {
-          gameState.type = "back_game_draw";  
-          socket.send(JSON.stringify(gameState))
-        }
-        else if (data.type === "front_game_start")
-        {
-           gameState.type = "back_game_position";  
-            gameState.gameStart = true;
-            startSetInterval(socket); 
-        }
-        else if (data.type === "front_game_home")
-        {
-          gameState.scores.left = 0;
-          gameState.scores.right = 0;
-          gameState.gameStart = false;
-          gameState.type = "back_game_home";
-          socket.send(JSON.stringify(gameState))
-        }
-        else if (data.type === "front_game_key")
-        {
-          if (data.sKey === true)
-            gameState.paddles[0].y += 5;
-          if (data.wKey === true)
-            gameState.paddles[0].y -= 5;
-          if (data.oKey === true)
-            gameState.paddles[1].y -= 5;
-          if (data.lKey === true)
-            gameState.paddles[1].y += 5;
-        }
-     
-      });
-      socket.on('close', function ()
-      {
-        players.splice(playerIndex, 1)
-      });
+        // if (playerIndex === 0) {
+              if (data.sKey === true && gameState.paddles[0].y < 310)
+              gameState.paddles[0].y += 10;
+              if (data.wKey === true && gameState.paddles[0].y > 10)
+              gameState.paddles[0].y -= 10;
+            // } if (playerIndex == 1) {
+          if (data.oKey === true && gameState.paddles[1].y > 10)
+            gameState.paddles[1].y -= 10;
+          if (data.lKey === true && gameState.paddles[1].y < 310)
+            gameState.paddles[1].y += 10;
+        // }
+     });
+        
+    connection.on('close', () =>
+    {
+      playerCount--;
+      players.splice(playerIndex, 1);
+      if (playerCount < 3) {
+        gameStart = false;
+      }
+    });
   })
 })
 
-function  updateGame()
+function updateGame()
 {
-    if (gameState.scores.left >= 2 || gameState.scores.right >= 2)
+  if (gameState.scores.left === 12 || gameState.scores.right === 12)
     {
-        gameState.gameStart = false;
-        stopSetInterval();
-    }
-    if (gameState.gameStart)
+        gameStart = false;
+        clearInterval(refresh);
+        // saveGame();
+    }  
+  if (gameStart)
     {
         gameState.ball.x += gameState.ball.vx;
         gameState.ball.y += gameState.ball.vy;
         if (gameState.ball.y <= 10 || gameState.ball.y >= 390)
             gameState.ball.vy *= -1;
-        if (gameState.ball.x <= 10) 
+        if (gameState.ball.x <= 11) 
         {
-            gameState.scores.right += 1;
+            gameState.scores.right++;
             resetBall();
         } 
-        else if (gameState.ball.x >= 590)
+        else if (gameState.ball.x >= 589)
         {
             gameState.scores.left++;
             resetBall();
         }
-        if (gameState.ball.x == 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
+        if (gameState.ball.x === 20 && gameState.ball.y >= gameState.paddles[0].y && gameState.ball.y <= gameState.paddles[0].y + 80)
             gameState.ball.vx *= -1;
-        if (gameState.ball.x == 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
+        if (gameState.ball.x === 580 && gameState.ball.y >= gameState.paddles[1].y && gameState.ball.y <= gameState.paddles[1].y + 80)
             gameState.ball.vx *= -1;
+        
+        broadcastState();
     }
 }
 
 function resetBall() {
-  gameState.ball = { x: 300, y: 200, vx: 4, vy: 4 };
+  gameState.ball.x = 300;
+  gameState.ball.y = 200;
+  gameState.ball.vx = Math.random() < 0.5 ? 4 : -4;
+  gameState.ball.vy = Math.random() < 0.5 ? 4 : -4;
 }
-
-function startSetInterval(connection)
-{
-    gameState.intervalId = setInterval(() => 
-    {
-        updateGame();
-        connection.send(JSON.stringify(gameState))
-    }, 30);
-}
-
-function stopSetInterval()
-    {
-        clearInterval(gameState.intervalId);
-        gameState.intervalId = null;
-    }
 
 function broadcastState()
 {
-  console.log("OK")
   players.forEach(player => player.send(JSON.stringify(gameState)));
 }
 
