@@ -28,11 +28,11 @@ let refresh = setInterval(updateGame, 30);
 
 fastify.register(async (fastify) => {
     fastify.get("/ws", { websocket: true }, (connection, req) => {
-    
-      if (playerCount > 3) {
-      connection.close();
-      return;
-    }
+      // console.log(playerCount)
+    //   if (playerCount > 3) {
+    //   connection.close();
+    //   return;
+    // }
     gameStart = true;
 
     gameData.game_start_time = new Date().toISOString();
@@ -41,6 +41,7 @@ fastify.register(async (fastify) => {
     const paddleIndex = playerIndex % 2;
 
     players.push(connection);
+    console.log(players.length)
     connection.send(JSON.stringify({ type: "playerID", playerID: playerIndex }));
     connection.send(JSON.stringify(gameState));
 
@@ -64,9 +65,9 @@ fastify.register(async (fastify) => {
     {
       playerCount--;
       players.splice(playerIndex, 1);
-      if (playerCount < 3) {
-        gameStart = false;
-      }
+      // if (playerCount < 3) {
+      //   gameStart = false;
+      // }
     });
   })
 })
