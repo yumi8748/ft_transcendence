@@ -56,6 +56,16 @@ function displayGame()
         }
     }
 
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+        console.log('WebSocket is already open or connecting');
+        return;
+    }
+
+    if (ws) {
+        ws.onclose = null; // Remove the onclose handler to avoid triggering it during close
+        ws.close(); // Close the existing WebSocket connection if it exists
+    }
+
     ws = new WebSocket(`ws://localhost:1234/ws`);
 
     ws.onopen = () => {

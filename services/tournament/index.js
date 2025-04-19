@@ -41,6 +41,7 @@ fastify.register(async (fastify) => {
     const paddleIndex = playerIndex % 2;
 
     players.push(connection);
+    console.log(players.length)
     connection.send(JSON.stringify({ type: "playerID", playerID: playerIndex }));
     connection.send(JSON.stringify(gameState));
 
