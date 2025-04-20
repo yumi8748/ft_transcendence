@@ -1,61 +1,129 @@
+import displayHome from "./displayHome.js";
+
 var contentDiv = document.getElementById('content');
 let ws;
-function displayGame()
-{
-    contentDiv.innerHTML = `
-    <div class="flex min-h-screen flex-col items-center p-16">
-        <!-- Top Section: Circles with Text -->
-        <div class="mb-8 flex w-full max-w-xl justify-between">
-            <!-- Left Circle (Profile) -->
-            <div class="flex flex-col items-center">
-            <div class="h-20 w-20 rounded-full border-4 border-gray-700 bg-gray-300"></div>
-            <p id="result-player1" class="mt-2 text-sm text-gray-900">result</p>
-            </div>
-            <!-- Middle Box (Game Start) -->
-            <div class="flex flex-col items-center">
-            <button id="start-game" class="w-full rounded-md bg-gray-300 p-3 transition duration-200 hover:bg-blue-300 text-gray-700">Start</button>
-            </div>
-            <!-- Right Circle (Game Result) -->
-            <div class="flex flex-col items-center">
-            <div id="result-player2" class="h-20 w-20 rounded-full border-4 border-gray-700 bg-gray-300"></div>
-            <p class="mt-2 text-sm text-gray-900">result</p>
-            </div>
-        </div>
-        <!-- Bottom Section: Game Canvas -->
-        <canvas id="game-canvas" class="rounded-lg bg-black" width="600" height="400"></canvas>
-    </div>`;
-    const canvas = document.getElementById("game-canvas");
-    const ctx = canvas.getContext("2d");
-    
-    function drawRect(x, y, w, h, color) {
+
+class GameDisplay {
+    constructor()
+    {
+        this.canvas = null;
+        this.ctx = null;
+        this.message = {
+            type: "",
+            wKey: false,
+            sKey: false,
+            oKey: false,
+            lKey: false
+        };
+    }
+  
+    displayGame(socket)
+    {
+        contentDiv.innerHTML = `
+            <canvas id="tutorial" class = "bg-black" width="600" height="400">salut</canvas>
+            <button type="button" id="game-start" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Start</button>
+            <button type="button" id="game-home" class="ml-2 rounded-md p-2 mt-6 text-white bg-blue-500">Home</button>
+            `;
+        
+        this.canvas = document.getElementById("tutorial");
+        this.ctx = this.canvas.getContext("2d");
+        this.sendPressHomeGame(socket);
+        this.sendKeydownGame(socket);
+        this.sendKeyupGame(socket);
+        this.sendPressStartGame(socket)
+    }
+
+    sendDrawGame(socket)
+    {
+        this.message.type = "front_game_draw";
+        socket.send(JSON.stringify(this.message));
+    }
+
+    sendPressStartGame(socket)
+    {
+        document.getElementById("game-start").addEventListener("click", (e)=>{
+
+            this.message.type = "front_game_start";
+            socket.send(JSON.stringify(this.message));
+        })
+    }
+
+    sendPressHomeGame(socket)
+    {
+        document.getElementById("game-home").addEventListener("click", (e)=>{
+
+            this.message.type = "front_game_home";
+            socket.send(JSON.stringify(this.message));
+        })
+    }
+
+    sendKeydownGame(socket)
+    {
+        document.addEventListener('keydown', (e) => 
+        {
+            this.message.type = "front_game_key";
+            if (e.key === 's')
+                this.message.sKey = true;
+            else if (e.key === 'w')
+                this.message.wKey = true;
+            else if (e.key === 'o')
+                this.message.oKey = true;
+            else if (e.key === 'l')
+                this.message.lKey = true;
+            socket.send(JSON.stringify(this.message));
+        });
+    }
+
+    sendKeyupGame(socket)
+    {
+        document.addEventListener('keyup', (e) => 
+        {
+            this.message.type = "front_game_key";
+            if (e.key === 's')
+                this.message.sKey = false;
+            else if (e.key === 'w')
+                this.message.wKey = false;
+            else if (e.key === 'o')
+                this.message.oKey = false;
+            else if (e.key === 'l')
+                this.message.lKey = false;
+            socket.send(JSON.stringify(this.message));
+        });
+    }
+
+    drawRect(ctx, x, y, w, h, color) {
         ctx.fillStyle = color;
         ctx.fillRect(x, y, w, h);
     }
-    
-    function drawCircle(x, y, radius, color) {
+
+    drawCircle(ctx, x, y, radius, color) {
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    function drawText(text, x, y) {
+    drawText(ctx, text, x, y) {
         ctx.fillStyle = "white";
         ctx.font = "20px Arial";
         ctx.fillText(text, x, y);
     }
 
-    function draw(message) {
-        ctx.clearRect(0, 0, 600, 400);
-        if (message.type == "update") {
-            drawCircle(message.ball.x, message.ball.y, 10, "white");
-            drawRect(10, message.paddles[0].y, 10, 80, "white");
-            drawRect(canvas.width - 20, message.paddles[1].y, 10, 80, "white");
-            drawText(message.scores.left, 100, 50);
-            drawText(message.scores.right, canvas.width - 100, 50);
-        }
+    draw (message)
+    {
+        this.ctx.clearRect(0,0,600,400)
+        this.drawCircle(this.ctx, message.ball.x, message.ball.y, 10, "white")
+        this.drawRect(this.ctx, 10, message.paddles[0].y, 10, 80, "white")
+        this.drawRect(this.ctx, this.canvas.width - 20, message.paddles[1].y, 10, 80, "white")
+        this.drawText(this.ctx, message.scores.left, 100, 50)
+        this.drawText(this.ctx, message.scores.right, this.canvas.width - 100, 50)
     }
 
+}
+
+
+function displayGame()
+{
     if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
         console.log('WebSocket is already open or connecting');
         // return;
@@ -67,30 +135,28 @@ function displayGame()
     // }
 
     ws = new WebSocket(`ws://localhost:1234/ws`);
+    const gameDisplay = new GameDisplay();
 
     ws.onopen = () => {
         console.log('Connected to server');
+        gameDisplay.sendDrawGame(ws);
     };
  
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        draw(data);
-        if (data.type === 'playerID') {
-            const playerID = data.playerID;
-            document.addEventListener('keydown', (event) => {
-                const message = { playerID };
-                if (event.key === 's') message.sKey = true;
-                if (event.key === 'w') message.wKey = true;
-                if (event.key === 'l') message.lKey = true;
-                if (event.key === 'o') message.oKey = true;
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify(message));
-                } else {
-                    console.error('WebSocket is not open. Cannot send message.');
-                }
-            });
-        } else if (data.type === 'update') {
-            // updateGameState(data);
+        
+        if (data.type === "back_game_position")
+        {
+            gameDisplay.draw(data);
+        }
+        else if (data.type === "back_game_home")
+        {
+            displayHome(ws);
+        }
+        else if (data.type === "back_game_draw")
+        {
+            gameDisplay.displayGame(ws);
+            gameDisplay.draw(data);
         }
     };
 
