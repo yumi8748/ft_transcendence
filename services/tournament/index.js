@@ -18,13 +18,6 @@ fastify.register(async (fastify) => {
     players.push(connection);
     playerIndex = players.length;
     let i = 0;
-    while (i < playerIndex)
-    {
-      console.log("players:", players[i].id)
-      i++;
-    }
-    
-
     connection.on("message", (message) =>
     {
       const data = JSON.parse(message);

@@ -11,6 +11,7 @@ class Tournament {
             type : "",
             round : 0,
             current_games: 0,
+            waiting: true,
 
         };
         this.gameState = {
@@ -62,23 +63,10 @@ class Tournament {
         return array.splice(index, 1)[0];
     }
 
-    initializeTournament(players)
+    addPlayer(playerid)
     {
-        console.log("OK")
-        let list = [];
-        for (let i = 0; i < players.length; i++)
-        {
-            list.push(players[i].id);
-        }
-        while (list.length > 0)
-        {
-            let element = this.getRandomUniqueElement(list);
-            this.tournamentData.current_round.push(element);
-        }
-        for (let i = 0; i < this.tournamentData.current_round.length; i++)
-        {
-            this.tournamentData.brackets.push(this.tournamentData.current_round[i]);
-        }
+        this.tournamentData.current_round.push(playerid);
+        this.tournamentData.brackets.push(playerid);
         this.tournamentData.current_games = 0;
     }
 
@@ -90,18 +78,26 @@ class Tournament {
         this.tournamentData.current_round = [];
         this.tournamentData.round = 0;
         this.tournamentData.current_games = 0;
+        this.tournamentData.waiting === true;
         broadcastState(players, this.tournamentData);
+        players = [];
     }
 
     sendDrawTournamentTable(players, connection)
     {
-        if (this.tournamentData.round === 0)
+        if (this.tournamentData.waiting === true)
         {
-            this.initializeTournament(players);
+            this.addPlayer(connection.id);
         }
+        if (this.tournamentData.current_round.length === 4)
+        {
+            // console.log("C BON")
+            this.tournamentData.waiting = false;
+        }
+
         this.tournamentData.type = "back_tournamentTable_draw";
-        // console.log(this.tournamentData)
-        connection.send(JSON.stringify(this.tournamentData))
+        // connection.send(JSON.stringify(this.tournamentData))
+        broadcastState(players, this.tournamentData);
     }
 
     sendNextTournamentTable(players)
@@ -225,84 +221,3 @@ class Tournament {
   }
 
 export {Tournament};
-
-// generateMatches()
-// {
-//     let contestants = this.contestants;
-//     if (contestants.length > 1)
-//     {
-//         let nextRound = [];
-//         for (let i = 0; i < contestants.length; i += 2)
-//         {
-//             if (i + 1 < contestants.length)
-//             {
-//                 let winner = this.playMatch(contestants[i], contestants[i + 1]);
-//                 nextRound.push(winner);
-//             } 
-//         }
-//         this.contestants = nextRound;
-//     }
-// }
-
-// updateTournament()
-// {
-//     this.generateMatches();
-//     if (this.tournamentData.round === 0)
-//     {
-//         this.tournamentData.brackets[8] = this.contestants[0];
-//         this.tournamentData.brackets[9] = this.contestants[1];
-//         this.tournamentData.brackets[10] = this.contestants[2];
-//         this.tournamentData.brackets[11] = this.contestants[3];
-//     }
-//     else if (this.tournamentData.round === 1)
-//     {
-//         this.tournamentData.brackets[12] = this.contestants[0];
-//         this.tournamentData.brackets[13] = this.contestants[1];
-//     }
-//     else if (this.tournamentData.round === 2)
-//     {
-//         this.tournamentData.brackets[14] = this.contestants[0];
-//     }
-//     this.tournamentData.round++;
-// }
-
-// for (let i = 0; i < this.tournamentData.current_round.length; i += 2)
-    // {
-        // if (this.tournamentData.current_round[i] === "Player 1" || this.tournamentData.current_round[i + 1] === "Player 1")
-        // {
-        // if (winner === "left")
-        // {
-            // if (this.tournamentData.current_round[i] === "Player 1")
-                // this.tournamentData.next_round.push(this.tournamentData.current_round[i]);
-            // else
-                // this.tournamentData.next_round.push(this.tournamentData.current_round[i+1]);
-        // }
-        // else if (winner === "right")
-        // {
-            // if (this.tournamentData.current_round[i] === "Player 1")
-                // this.tournamentData.next_round.push(this.tournamentData.current_round[i + 1]);
-            // else
-                // this.tournamentData.next_round.push(this.tournamentData.current_round[i]);
-        // }
-        // }
-        // else
-        // {
-        //     let winner = this.playMatch(this.tournamentData.current_round[i], this.tournamentData.current_round[i + 1]);
-        //     this.tournamentData.next_round.push(winner);
-        // }
-    // }
-
-    // for (let i = 0; i < this.tournamentData.next_round.length; i++)
-    // {
-        // this.tournamentData.brackets.push(this.tournamentData.next_round[i]);
-    // }
-
-    // this.tournamentData.current_round = this.tournamentData.next_round;
-    // this.tournamentData.next_round = [];
-    // this.tournamentData.round++;
-
-    // playMatch(player1, player2)
-    // {
-    //     let winner = Math.random() > 0.5 ? player1 : player2;
-    //     return winner;
-    // }
