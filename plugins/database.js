@@ -16,8 +16,10 @@ async function dbConnector(fastify) {
     db.prepare(`CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       avatar TEXT NOT NULL,
+      two_fa_enabled BOOLEAN DEFAULT FALSE,
       register_time DATETIME DEFAULT CURRENT_TIMESTAMP
     )`).run();
     console.log('Users table created successfully');
@@ -60,8 +62,21 @@ async function dbConnector(fastify) {
     console.log('Error creating tournaments table:', error);
   }
 
+  // Create the 'friends' table if it doesn't exist
+  try {
+    db.prepare(`
+      CREATE TABLE IF NOT EXISTS friends (
+        user_name TEXT NOT NULL,
+        friend_name TEXT NOT NULL,
+        PRIMARY KEY (user_name, friend_name)
+      )
+    `).run();
+    console.log('Friends table created successfully');
+  } catch (error) {
+    console.log('Error creating friends table:', error);
+  }
+
   fastify.decorate('sqlite', db); // Attach the db to Fastify instance
-  
 }
 
 export default fp(dbConnector); // Register the plugin
