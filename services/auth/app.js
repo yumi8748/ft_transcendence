@@ -280,7 +280,7 @@ fastify.post('/login', async (request, reply) => {
   console.log(username);
 
   // set the user status to online
-  // fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE name = ?`).run(username);
+  fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE name = ?`).run(username);
   const token = createSessionToken(user);
   setSessionCookie(reply, token);
   sendToken(username);
@@ -318,6 +318,24 @@ fastify.get('/verify', async(request, reply) => {
     return (reply.status(200).send({ message: `Successfully verified as ${decoded.name}`}));
   } catch (err) {
     return reply.status(401).send({ message: err.message});
+  }
+})
+
+fastify.get('/auth/status', async function (request, reply) {
+  try {
+    // Check if there's a token in the cookies
+    const res = await fetch('http://auth-service:3002/verify', {
+      method: 'GET',
+      credentials: 'include' // to send cookies (like 'session')
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || 'Verification failed');
+    }
+    const authUsername = res.headers.get('auth_username');
+    return reply.status(200).send({ loggedIn: true, username: authUsername });
+  } catch (error) {
+    reply.send(error)
   }
 })
 //keeping this for archives

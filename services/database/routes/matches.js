@@ -12,8 +12,8 @@ async function matchesRoutes(fastify, options) {
             m.game_start_time, 
             m.game_end_time 
           FROM matches m
-          JOIN users u1 ON m.player1_id = u1.id
-          JOIN users u2 ON m.player2_id = u2.id
+          JOIN users u1 ON m.player1 = u1.name
+				  JOIN users u2 ON m.player2 = u2.name
         `).all();
         
         reply.header('Content-Type', 'application/json').send(matches);

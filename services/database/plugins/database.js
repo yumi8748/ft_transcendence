@@ -28,14 +28,14 @@ async function dbConnector(fastify, options) {
     db.prepare(`
       CREATE TABLE IF NOT EXISTS matches (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        player1_id INTEGER NOT NULL,
-        player2_id INTEGER NOT NULL,
+        player1 TEXT NOT NULL,
+        player2 TEXT NOT NULL,
         player1_score INTEGER NOT NULL DEFAULT 0,
         player2_score INTEGER NOT NULL DEFAULT 0,
         game_start_time TEXT,
         game_end_time TEXT,
-        FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (player2_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (player1) REFERENCES users(name) ON DELETE CASCADE,
+        FOREIGN KEY (player2) REFERENCES users(name) ON DELETE CASCADE
       )
     `).run();
     console.log('Matches table created successfully');

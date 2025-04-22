@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import formbody from '@fastify/formbody'
 import dbConnector from './plugins/database.js';
 import usersRoutes from './routes/users.js';
 import matchesRoutes from './routes/matches.js';
@@ -13,6 +14,7 @@ fastify.register(dbConnector);
 // Register routes
 
 //truc
+await fastify.register(formbody);
 fastify.register(usersRoutes);
 fastify.register(matchesRoutes);
 fastify.register(tournamentsRoutes);

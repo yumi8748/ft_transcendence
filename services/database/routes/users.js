@@ -77,6 +77,33 @@ async function usersRoutes(fastify, options) {
           return reply.status(500).send({ error: "Internal Server Error" });
       }
   });
+
+  // update a specific user
+  fastify.post('/users/:name', async (request, reply) => {
+		try {
+			const { name } = request.params;
+			console.log(name, 'is trying to update info');
+			const parts = request.parts();
+			for await (const part of parts) {
+				console.log(part.fieldname, part.value);
+				if (part.fieldname === 'password') {
+					const hashedPassword = await bcrypt.hash(part.value, 10);
+					fastify.sqlite.prepare(
+						`UPDATE users SET password = ? WHERE name = ?`
+					).run(hashedPassword, name);
+				}
+				else if (part.fieldname === 'email') {
+					fastify.sqlite.prepare(
+						`UPDATE users SET email = ? WHERE name = ?`
+					).run(part.value, name);
+				}
+			}
+			return reply.status(200).send({ message: `Updated info for ${name}` });
+		} catch (error) {
+			console.error(error);
+			return reply.status(500).send({ error: "Internal Server Error" });
+		}
+	})
 }
   export default usersRoutes;
   
