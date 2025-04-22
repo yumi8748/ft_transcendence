@@ -1,25 +1,140 @@
+import Fastify from 'fastify'; //fastify framework
+import fastifyCors from '@fastify/cors'; //cors rules
+import bcrypt from 'bcrypt'; //password hashing
+import jwt from 'jsonwebtoken'; //jwt creation, verification and decoding
+import fs from 'node:fs'
+import pump from 'pump'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url';
+import multipart from '@fastify/multipart'; //multipart body from forms parsing
+import nodemailer from 'nodemailer' //sending mails
 
-import Fastify from 'fastify';
-import fastifyCors from '@fastify/cors';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-
+//secret key for jwt need to come from a .env
+const secretkey = 'super-secret-key';
+//salt for hashing could come from .env as well
+const salt = 10;
 
 const fastify = Fastify({ logger: true });
+
+//used to parse form/multipart enc type
+fastify.register(multipart);
+
+function createSessionToken(username)
+{
+  return jwt.sign({ username: username }, secretkey, { expiresIn: '1h'});
+}
+
+/* ------------- Cookie utils ----------------- */
+
+function setSessionCookie(reply, token)
+{
+  const cookie = `session=${token}; HttpOnly; Secure; SameSite=lax; Path=/; Max-Age=${60*60}`;// 1h max age currently
+  reply.header('Set-Cookie', cookie);
+}
+
+function parseCookies(request)
+{
+  const cookieHeader = request.headers.cookie;
+  const cookies = {};
+
+  if (!cookieHeader) {
+    return {};
+  }
+
+  const pairs = request.headers.cookie.split(';');
+  for (const pair of pairs)
+  {
+    const trimmed = pair.trim();
+    const sepIndex = trimmed.indexOf('=');
+    if (sepIndex === -1) { //check if there is a = skip if not
+      continue;
+    }
+    const name = trimmed.slice(0, sepIndex);
+    const rawVal = trimmed.slice(sepIndex + 1);
+    cookies[name] = decodeURIComponent(rawVal);
+  }
+  return cookies;
+}
+
+/* --------------- Cookie utils ends -----------------*/
+
+
+/* ------------- setting up 2fa ----------------- */
+
+//instantiate the transporter for nodemailer
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'transcendance.verif@gmail.com',
+    pass: 'berx ufcf ukka ydke ',
+  },
+});
+
+function generateMagicToken(userId) {
+  console.log("generating jwt for ", userId);
+  return jwt.sign({ username: userId }, secretkey, { expiresIn: '15m'})
+}
+
+function verifyMagicToken(token) {
+  console.log('verifying token:', token);
+  return jwt.verify(token, secretkey);
+}
+
+async function sendEmail(email, text) {
+  console.log('sending email to: ', email, ' text is: ', text);
+  await transporter.sendMail({
+    from: 'Transcendance 2FA service" <transcendance.verif>',
+    to: email,
+    subject: 'Verify your email !',
+    text
+  });
+}
+
+//on request such as /magic-link?username=user's name, will send an email to the user containing a link to 2FA and a token
+fastify.get('/magic-link', async (request, reply) => {
+  const { username } = request.query;
+
+  const user = await getService("http://data-service:3001/users/" + username);
+  const umail = user.email;
+
+  const token = generateMagicToken(user.name);
+  const link = `http://127.0.0.1:1234/service1/2FA?token=${token}`;
+
+  await sendEmail(umail, `Click to verify your email: ${link}`);
+
+  reply.status(200).send({ ok: true});
+});
+
+//on request such as /2FA?token=dzadZDAZD45524d.dzqdzqd.... will return a session token
+fastify.get('/2FA', async (request, reply) => {
+  const { token } = request.query;
+
+  try {
+    const decoded = verifyMagicToken(token);
+    console.log("email sucessfully verified, decoded:", decoded.username);
+    const newtoken = jwt.sign({
+      username: decoded.username
+    }, secretkey, { expiresIn: '1h' });
+    //reply.status(302).send({ token: newtoken })
+    //set the secure session cookie and redirect to the home page
+    setSessionCookie(reply, newtoken);
+    reply.redirect('/');
+  } catch (err) {
+    console.log("error verifying email");
+    reply.status(400).send({message: err.message})
+  }
+});
+/* -------- 2FA END ------------- */
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import {getService, postService} from './plugins/serviceRequest.js';
+import { stringify } from 'node:querystring';
 
-
-
-//bcrypt for password hashing
-//jwt to sign the tokens
-
-//import the schemas
-//import {
-//  registerSchema,
-//  tokenResponseSchema,
-//  loginSchema,
-//  loginResponseSchema
-//} from './schemas.js';
 
 fastify.register(fastifyCors, {
   origin: '*', // Allow all origins (or specify frontend URL)
@@ -27,50 +142,56 @@ fastify.register(fastifyCors, {
   allowedHeaders: ['Content-Type', 'Authorization']
 });
 
-//// Explicitly handle OPTIONS requests
-//fastify.options('*', async (req, reply) => {
-//  reply
-//    .header('Access-Control-Allow-Origin', '*')
-//    .header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-//    .header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-//    .code(204) // No content
-//    .send();
-//});
-
-
-//fake db to replace with real db
-//access to the real db will be made through await to asynchronously fetch data from it
-const users = [];
-//salt for hashing
-const salt = 10;
-
-const secretkey = 'super-secret-key';
-
 //simple register handler demo function
 async function registerHandler(request, reply)
 {
     console.log('in register');
-    const { username, password, avatar } = request.body;
-
-
+    const parts = request.parts()
+        const fields = {}
+        let avatarInfo = null
+        try {
+          for await (const part of parts) {
+            if (part.file) {
+              let uploadPath
+              uploadPath = path.join(__dirname, '../volume/uploads', 'default_avatar.png')
+              if (part.filename.length !== 0)
+              {
+                uploadPath = path.join(__dirname, '../volume/uploads', part.filename)
+                pump(part.file, fs.createWriteStream(uploadPath))
+              }
+              avatarInfo = {
+                filename: part.filename,
+                mimetype: part.mimetype,
+                path: uploadPath
+              }
+            }
+            else {
+              fields[part.fieldname] = part.value
+            }
+          }
+        } catch (err) {
+          console.error('Error processing multipart form:', err)
+          return reply.status(400).send({ error: 'Error processing multipart form' })
+        }
+    const { username, password, email } = fields;
+    //check if user already exist
     const userPromise = getService("http://data-service:3001/users/" + username)
     const passPromise = bcrypt.hash(password, salt);
     const userExist = await userPromise;
     if (userExist != 404) {
       return reply.status(400).send({ message: 'Invalid username !'});
     }
-    
     const hashedPass = await passPromise;
-    const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, avatar: avatar})
-    //users.push({ username: username, password: hashedPass }); //add to the users
+    
+    //post new user to db
+    const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, email: email, avatar: avatarInfo.path})
 
-    //const token = fastify.jwt.sign({ username }, { expiresIn: '1h' });
     console.log(result);
     console.log("registered new user:", username);
     const token = jwt.sign({
       username: username
     }, secretkey, { expiresIn: '1h' });
-    return reply.status(200).send({ message: token});
+    return reply.status(200).send({ token: token});
 };
 
 
@@ -150,13 +271,17 @@ fastify.post('/login', async (request, reply) => {
   //logic goes here
   //TODO: replaced username by user id maybe ? dont know if needed
   console.log(username);
+
+  // set the user status to online
+  // fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE name = ?`).run(username);
+
   sendToken(username);
   //return { newToken };
   //return reply.status(200).send({ message: 'Authentification successfull !'});
 
   function sendToken(user) {
     const newToken = jwt.sign({ username: user}, secretkey, {expiresIn: '1h'});
-    reply.send({ token: newToken });
+    reply.send({ token: newToken, username: username });
   }
 });
 
@@ -173,11 +298,21 @@ const verifySchema = {
   }
 };
 
+fastify.get('/verify2', async(request, reply) => {
+  const cookies = parseCookies(request);
+  const sessionToken = cookies['session'];
+  try {
+    const decoded = jwt.verify(sessionToken, secretkey);
+    return (reply.status(200).send({ message: `Successfully verified as ${decoded.username}`}));
+  } catch (err) {
+    return reply.status(400).send({ message: err.message});
+  }
+})
+
 fastify.get('/verify',{ verifySchema }, async (request, reply) => {
   console.log("verify route triggered");
 
   const authorization = request.headers['authorization'];
-  
   if (!authorization) {
     return reply.status(401).send({ message: 'Authorization header missing' });
   }
@@ -195,6 +330,34 @@ fastify.get('/verify',{ verifySchema }, async (request, reply) => {
   }
   return reply.status(401).send({ message: 'Invalid token' });
 })
+
+// List friends
+fastify.get('/friends', async (request, reply) => {
+  try {
+    const friends = await getService('http://data-service:3001/friends');
+    reply.send(friends);
+  } catch (err) {
+    console.error('Error fetching friends:', err);
+    reply.status(500).send({ error: 'Unable to fetch friends' });
+  }
+});
+
+// Add a friend
+fastify.post('/friends', async (request, reply) => {
+  const { username, avatar, status } = request.body;
+  if (!username || !avatar || !status) {
+    return reply.status(400).send({ error: 'Missing required fields' });
+  }
+
+  try {
+    const result = await postService('http://data-service:3001/friends', { username, avatar, status });
+    reply.send(result);
+  } catch (err) {
+    console.error('Error adding friend:', err);
+    reply.status(500).send({ error: 'Unable to add friend' });
+  }
+});
+
 
 fastify.get('/healthcheck', async (request, reply) => {
     reply.status(200).send({ message: 'Good!'});

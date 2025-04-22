@@ -2,7 +2,7 @@ async function usersRoutes(fastify, options) {
     // Get all users
     fastify.get('/users', async (request, reply) => {
       const users = fastify.sqlite.prepare(
-        'SELECT id, name, avatar, register_time FROM users'
+        'SELECT id, name, avatar, register_time, status FROM users'
       ).all();
       return users;
     });
@@ -16,9 +16,9 @@ async function usersRoutes(fastify, options) {
   
     // Create a new user
     fastify.post('/users', async (request, reply) => {
-      const { username, password, avatar } = request.body;
+      const { username, password, email, avatar } = request.body;
   
-      if (!username || !password || !avatar) {
+      if (!username || !password || !avatar || !email) {
         return reply.status(400).send({ message: "All fields are required" });
       }
   
@@ -30,9 +30,9 @@ async function usersRoutes(fastify, options) {
         'girl.png'
       ];
       
-      if (!validAvatars.includes(avatar)) {
-        return reply.status(400).send({ error: 'Invalid avatar selected.' });
-      }
+      //if (!validAvatars.includes(avatar)) {
+      //  return reply.status(400).send({ error: 'Invalid avatar selected.' });
+      //}
   
       try {
         // check if user already exists
@@ -46,8 +46,8 @@ async function usersRoutes(fastify, options) {
 
         // insert the user into the database
         fastify.sqlite.prepare(
-            'INSERT INTO users (name, password, avatar) VALUES (?, ?, ?)'
-        ).run(username, password, avatar);
+            'INSERT INTO users (name, password, email, avatar) VALUES (?, ?, ?, ?)'
+        ).run(username, password, email, avatar);
 
         return reply.send({ message: 'User registered successfully!' });
 
