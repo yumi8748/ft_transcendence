@@ -200,7 +200,7 @@ function displayTournament()
 {
 
 
-    wstournament = new WebSocket(`ws://localhost:1234/wstournament`);
+    wstournament = new WebSocket(`ws://${location.host}/wstournament`);
 
     const tournamentDisplay = new TournamentDisplay();
 

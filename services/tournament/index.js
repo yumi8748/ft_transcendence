@@ -13,7 +13,9 @@ const tournament = new Tournament();
 
 fastify.register(async (fastify) => {
     fastify.get("/wstournament", { websocket: true }, (connection, req) => {
-
+      const user = req.headers['x_username'];
+      const userid = req.headers['x_userid'];
+      console.log('new user logged in tournament ' + user + " " + userid);
     connection.id = contestants[playerIndex];
     players.push(connection);
     playerIndex = players.length;

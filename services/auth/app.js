@@ -355,7 +355,7 @@ const start = async () => {
     try {
         await fastify.listen({
           host: process.env.AUTH_HOST,
-          port: process.env.AUTH_PORT
+          port: 3002
         });
         console.log('auth running and listening on port 3002');
     } catch (err) {

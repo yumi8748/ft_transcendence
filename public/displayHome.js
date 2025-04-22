@@ -20,6 +20,7 @@ function displayHome() {
 
 
 		// console.log("OKOKOKO")
+		console.log(`${location.host}`);
 		const token = localStorage.getItem('token');
 		console.log("token is:", token);
 		const name = localStorage.getItem('name');

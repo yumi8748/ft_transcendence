@@ -134,7 +134,8 @@ function displayGame()
         // ws.close(); // Close the existing WebSocket connection if it exists
     // }
 
-    ws = new WebSocket(`ws://localhost:1234/ws`);
+    ws = new WebSocket(`ws://${location.host}/ws`);
+    
     const gameDisplay = new GameDisplay();
 
     ws.onopen = () => {
