@@ -49,7 +49,8 @@ async function usersRoutes(fastify, options) {
             'INSERT INTO users (name, password, email, avatar) VALUES (?, ?, ?, ?)'
         ).run(username, password, email, avatar);
 
-        return reply.send({ message: 'User registered successfully!' });
+        const userid = fastify.sqlite.prepare('SELECT id FROM users WHERE name = ?').get(username);
+        return reply.send({ message: 'User registered successfully!', userid: userid.id });
 
     } catch (error) {
         console.error(error);

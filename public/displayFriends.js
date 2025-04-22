@@ -50,8 +50,8 @@ async function fetchFriends() {
         const response = await fetch(`${window.location.origin}/service2/friends`, {
             method: "GET",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Content-Type': 'application/json'
+                // 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
 

@@ -10,7 +10,7 @@ import multipart from '@fastify/multipart'; //multipart body from forms parsing
 import nodemailer from 'nodemailer' //sending mails
 
 //secret key for jwt need to come from a .env
-const secretkey = 'super-secret-key';
+const secretkey = process.env.AUTH_SECRET_KEY;
 //salt for hashing could come from .env as well
 const salt = 10;
 
@@ -19,9 +19,9 @@ const fastify = Fastify({ logger: true });
 //used to parse form/multipart enc type
 fastify.register(multipart);
 
-function createSessionToken(username)
+function createSessionToken(user)
 {
-  return jwt.sign({ username: username }, secretkey, { expiresIn: '1h'});
+  return jwt.sign({ name: user.name, id: user.id }, secretkey, { expiresIn: '1h'});
 }
 
 /* ------------- Cookie utils ----------------- */
@@ -67,14 +67,14 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: 'transcendance.verif@gmail.com',
-    pass: 'berx ufcf ukka ydke ',
+    user: process.env.AUTH_MAIL,
+    pass: process.env.AUTH_PASS,
   },
 });
 
-function generateMagicToken(userId) {
-  console.log("generating jwt for ", userId);
-  return jwt.sign({ username: userId }, secretkey, { expiresIn: '15m'})
+function generateMagicToken(user) {
+  console.log("generating jwt for ", user.name , " with id: ", user.id);
+  return jwt.sign({ name: user.name, id: user.id }, secretkey, { expiresIn: '15m'})
 }
 
 function verifyMagicToken(token) {
@@ -99,7 +99,7 @@ fastify.get('/magic-link', async (request, reply) => {
   const user = await getService("http://data-service:3001/users/" + username);
   const umail = user.email;
 
-  const token = generateMagicToken(user.name);
+  const token = generateMagicToken(user);
   const link = `http://127.0.0.1:1234/service1/2FA?token=${token}`;
 
   await sendEmail(umail, `Click to verify your email: ${link}`);
@@ -115,7 +115,8 @@ fastify.get('/2FA', async (request, reply) => {
     const decoded = verifyMagicToken(token);
     console.log("email sucessfully verified, decoded:", decoded.username);
     const newtoken = jwt.sign({
-      username: decoded.username
+      name: decoded.name,
+      id: decoded.id
     }, secretkey, { expiresIn: '1h' });
     //reply.status(302).send({ token: newtoken })
     //set the secure session cookie and redirect to the home page
@@ -183,15 +184,17 @@ async function registerHandler(request, reply)
     }
     const hashedPass = await passPromise;
     
-    //post new user to db
+    //post new user to db, we get the user's id in response
     const result = await postService("http://data-service:3001/users", { username: username, password: hashedPass, email: email, avatar: avatarInfo.path})
 
     console.log(result);
     console.log("registered new user:", username);
     const token = jwt.sign({
-      username: username
+      name: username,
+      id: result.userid
     }, secretkey, { expiresIn: '1h' });
-    return reply.status(200).send({ token: token});
+    setSessionCookie(reply, token);
+    return reply.status(200).send({ message: 'Session cookie set token sent too for testing purposes', token: token });
 };
 
 
@@ -241,13 +244,17 @@ fastify.post('/register',{ registerSchema, response: { 200: tokenResponseSchema 
 fastify.post('/login', async (request, reply) => {
   const {username, password, Authorization } = request.body;
 
-  if (Authorization)
+  const cookies = parseCookies(request);
+  const sessionToken = cookies['session'];
+
+  if (sessionToken)
   {
     //might want to use an arrow function for error handling ?
     try {
-      const decoded = jwt.verify(Authorization, secretkey);
-      const username = decoded.username;
-      sendToken(username);
+      const decoded = jwt.verify(sessionToken, secretkey);
+      const token = createSessionToken(decoded);
+      setSessionCookie(reply, token);
+      sendToken(decoded); //will be removed once switch to cookie based jwt is complete
       return ;
     } catch (err){
       console.log(err);
@@ -258,7 +265,7 @@ fastify.post('/login', async (request, reply) => {
   console.log (username, password);
 
   const user = await getService("http://data-service:3001/users/" + username)
-  console.log("received user" + user);
+  console.log("received user" + user.name + " with id: " + user.id);
   //const user = users.find(u => u.username === username);
   if (user == 404) {
      return reply.status(400).send({ message: 'Invalid username !' });
@@ -274,13 +281,14 @@ fastify.post('/login', async (request, reply) => {
 
   // set the user status to online
   // fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE name = ?`).run(username);
-
+  const token = createSessionToken(user);
+  setSessionCookie(reply, token);
   sendToken(username);
   //return { newToken };
   //return reply.status(200).send({ message: 'Authentification successfull !'});
 
   function sendToken(user) {
-    const newToken = jwt.sign({ username: user}, secretkey, {expiresIn: '1h'});
+    const newToken = jwt.sign({ name: user.name, id: user.id}, secretkey, {expiresIn: '1h'});
     reply.send({ token: newToken, username: username });
   }
 });
@@ -298,65 +306,44 @@ const verifySchema = {
   }
 };
 
-fastify.get('/verify2', async(request, reply) => {
+fastify.get('/verify', async(request, reply) => {
   const cookies = parseCookies(request);
   const sessionToken = cookies['session'];
   try {
     const decoded = jwt.verify(sessionToken, secretkey);
-    return (reply.status(200).send({ message: `Successfully verified as ${decoded.username}`}));
+    console.log("decoded token:", decoded);
+    reply.header('auth_username', decoded.name);
+    reply.header('auth_userid', decoded.id);
+    console.log("headers sending out:\n\n", reply.getHeaders());
+    return (reply.status(200).send({ message: `Successfully verified as ${decoded.name}`}));
   } catch (err) {
-    return reply.status(400).send({ message: err.message});
+    return reply.status(401).send({ message: err.message});
   }
 })
+//keeping this for archives
+//fastify.get('/verify',{ verifySchema }, async (request, reply) => {
+//  console.log("verify route triggered");
+//
+//  const authorization = request.headers['authorization'];
+//  if (!authorization) {
+//    return reply.status(401).send({ message: 'Authorization header missing' });
+//  }
+//  const parts = authorization.split(' ');
+//
+//  if (parts.length == 2 && parts[0] == 'Bearer')
+//  {
+//    try {
+//      const result = jwt.verify(parts[1], secretkey);
+//      reply.setHeader('X-username', result.username);
+//      return reply.status(200).send({ message: "authentification successfull" });
+//    } catch(err) {
+//      console.log(err);
+//      //return reply.status(401).send({ message: 'Invalid token' });
+//    }
+//  }
+//  return reply.status(401).send({ message: 'Invalid token' });
+//})
 
-fastify.get('/verify',{ verifySchema }, async (request, reply) => {
-  console.log("verify route triggered");
-
-  const authorization = request.headers['authorization'];
-  if (!authorization) {
-    return reply.status(401).send({ message: 'Authorization header missing' });
-  }
-  const parts = authorization.split(' ');
-
-  if (parts.length == 2 && parts[0] == 'Bearer')
-  {
-    try {
-      const result = await jwt.verify(parts[1], secretkey);
-      return reply.status(200).send({ message: "authentification successfull" });
-    } catch(err) {
-      console.log(err);
-      //return reply.status(401).send({ message: 'Invalid token' });
-    }
-  }
-  return reply.status(401).send({ message: 'Invalid token' });
-})
-
-// List friends
-fastify.get('/friends', async (request, reply) => {
-  try {
-    const friends = await getService('http://data-service:3001/friends');
-    reply.send(friends);
-  } catch (err) {
-    console.error('Error fetching friends:', err);
-    reply.status(500).send({ error: 'Unable to fetch friends' });
-  }
-});
-
-// Add a friend
-fastify.post('/friends', async (request, reply) => {
-  const { username, avatar, status } = request.body;
-  if (!username || !avatar || !status) {
-    return reply.status(400).send({ error: 'Missing required fields' });
-  }
-
-  try {
-    const result = await postService('http://data-service:3001/friends', { username, avatar, status });
-    reply.send(result);
-  } catch (err) {
-    console.error('Error adding friend:', err);
-    reply.status(500).send({ error: 'Unable to add friend' });
-  }
-});
 
 
 fastify.get('/healthcheck', async (request, reply) => {
@@ -367,8 +354,8 @@ fastify.get('/healthcheck', async (request, reply) => {
 const start = async () => {
     try {
         await fastify.listen({
-          host: '0.0.0.0',
-          port: 3002
+          host: process.env.AUTH_HOST,
+          port: process.env.AUTH_PORT
         });
         console.log('auth running and listening on port 3002');
     } catch (err) {
