@@ -16,9 +16,9 @@ async function usersRoutes(fastify, options) {
   
     // Create a new user
     fastify.post('/users', async (request, reply) => {
-      const { username, password, avatar } = request.body;
+      const { username, password, email, avatar } = request.body;
   
-      if (!username || !password || !avatar) {
+      if (!username || !password || !avatar || !email) {
         return reply.status(400).send({ message: "All fields are required" });
       }
   
@@ -46,10 +46,11 @@ async function usersRoutes(fastify, options) {
 
         // insert the user into the database
         fastify.sqlite.prepare(
-            'INSERT INTO users (name, password, avatar) VALUES (?, ?, ?)'
-        ).run(username, password, avatar);
+            'INSERT INTO users (name, password, email, avatar) VALUES (?, ?, ?, ?)'
+        ).run(username, password, email, avatar);
 
-        return reply.send({ message: 'User registered successfully!' });
+        const userid = fastify.sqlite.prepare('SELECT id FROM users WHERE name = ?').get(username);
+        return reply.send({ message: 'User registered successfully!', userid: userid.id });
 
     } catch (error) {
         console.error(error);
@@ -76,6 +77,25 @@ async function usersRoutes(fastify, options) {
           return reply.status(500).send({ error: "Internal Server Error" });
       }
   });
+
+  fastify.put('/users/id/:id/status', async (request, reply) => {
+    const { id } = request.params;
+    const { status } = request.body;
+  
+    if (!['online', 'offline'].includes(status)) {
+      return reply.status(400).send({ message: 'Invalid status value' });
+    }
+  
+    const stmt = fastify.sqlite.prepare(`UPDATE users SET status = ? WHERE id = ?`);
+    const result = stmt.run(status, id);
+  
+    if (result.changes === 0) {
+      return reply.status(404).send({ message: 'User not found' });
+    }
+  
+    reply.send({ message: 'Status updated successfully' });
+  });
+
 }
   export default usersRoutes;
   

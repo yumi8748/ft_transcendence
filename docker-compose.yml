@@ -14,6 +14,12 @@ services:
     build: ./services/auth/
     networks:
       - app-network
+    environment:
+      - AUTH_HOST=${AUTH_HOST}
+      - AUTH_PORT=${AUTH_PORT}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY}
+      - AUTH_MAIL=${AUTH_MAIL}
+      - AUTH_PASS=${AUTH_PASS}
     ports:
       - "3002:3002"
     healthcheck:
@@ -34,17 +40,55 @@ services:
       - sqlite-db:/app/database/
     restart: on-failure
   
-  node-app:
-    build: .
-    networks:
-      - app-network
+  # node-app:
+  #   build: .
+  #   networks:
+  #     - app-network
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./:/app
+  #     - /app/node_modules
+  #   env_file:
+  #     - .env
+
+  static:
+    container_name: static
+    build: ./services/static/
     ports:
       - "3000:3000"
+
+    # depends_on:
+    #   - chat-service
+    networks:
+      - app-network
+
     volumes:
-      - ./:/app
+      - ./services/static:/app
+      - ./public:/app/public
       - /app/node_modules
-    env_file:
-      - .env
+
+  chat-service:
+    container_name: chat-service
+    build: ./services/chat-service/
+    ports:
+      - "3005:3005"
+    networks:
+      - app-network
+    volumes:
+      - ./services/chat-service:/app
+      - /app/node_modules
+
+  tournament:
+    container_name: tournament
+    build: ./services/tournament/
+    ports:
+      - "3007:3007"
+    networks:
+      - app-network
+    volumes:
+      - ./services/tournament:/app
+      - /app/node_modules
 
 networks:
   app-network:

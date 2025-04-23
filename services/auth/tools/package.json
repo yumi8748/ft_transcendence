@@ -11,7 +11,8 @@
         "@fastify/cors": "11.0.0",
         "axios": "^1.8.4",
         "pump": "3.0.2",
-        "@fastify/multipart": "9.0.3"
+        "@fastify/multipart": "9.0.3",
+        "nodemailer": "6.10.1"
     },
     "scripts": {
         "start": "node app.js"

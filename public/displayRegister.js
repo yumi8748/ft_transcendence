@@ -8,6 +8,9 @@ function displayRegister() {
 	<form id="register-form" class="flex flex-col space-y-5" action="/register" method="POST" enctype="multipart/form-data" novalidate>
 		<input type="text" name="username" placeholder="Username" required 
 				class="w-full p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        
+        <input type="text" name="email" placeholder="email" required 
+				class="w-full p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
 		
 		<input type="password" name="password" placeholder="Password" required 
 				class="w-full p-2 rounded bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">

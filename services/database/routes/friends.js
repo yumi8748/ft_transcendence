@@ -10,7 +10,8 @@ async function friendsRoutes(fastify, options) {
     //const decoded = fastify.jwt.verify(token);
     //console.log('Decoded token:', decoded);
     // once the verify route is called, it sends back a header containing the username extracted from the token, this header is forwarded by nginx to protected routes, and can be retrieved as such:
-    const username = request.headers['x-username'];
+    console.log('Headers:', request.headers);
+    const username = request.headers['x_username'];
     console.log('Username from headers:', username);
 
     //const currentUser = fastify.sqlite.prepare(`SELECT id FROM users WHERE name = ?`).get(decoded.name);
@@ -28,7 +29,7 @@ async function friendsRoutes(fastify, options) {
         u.status
       FROM friends f
       JOIN users u ON u.id = f.friend_id
-      WHERE f.user_id = ? AND f.status = 'accepted'
+      WHERE f.user_id = ?
     `;
     const friends = fastify.sqlite.prepare(query).all(currentUser.id);
     console.log('Friends found:', friends);
@@ -44,7 +45,10 @@ async function friendsRoutes(fastify, options) {
   // Add a friend
   fastify.post('/friends', async (request, reply) => {
     const { username } = request.body;
-  
+    
+    const user = request.headers['x_username'];// not required, logging currently
+    const userid = request.headers['x_userid'];
+    console.log("user :" + user + " id:" + userid + " adding as a friend:" + username);
     if (!username) {
       return reply.status(400).send({ message: 'Username is required' });
     }
@@ -57,13 +61,13 @@ async function friendsRoutes(fastify, options) {
   
       // avoid repetition
       const existing = db.prepare('SELECT * FROM friends WHERE user_id = ? AND friend_id = ?')
-        .get(request.user.id, friend.id);
+        .get(userid, friend.id);
       if (existing) {
         return reply.status(400).send({ message: 'Already added as friend' });
       }
   
       db.prepare('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, ?)')
-        .run(request.user.id, friend.id, 'offline');
+        .run(userid, friend.id, 'offline');
   
       reply.send({ message: 'Friend added' });
     } catch (error) {
