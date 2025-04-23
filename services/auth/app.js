@@ -253,6 +253,25 @@ fastify.post('/login', async (request, reply) => {
       const decoded = jwt.verify(sessionToken, secretkey);
       const token = createSessionToken(decoded);
       setSessionCookie(reply, token);
+      //set the user online
+      console.log("Putting user online", user.id);
+      try {
+          const response = await fetch(`http://data-service:3001/users/id/${user.id}/status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+              body: JSON.stringify({ status: 'online' })
+          });
+          if (!response.ok) {
+            throw new Error('Failed to update status');
+          }
+          const result = await response.json();
+          console.log('Status updated:', result);
+      } catch (error) {
+        console.error('Error updating status:', error);
+      }
+
       sendToken(decoded); //will be removed once switch to cookie based jwt is complete
       return ;
     } catch (err){
@@ -279,7 +298,6 @@ fastify.post('/login', async (request, reply) => {
   //TODO: replaced username by user id maybe ? dont know if needed
 
   console.log("Putting user online", user.id);
-
   try {
     const response = await fetch(`http://data-service:3001/users/id/${user.id}/status`, {
         method: 'PUT',
@@ -288,16 +306,14 @@ fastify.post('/login', async (request, reply) => {
         },
         body: JSON.stringify({ status: 'online' })
     });
-
     if (!response.ok) {
         throw new Error('Failed to update status');
     }
-
     const result = await response.json();
     console.log('Status updated:', result);
-} catch (error) {
-    console.error('Error updating status:', error);
-}
+  } catch (error) {
+      console.error('Error updating status:', error);
+  }
 
   // set the user status to online
   // fastify.sqlite.prepare(`UPDATE users SET status = 'online' WHERE id = ?`).run(user.id);
