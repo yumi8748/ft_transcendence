@@ -254,9 +254,9 @@ fastify.post('/login', async (request, reply) => {
       const token = createSessionToken(decoded);
       setSessionCookie(reply, token);
       //set the user online
-      console.log("Putting user online", user.id);
+      console.log("Putting user online", decoded.name);
       try {
-          const response = await fetch(`http://data-service:3001/users/id/${user.id}/status`, {
+          const response = await fetch(`http://data-service:3001/users/id/${decoded.id}/status`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
